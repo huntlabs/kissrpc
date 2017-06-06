@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{784E5FC9-A16D-4C07-A323-E1D0A7774A90}</ProjectGuid>
+    <BaseDirectory>.</BaseDirectory>
+    <Compiler>DMD2</Compiler>
+    <PreferOneStepBuild>true</PreferOneStepBuild>
+    <UseDefaultCompiler>true</UseDefaultCompiler>
+    <IncrementalLinking>true</IncrementalLinking>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug</OutputPath>
+    <ObjectsDirectory>obj/Debug</ObjectsDirectory>
+    <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
+    <UnittestMode>false</UnittestMode>
+    <OutputName>kiss-rpc</OutputName>
+    <Target>Executable</Target>
+    <Externalconsole>true</Externalconsole>
+    <DebugLevel>0</DebugLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release</OutputPath>
+    <ObjectsDirectory>obj/Release</ObjectsDirectory>
+    <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
+    <UnittestMode>false</UnittestMode>
+    <OutputName>kiss-rpc</OutputName>
+    <Target>Executable</Target>
+    <Externalconsole>true</Externalconsole>
+    <DebugLevel>0</DebugLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unittest|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Unittest</OutputPath>
+    <ObjectsDirectory>obj/Unittest</ObjectsDirectory>
+    <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
+    <UnittestMode>true</UnittestMode>
+    <OutputName>kiss-rpc</OutputName>
+    <Target>Executable</Target>
+    <Externalconsole>true</Externalconsole>
+    <DebugLevel>0</DebugLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app.d" />
+    <Compile Include="KissRpc\rpc_client.d" />
+    <Compile Include="KissRpc\rpc_request.d" />
+    <Compile Include="KissRpc\rpc_response.d" />
+    <Compile Include="KissRpc\unit.d" />
+    <Compile Include="KissRpc\endian.d" />
+    <Compile Include="capnproto\AnyPointer.d" />
+    <Compile Include="capnproto\Arena.d" />
+    <Compile Include="capnproto\ArrayInputStream.d" />
+    <Compile Include="capnproto\ArrayOutputStream.d" />
+    <Compile Include="capnproto\BufferedInputStream.d" />
+    <Compile Include="capnproto\BufferedInputStreamWrapper.d" />
+    <Compile Include="capnproto\BufferedOutputStream.d" />
+    <Compile Include="capnproto\BufferedOutputStreamWrapper.d" />
+    <Compile Include="capnproto\BuilderArena.d" />
+    <Compile Include="capnproto\Constants.d" />
+    <Compile Include="capnproto\Data.d" />
+    <Compile Include="capnproto\DataList.d" />
+    <Compile Include="capnproto\DecodeException.d" />
+    <Compile Include="capnproto\ElementSize.d" />
+    <Compile Include="capnproto\EnumList.d" />
+    <Compile Include="capnproto\FarPointer.d" />
+    <Compile Include="capnproto\FileDescriptor.d" />
+    <Compile Include="capnproto\GeneratedClassSupport.d" />
+    <Compile Include="capnproto\ListBuilder.d" />
+    <Compile Include="capnproto\ListList.d" />
+    <Compile Include="capnproto\ListPointer.d" />
+    <Compile Include="capnproto\ListReader.d" />
+    <Compile Include="capnproto\MemoryMapped.d" />
+    <Compile Include="capnproto\MessageBuilder.d" />
+    <Compile Include="capnproto\MessageReader.d" />
+    <Compile Include="capnproto\package.d" />
+    <Compile Include="capnproto\PackedInputStream.d" />
+    <Compile Include="capnproto\PackedOutputStream.d" />
+    <Compile Include="capnproto\PrimitiveList.d" />
+    <Compile Include="capnproto\ReaderArena.d" />
+    <Compile Include="capnproto\ReaderOptions.d" />
+    <Compile Include="capnproto\SegmentBuilder.d" />
+    <Compile Include="capnproto\SegmentReader.d" />
+    <Compile Include="capnproto\Serialize.d" />
+    <Compile Include="capnproto\SerializePacked.d" />
+    <Compile Include="capnproto\SetPointerBuilder.d" />
+    <Compile Include="capnproto\StructBuilder.d" />
+    <Compile Include="capnproto\StructList.d" />
+    <Compile Include="capnproto\StructPointer.d" />
+    <Compile Include="capnproto\StructReader.d" />
+    <Compile Include="capnproto\StructSize.d" />
+    <Compile Include="capnproto\Text.d" />
+    <Compile Include="capnproto\TextList.d" />
+    <Compile Include="capnproto\Void.d" />
+    <Compile Include="capnproto\WireHelpers.d" />
+    <Compile Include="capnproto\WirePointer.d" />
+    <Compile Include="java\io\IOException.d" />
+    <Compile Include="java\nio\ByteBuffer.d" />
+    <Compile Include="java\nio\channels\ReadableByteChannel.d" />
+    <Compile Include="java\nio\channels\WritableByteChannel.d" />
+    <Compile Include="KissRpc\rpc_capnproto_payload.d" />
+    <Compile Include="KissRpc\rpc_capnproto_package.d" />
+    <Compile Include="KissRpc\rpc_client_socket.d" />
+    <Compile Include="KissRpc\rpc_server_socket.d" />
+    <Compile Include="KissRpc\rpc_server.d" />
+    <Compile Include="KissRpc\rpc_client_impl.d" />
+    <Compile Include="KissRpc\rpc_server_impl.d" />
+    <Compile Include="client_test.d" />
+    <Compile Include="server_test.d" />
+    <Compile Include="KissRpc\rpc_recv_packge_manage.d" />
+    <Compile Include="KissRpc\rpc_binary_package.d" />
+    <Compile Include="KissRpc\rpc_event_interface.d" />
+    <Compile Include="KissRpc\rpc_package_base.d" />
+    <Compile Include="KissRpc\rpc_socket_base_interface.d" />
+    <Compile Include="KissRpc\rpc_send_package_manage.d" />
+    <Compile Include="kiss\aio\Acceptor.d" />
+    <Compile Include="kiss\aio\AsyncGroupTcpServer.d" />
+    <Compile Include="kiss\aio\AsyncTcpBase.d" />
+    <Compile Include="kiss\aio\AsyncTcpClient.d" />
+    <Compile Include="kiss\aio\AsyncTcpServer.d" />
+    <Compile Include="kiss\aio\package.d" />
+    <Compile Include="kiss\event\Epoll.d" />
+    <Compile Include="kiss\event\Event.d" />
+    <Compile Include="kiss\event\GroupPoll.d" />
+    <Compile Include="kiss\event\Poll.d" />
+    <Compile Include="kiss\event\Select.d" />
+    <Compile Include="kiss\event\package.d" />
+    <Compile Include="kiss\time\Itimer.d" />
+    <Compile Include="kiss\time\Timer.d" />
+    <Compile Include="kiss\util\Log.d" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="KissRpc\" />
+    <Folder Include="capnproto\" />
+    <Folder Include="java\" />
+  </ItemGroup>
+</Project>
