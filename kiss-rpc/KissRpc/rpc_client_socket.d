@@ -42,8 +42,14 @@ class rpc_client_socket: AsyncTcpClient, rpc_socket_base_interface
 
 	bool doWrite(byte[] buf)
 	{
+		auto ok = super.doWrite(buf, null, null) >= 0;
 
-		return super.doWrite(buf, null, null) >= 0;
+		if (ok == false)
+		{
+			_socketEventDelegate.socket_event(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to server is failed");
+		}
+
+		return ok;
 	}
 
 

@@ -3,7 +3,7 @@ import std.stdio;
 import std.traits;
 import core.sync.semaphore;
 
-
+import KissRpc.logs;
 import KissRpc.unit;
 import KissRpc.endian;
 import KissRpc.rpc_socket_base_interface;

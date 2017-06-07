@@ -11,6 +11,7 @@ import KissRpc.rpc_package_base;
 import KissRpc.rpc_socket_base_interface;
 import KissRpc.rpc_event_interface;
 import KissRpc.rpc_send_package_manage;
+import KissRpc.logs;
 
 import kiss.event.GroupPoll;
 import kiss.aio.AsyncTcpServer;

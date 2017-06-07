@@ -10,6 +10,7 @@ import KissRpc.rpc_event_interface;
 import KissRpc.rpc_package_base;
 import KissRpc.rpc_socket_base_interface;
 import KissRpc.rpc_send_package_manage;
+import KissRpc.logs;
 
 import kiss.event.GroupPoll;
 import kiss.aio.AsyncGroupTcpServer;
@@ -116,10 +117,10 @@ class rpc_server:rpc_event_interface{
 		}
 	}
 
-	void listen(string ip, ushort port, GroupPoll!() poll)
+	bool listen(string ip, ushort port, GroupPoll!() poll)
 	{
 		auto server_poll = new AsyncGroupTcpServer!(rpc_server_socket, rpc_event_interface)(poll, this);
-		server_poll.open(ip , port);
+		return server_poll.open(ip , port);
 	}
 
 private:

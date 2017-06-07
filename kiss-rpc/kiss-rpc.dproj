@@ -106,8 +106,6 @@
     <Compile Include="KissRpc\rpc_server.d" />
     <Compile Include="KissRpc\rpc_client_impl.d" />
     <Compile Include="KissRpc\rpc_server_impl.d" />
-    <Compile Include="client_test.d" />
-    <Compile Include="server_test.d" />
     <Compile Include="KissRpc\rpc_recv_packge_manage.d" />
     <Compile Include="KissRpc\rpc_binary_package.d" />
     <Compile Include="KissRpc\rpc_event_interface.d" />
@@ -129,6 +127,7 @@
     <Compile Include="kiss\time\Itimer.d" />
     <Compile Include="kiss\time\Timer.d" />
     <Compile Include="kiss\util\Log.d" />
+    <Compile Include="KissRpc\logs.d" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="KissRpc\" />

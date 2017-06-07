@@ -5,6 +5,7 @@ import KissRpc.rpc_request;
 import KissRpc.rpc_response;
 import std.stdio;
 import KissRpc.unit;
+import KissRpc.logs;
 
 class rpc_client_impl(T)
 {

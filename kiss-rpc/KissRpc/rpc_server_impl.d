@@ -3,6 +3,7 @@
 import KissRpc.rpc_server;
 import KissRpc.rpc_response;
 import KissRpc.unit;
+import KissRpc.logs;
 
 class rpc_server_impl(T)
 {

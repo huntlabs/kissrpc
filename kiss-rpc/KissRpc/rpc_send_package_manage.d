@@ -8,6 +8,8 @@ import KissRpc.rpc_event_interface;
 import KissRpc.rpc_socket_base_interface;
 import KissRpc.rpc_capnproto_package;
 import KissRpc.unit;
+import KissRpc.logs;
+
 
 import std.datetime;
 import core.thread;

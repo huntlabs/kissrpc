@@ -1,8 +1,9 @@
 ﻿module app;
 
 import std.stdio;
-import KissRpc.unit;
 
+import KissRpc.unit;
+import KissRpc.logs;
 import KissRpc.rpc_server;
 import KissRpc.rpc_server_impl;
 import KissRpc.rpc_response;
@@ -27,7 +28,7 @@ class server_socket : server_socket_event_interface
 	shared static int connect_num;
 	void inconming(rpc_socket_base_interface socket)
 	{
-		writefln("client inconming:%s:%s, connect num:%s", socket.getIp, socket.getPort, connect_num++);
+		log_info("client inconming:%s:%s, connect num:%s", socket.getIp, socket.getPort, connect_num++);
 	}
 
 	void write_failed(rpc_socket_base_interface socket)
@@ -79,9 +80,11 @@ void main()
 
 	auto poll = new GroupPoll!();
 
-	rp_server.listen("0.0.0.0", 4444, poll);
+	if(rp_server.listen("0.0.0.0", 4444, poll))
+	{
+		log_info("start server is ok");
+	}
 
 	poll.start();
 	poll.wait();
-
 }

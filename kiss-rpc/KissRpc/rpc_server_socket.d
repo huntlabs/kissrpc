@@ -39,7 +39,14 @@ public:
 
 	 bool doWrite(byte[] buf)
 	{
-		return super.doWrite(buf, null, null) >= 0;
+		auto ok = super.doWrite(buf, null, null) >= 0;
+		
+		if (ok == false)
+		{
+			_socketEventDelegate.socket_event(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to client is failed");
+		}
+		
+		return ok;
 	}
 
 	override  bool onEstablished()

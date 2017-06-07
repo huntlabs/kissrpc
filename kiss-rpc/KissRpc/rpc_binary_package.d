@@ -2,6 +2,8 @@
 
 import KissRpc.endian;
 import KissRpc.unit;
+import KissRpc.logs;
+
 import std.stdio;
 
 
