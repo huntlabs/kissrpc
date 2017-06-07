@@ -6,7 +6,8 @@ Kiss-rpc Features:
 		
 Environment: linux, unix, windows, macOS
 
-Kiss-rpc introduction and testing: http://www.jianshu.com/p/a53f886f4e98
+Kiss-rpc introduction and testing: http://www.jianshu.com/p/68d5bed1887b
+Developer notes: http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ0CD40M16VAzs2tpsxy2bq6Ha
 
 
 1.install capnproto (https://capnproto.org/install.html)
