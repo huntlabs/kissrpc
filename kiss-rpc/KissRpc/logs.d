@@ -6,11 +6,6 @@ import std.format;
 import std.stdio;
 import std.array : appender;
 
-
-//alias log_info = writefln
-//alias log_warning = writefln;
-//alias log_error = writefln;
-
 void log_format(T ...)(T args, const string level)
 {
 	auto strings = appender!string();

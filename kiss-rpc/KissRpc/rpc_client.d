@@ -104,7 +104,15 @@ class rpc_client:rpc_event_interface{
 
 			synchronized(this)
 			{
-				rpc_callback_map[rpc_resp.get_call_func_name](rpc_resp);
+				auto call_back = rpc_callback_map.get(rpc_resp.get_call_func_name, null);
+				
+				if(call_back !is null)
+				{
+					call_back(rpc_resp);
+				}else
+				{
+					log_error("server rpc call function is not bind, function name:%s", rpc_resp.get_call_func_name);
+				}
 			}	
 
 		}else
@@ -132,7 +140,15 @@ class rpc_client:rpc_event_interface{
 
 		synchronized(this)
 		{
-			rpc_callback_map[rpc_resp.get_call_func_name](rpc_resp);
+			auto call_back = rpc_callback_map.get(rpc_resp.get_call_func_name, null);
+
+			if(call_back !is null)
+			{
+				call_back(rpc_resp);
+			}else
+			{
+				log_error("server rpc call function is not bind, function name:%s", rpc_resp.get_call_func_name);
+			}
 		}
 	}
 

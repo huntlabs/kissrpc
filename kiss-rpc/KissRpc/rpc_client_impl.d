@@ -51,7 +51,7 @@ class rpc_client_impl(T)
 			client.request_remote_call(req);
 
 			req.semaphore_wait();
-	
+
 			return ret_resp;
 	}
 

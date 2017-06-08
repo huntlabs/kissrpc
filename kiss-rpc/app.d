@@ -42,34 +42,70 @@ class server_socket : server_socket_event_interface
 	}
 }
 
-class hello{
+abstract class hello_impl{
 
 	this(rpc_server rp_server)
 	{
 		rp_impl = new rpc_server_impl!(hello)(rp_server);
-		rp_impl.bind_request_callback("say", &this.say);
+		rp_impl.bind_request_callback("say", &this.say_impl);
+		rp_impl.bind_request_callback("say_all", &this.say_all_impl);
+
 	}
 
-	shared static int call_count = 0;
 
-	void say(rpc_request req)
+	void say_impl(rpc_request req)
 	{
 		auto resp = new rpc_response(req);
 
 		string r_s;
 		int r_i, r_num;
 		double r_d;
-		
+
 		req.pop(r_s,  r_num, r_i, r_d);
 
-		//writefln("hello.say:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
+		writefln("hello.say:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
 
-		resp.push(r_s ~ ":server response"~ to!string(r_i), r_num, r_i+1, r_d+0.2);
+		resp.push((cast(hello)this).say(r_s, r_num, r_i, r_d));
+		rp_impl.response(resp);
+	}
+
+	void say_all_impl(rpc_request req)
+	{
+		auto resp = new rpc_response(req);
+		
+		string r_s;
+		int r_i, r_num;
+		double r_d;
+		
+		req.pop(r_s,  r_num, r_i, r_d);
+		
+		writefln("hello.say_all:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
+		
+		resp.push((cast(hello)this).say_all(r_s, r_num, r_i, r_d));
 		rp_impl.response(resp);
 	}
 
 	rpc_server_impl!(hello) rp_impl;
 }
+
+class hello : hello_impl
+{
+	this(rpc_server rp_server)
+	{
+		super(rp_server);
+	}
+
+	string say(string r_s, int r_i, int r_num, double r_d)
+	{
+		return r_s ~ "++++++++++++++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
+	}
+
+	string say_all(string r_s, int r_i, int r_num, double r_d)
+	{
+		return r_s ~ "++++++++++++++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
+	}
+}
+
 
 
 void main()
