@@ -1,7 +1,7 @@
 Ultra high performance RPC for D dlang
 
 Kiss-rpc Features: 
-		analog stack call mode, the server uses multi-threaded asynchronous mode, mining server performance. Client supports multi-threaded synchronization and asynchronous mode, timeout mechanism, simple and safe call, Linux support epoll network model, analog grpc, thrift, Dubbo, several times faster or even dozens of times.
+		Analog stack call, support multi valued return, simple and safe call, the server adopts multi-threaded asynchronous mode, mining server performance. Client supports multi-threaded synchronization and asynchronous mode, timeout mechanism, Linux support epoll network model, analog grpc, thrift, Dubbo, several times faster or even dozens of times
 		
 		
 Environment: linux, unix, windows, macOS
