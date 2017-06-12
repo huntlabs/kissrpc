@@ -6,7 +6,8 @@ import std.format;
 import std.stdio;
 import std.array : appender;
 
-void log_format(T ...)(T args, const string level)
+
+void log_format(T ...)(T args, const LOG_LEVEL level)
 {
 	auto strings = appender!string();
 	formattedWrite(strings, args);
@@ -14,12 +15,12 @@ void log_format(T ...)(T args, const string level)
 	
 	switch(level)
 	{
-		case "info" : kiss.util.Log.log_info(info); break;
-		case "warning" : kiss.util.Log.log_warning(info); break;
-		case "debug" : kiss.util.Log.log_debug(info); break;
-		case "error" : kiss.util.Log.log_error(info); break;
-		case "critical": kiss.util.Log.log_critical(info); break;
-		case "fatal" : kiss.util.Log.log_fatal(info); break;
+		case LOG_LEVEL.LL_INFO: kiss.util.Log.log_info(info); break;
+		case LOG_LEVEL.LL_WARNING: kiss.util.Log.log_warning(info); break;
+		case LOG_LEVEL.LL_DEBUG: kiss.util.Log.log_debug(info); break;
+		case LOG_LEVEL.LL_ERROR: kiss.util.Log.log_error(info); break;
+		case LOG_LEVEL.LL_CRITICAL: kiss.util.Log.log_critical(info); break;
+		case LOG_LEVEL.LL_FATAL: kiss.util.Log.log_fatal(info); break;
 			
 		default: 
 			kiss.util.Log.log_info(info);
@@ -28,32 +29,32 @@ void log_format(T ...)(T args, const string level)
 
 void log_format_debug(T ...)(T args)
 {
-	log_format(args, "debug");
+	log_format(args, LOG_LEVEL.LL_DEBUG);
 }
 
 void log_format_info(T ...)(T args)
 {
-	log_format(args, "info");
+	log_format(args, LOG_LEVEL.LL_INFO);
 }
 
 void log_format_warning(T ...)(T args)
 {
-	log_format(args, "warning");
+	log_format(args, LOG_LEVEL.LL_WARNING);
 }
 
 void log_format_error(T ...)(T args)
 {
-	log_format(args, "error");
+	log_format(args, LOG_LEVEL.LL_ERROR);
 }
 
 void log_format_critical(T ...)(T args)
 {
-	log_format(args, "critical");
+	log_format(args, LOG_LEVEL.LL_CRITICAL);
 }
 	
 void log_format_fatal(T ...)(T args)
 {
-	log_format(args, "fatal");
+	log_format(args, LOG_LEVEL.LL_FATAL);
 }
 
 version(rpc_debug)

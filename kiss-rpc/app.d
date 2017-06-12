@@ -42,18 +42,18 @@ class server_socket : server_socket_event_interface
 	}
 }
 
-abstract class hello_impl{
+abstract class rpc_hello_interface{
 
 	this(rpc_server rp_server)
 	{
-		rp_impl = new rpc_server_impl!(hello)(rp_server);
-		rp_impl.bind_request_callback("say", &this.say_impl);
-		rp_impl.bind_request_callback("say_all", &this.say_all_impl);
+		rp_impl = new rpc_server_impl!(rpc_hello)(rp_server);
+		rp_impl.bind_request_callback("say", &this.say_interface);
+		rp_impl.bind_request_callback("say_all", &this.say_all_interface);
 
 	}
 
 
-	void say_impl(rpc_request req)
+	void say_interface(rpc_request req)
 	{
 		auto resp = new rpc_response(req);
 
@@ -65,11 +65,11 @@ abstract class hello_impl{
 
 		writefln("hello.say:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
 
-		resp.push((cast(hello)this).say(r_s, r_num, r_i, r_d));
+		resp.push((cast(rpc_hello)this).say(r_s, r_num, r_i, r_d));
 		rp_impl.response(resp);
 	}
 
-	void say_all_impl(rpc_request req)
+	void say_all_interface(rpc_request req)
 	{
 		auto resp = new rpc_response(req);
 		
@@ -81,14 +81,14 @@ abstract class hello_impl{
 		
 		writefln("hello.say_all:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
 		
-		resp.push((cast(hello)this).say_all(r_s, r_num, r_i, r_d));
+		resp.push((cast(rpc_hello)this).say_all(r_s, r_num, r_i, r_d));
 		rp_impl.response(resp);
 	}
 
-	rpc_server_impl!(hello) rp_impl;
+	rpc_server_impl!(rpc_hello) rp_impl;
 }
 
-class hello : hello_impl
+class rpc_hello : rpc_hello_interface
 {
 	this(rpc_server rp_server)
 	{
@@ -97,12 +97,12 @@ class hello : hello_impl
 
 	string say(string r_s, int r_i, int r_num, double r_d)
 	{
-		return r_s ~ "++++++++++++++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
+		return r_s ~ "+++++++++say+++++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
 	}
 
 	string say_all(string r_s, int r_i, int r_num, double r_d)
 	{
-		return r_s ~ "++++++++++++++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
+		return r_s ~ "++++++++++++say all++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
 	}
 }
 
@@ -112,7 +112,7 @@ void main()
 {
 
 	auto rp_server = new rpc_server(new server_socket);
-	auto hello_server_test = new hello(rp_server);
+	auto hello_server_test = new rpc_hello(rp_server);
 
 	auto poll = new GroupPoll!();
 

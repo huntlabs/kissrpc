@@ -21,7 +21,7 @@ T byteSwap(T)(T t) pure nothrow @trusted if (isIntegral!T) {
 
 T doNothing(T)(T val) { return val; }
 
-version (BigEndian) {
+version (big_endian) {
 	alias doNothing hostToNet;
 	alias doNothing netToHost;
 	alias byteSwap hostToLe;

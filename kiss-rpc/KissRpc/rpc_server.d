@@ -79,18 +79,16 @@ class rpc_server:rpc_event_interface{
 
 			de_writefln("rpc client request call, func:%s, arg num:%s", rpc_req.get_call_func_name(), rpc_req.get_args_num());
 
-			synchronized(this)
-			{
-				auto call_back = rpc_callback_map.get(rpc_req.get_call_func_name, null);
+			auto call_back = rpc_callback_map.get(rpc_req.get_call_func_name, null);
 
-				if(call_back !is null)
-				{
+			if(call_back !is null)
+			{
 					call_back(rpc_req);
-				}else
-				{
+			}else
+			{
 					log_error("client rpc call function is not bind, function name:%s", rpc_req.get_call_func_name);
-				}
 			}
+
 		}
 	}
 

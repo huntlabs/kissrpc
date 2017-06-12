@@ -102,18 +102,15 @@ class rpc_client:rpc_event_interface{
 				de_writefln("sync call form rpc server response, func:%s, arg num:%s", rpc_resp.get_call_func_name(), rpc_resp.get_args_num());			
 			}
 
-			synchronized(this)
+			auto call_back = rpc_callback_map.get(rpc_resp.get_call_func_name, null);
+			
+			if(call_back !is null)
 			{
-				auto call_back = rpc_callback_map.get(rpc_resp.get_call_func_name, null);
-				
-				if(call_back !is null)
-				{
-					call_back(rpc_resp);
-				}else
-				{
-					log_error("server rpc call function is not bind, function name:%s", rpc_resp.get_call_func_name);
-				}
-			}	
+				call_back(rpc_resp);
+			}else
+			{
+				log_error("server rpc call function is not bind, function name:%s", rpc_resp.get_call_func_name);
+			}
 
 		}else
 		{
@@ -138,8 +135,6 @@ class rpc_client:rpc_event_interface{
 				log_warning("rpc send package event is fatal!!, event type error!");
 		}
 
-		synchronized(this)
-		{
 			auto call_back = rpc_callback_map.get(rpc_resp.get_call_func_name, null);
 
 			if(call_back !is null)
@@ -149,7 +144,6 @@ class rpc_client:rpc_event_interface{
 			{
 				log_error("server rpc call function is not bind, function name:%s", rpc_resp.get_call_func_name);
 			}
-		}
 	}
 
 
