@@ -27,4 +27,18 @@
 	single connection: "kiss-rpc/example/app-sync-block-single.d"
 	
 	mutil connection: "kiss-rpc/example/app-sync-block-mutil.d"
-	
+
+#client rpc remote call demo
+1. client sync call server function  for say
+```
+            auto sync_ret = hello_client.say("sync test hello client", test_num - i , i, 0.1);
+            writefln("hello call sync:%s", sync_ret);
+```
+2. client async call server fucntion  for say_all
+
+```
+            hello_client.say_all("async test hello client,", test_num - i, i, 0.2, delegate(string s){
+                    writefln("hello call async:%s", s);
+                });  
+
+```
