@@ -6,6 +6,7 @@ import std.conv;
 import std.stdio;
 
 import IDL.idl_base_interface;
+import IDL.idl_unit;
 
 class member_attr{
 
@@ -14,9 +15,10 @@ class member_attr{
 		type_name = type;
 		member_name = member;
 
-		writefln("message member: %s: %s",member_name, type_name);
+		writefln("message member: %s: %s", member_name, type_name);
 	}
 
+public:
 	string type_name;
 	string member_name;
 }
@@ -44,7 +46,6 @@ class idl_parse_struct : idl_base_interface
 
 			if(member.length > 1)
 			{
-
 				int index = to!(int)(member[1]);
 				
 				auto member_flag = split(member[0], " ");
@@ -63,20 +64,33 @@ class idl_parse_struct : idl_base_interface
 		return true;
 	}
 
+
 	string get_name()
 	{
 		return this.struct_name;
 	}
 
-	string create_server_code()
+
+	string create_server_code_for_language(CODE_LANGUAGE language)
 	{
-		return "";
+		string code_text;
+		
+		switch(language)
+		{
+			case CODE_LANGUAGE.CL_CPP:break;
+			case CODE_LANGUAGE.CL_DLANG:break;
+			case CODE_LANGUAGE.CL_GOLANG:break;
+			case CODE_LANGUAGE.CL_JAVA:break;
+				
+			default:
+				new Exception("language is not exits!!");
+		}
+
+		return code_text;
 	}
 
-private:
-	
+public:
 	string struct_name;
 	member_attr[int] member_attr_info;
-
 }
 

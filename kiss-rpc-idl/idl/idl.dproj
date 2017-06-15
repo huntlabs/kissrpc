@@ -50,6 +50,8 @@
     <Compile Include="IDL\idl_parse_interface.d" />
     <Compile Include="IDL\idl_base_interface.d" />
     <Compile Include="IDL\idl_unit.d" />
+    <Compile Include="IDL\idl_inerface_create_code.d" />
+    <Compile Include="IDL\idl_struct_create_code.d" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IDL\" />

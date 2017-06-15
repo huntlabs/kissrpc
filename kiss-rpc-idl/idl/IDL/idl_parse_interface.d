@@ -9,7 +9,8 @@ import std.format;
 
 import IDL.idl_base_interface;
 import IDL.idl_unit;
-
+import IDL.idl_inerface_create_code;
+import IDL.idl_parse_struct;
 
 class function_arg
 {
@@ -19,6 +20,28 @@ class function_arg
 		var_name = var;
 
 		writefln("function argument: %s:%s", var_name, type_name);
+	}
+
+
+	string get_struct_var_name()
+	{
+		auto struct_interface = idl_struct_list.get(type_name, null);
+		
+		if(struct_interface !is null)
+		{
+			auto strings = appender!string();
+			
+			foreach(k,v ;struct_interface.member_attr_info)
+			{
+				formattedWrite(strings, "%s.%s, ", this.var_name, v.member_name);
+			}
+			
+			return strings.data;
+
+		}else
+		{
+			return var_name;
+		}
 	}
 
 	string get_var_name()
@@ -31,26 +54,7 @@ class function_arg
 		return type_name;
 	}
 
-	string create_server_code()
-	{
-		auto strings = appender!string();
-
-		auto dlang_var_name = idl_dlang_variable.get(type_name, null);
-
-		if(dlang_var_name != null)
-		{
-			formattedWrite(strings, "\t\t %s %s;\n", type_name, var_name);
-
-		}else
-		{
-
-		}
-
-		return strings.data;
-	}
-
-
-private:
+public:
 	string type_name;
 	string var_name;
 }
@@ -71,7 +75,7 @@ class function_attr
 
 		if(func_tlp_list.length < 4 && func_tlp_list.length % 2 == 0)
 		{
-			throw new Exception("parse funtion arguments is failed, " ~ func_tlp);
+			throw new Exception("parse function arguments is failed, " ~ func_tlp);
 		}
 
 		ret_type = func_tlp_list[0];
@@ -94,85 +98,7 @@ class function_attr
 		return this.func_name;
 	}
 
-	string create_server_interface_code(string inerface_name)
-	{
-		auto strings = appender!string();
-		formattedWrite(strings, "\t void %s_interface(rpc_request req){\n\n", func_name);
-
-		if(ret_type != "void")
-		{
-			formattedWrite(strings, "\t\t auto resp = new rpc_response(req);\n\n");
-		}
-
-		foreach(k,v ;func_arg_map)
-		{
-			formattedWrite(strings, v.create_server_code);
-		}
-
-		formattedWrite(strings, "\n\n");
-
-		auto func_args_strirngs = appender!string();
-
-		for(int i = 0; i<func_arg_map.length; ++ i)
-		{
-			auto v = func_arg_map[i];
-
-			if(i == func_arg_map.length -1)
-				formattedWrite(func_args_strirngs, "%s", v.get_var_name);
-			else
-				formattedWrite(func_args_strirngs, "%s, ", v.get_var_name);
-		}
-
-		formattedWrite(strings, "\t\treq.pop(%s);\n", func_args_strirngs.data);
-
-		if(ret_type == "void")
-		{
-			formattedWrite(strings, "\t\t(cast(rpc_%s_service)this).%s(%s);\n", inerface_name, func_name, func_args_strirngs.data);
-		
-		}else
-		{
-			formattedWrite(strings, "\t\tresp.push((cast(rpc_%s_service)this).%s(%s));\n", inerface_name, func_name, func_args_strirngs.data);
-			formattedWrite(strings, "\t\trp_impl.response(resp);\n");
-		}
-
-		formattedWrite(strings, "\t}\n\n");
-
-		return strings.data;
-	}
-
-	string create_server_service_code()
-	{
-		auto strings = appender!string();
-
-		auto func_args_strirngs = appender!string();
-		
-		for(int i = 0; i<func_arg_map.length; i++)
-		{
-			auto v = func_arg_map[i];
-
-			if(i == func_arg_map.length -1 )
-				formattedWrite(func_args_strirngs, "%s %s", v.get_type_name, v.get_var_name);
-			else
-				formattedWrite(func_args_strirngs, "%s %s, ", v.get_type_name, v.get_var_name);
-		}
-
-		formattedWrite(strings,"\t%s %s(%s)", ret_type, func_name, func_args_strirngs.data);
-
-		if(ret_type == "void")
-		{
-			formattedWrite(strings,"{\n\n\n\t}\n\n");
-
-		}else
-		{
-			formattedWrite(strings,"{\n\n\n\t\treturn %s\n\t}\n\n", ret_type);
-		}
-
-		return strings.data;
-	}
-
-
-
-private:
+public:
 	string flag;
 	string ret_type;
 	string func_name;
@@ -219,48 +145,26 @@ class idl_parse_interface : idl_base_interface
 		return this.interface_name;
 	}
 
-	string create_server_code()
+	string create_server_code_for_language(CODE_LANGUAGE language)
 	{
-		auto strings = appender!string();
+		string code_text;
 
-		formattedWrite(strings, "abstract class rpc_%s_interface{ \n\n", interface_name);
-		formattedWrite(strings, "\t this(rpc_server rp_server){ \n");
-		formattedWrite(strings, "\t\t rp_impl = new rpc_server_impl!(%s_srevice)(rp_server); \n", interface_name);
-
-		foreach(k,v; function_list)
+		switch(language)
 		{
-			formattedWrite(strings, "\t\t rp_impl.bind_request_callback(\"%s\", &this.%s_interface); \n\n", v.get_func_name, v.get_func_name);
+			case CODE_LANGUAGE.CL_CPP:break;
+			case CODE_LANGUAGE.CL_DLANG: code_text = idl_inerface_dlang_code.create_server_code(this); break;
+			case CODE_LANGUAGE.CL_GOLANG:break;
+			case CODE_LANGUAGE.CL_JAVA:break;
+			
+			default:
+				new Exception("language is not exits!!");
 		}
 
-		formattedWrite(strings, "\t }\n\n");
-
-
-		foreach(k,v; function_list)
-		{
-			formattedWrite(strings, v.create_server_interface_code(interface_name));
-		}
-
-		formattedWrite(strings, "\trpc_server_impl!(rpc_%s_service) rp_impl;\n}\n\n\n", interface_name);
-
-		formattedWrite(strings, "class rpc_%s_service : rpc_%s_interface{\n\n", interface_name, interface_name);
-		formattedWrite(strings, "\tthis(rpc_server rp_server){\n");
-		formattedWrite(strings, "\t\tsuper(rp_server);\n");
-		formattedWrite(strings,"\t}\n\n");
-
-
-		foreach(k,v; function_list)
-		{
-			formattedWrite(strings, v.create_server_service_code());
-		}
-
-		formattedWrite(strings,"}");
-
-		return strings.data;
+		return code_text;
 	}
 
 
-
-private:
+public:
 	int func_index;
 	string interface_name;
 	function_attr[int] function_list;

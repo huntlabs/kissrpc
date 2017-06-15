@@ -58,32 +58,32 @@ class idl_parse
 						throw new Exception("parse symbol  attr is failed,  symbol missing :, " ~ symbol_flag[0]);
 					}
 
-					idl_base_interface idl_inerface;
+					idl_base_interface idl_interface;
 
 					switch(symbol_attr[0])
 					{
 						case SYMBOL_STRUCT:
-							idl_inerface  = new idl_parse_struct;
+							idl_interface  = new idl_parse_struct;
 							break;
 
 						case SYMBOL_INTERFACE:
-							idl_inerface = new idl_parse_interface;
+							idl_interface = new idl_parse_interface;
 							break;	
 
 						default:
 							throw new Exception("parse symbol attr is error,  symbol: " ~ symbol_attr[0]);
 					}
 					
-					if(idl_inerface.parse(symbol_attr[1], symbol_flag[1]))
+					if(idl_interface.parse(symbol_attr[1], symbol_flag[1]))
 					{
 						switch(symbol_attr[0])
 						{
 							case SYMBOL_STRUCT:
-								idl_struct_list[idl_inerface.get_name] = idl_inerface;
+								idl_struct_list[idl_interface.get_name] = cast(idl_parse_struct)idl_interface;
 								break;
 
 							case SYMBOL_INTERFACE:
-								idl_inerface_list[idl_inerface.get_name] = idl_inerface;
+								idl_inerface_list[idl_interface.get_name] = idl_interface;
 								break;
 
 							default:
@@ -103,7 +103,7 @@ class idl_parse
 		foreach(k, v ; idl_inerface_list)
 		{
 			writefln("##############%s", k);
-			writeln(v.create_server_code());
+			writeln(v.create_server_code_for_language(CODE_LANGUAGE.CL_DLANG));
 		}
 	}
 

@@ -1,9 +1,18 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workbench />
+﻿<Properties StartupItem="idl/idl.dproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="idl/IDL/idl_parse_interface.d">
+    <Files>
+      <File FileName="idl/IDL/idl_parse.d" Line="106" Column="34" />
+      <File FileName="idl/app.d" Line="12" Column="19" />
+      <File FileName="idl/IDL/idl_symbol.d" Line="6" Column="39" />
+      <File FileName="idl/IDL/idl_base_interface.d" Line="7" Column="9" />
+      <File FileName="idl/IDL/idl_unit.d" Line="6" Column="1" />
+      <File FileName="idl/IDL/idl_parse_interface.d" Line="163" Column="45" NotebookId="1" />
+      <File FileName="idl/IDL/idl_parse_struct.d" Line="73" Column="13" NotebookId="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
 </Properties>
