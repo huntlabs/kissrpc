@@ -4,17 +4,19 @@ import std.array;
 import std.range.primitives : popFrontN;
 import std.regex;
 import std.stdio;
+
 import IDL.idl_symbol;
 import IDL.idl_parse_struct;
 import IDL.idl_parse_interface;
 import IDL.idl_base_interface;
 import IDL.idl_unit;
 
+
 class idl_parse
 {
 	this()
 	{
-		idl_dlang_variable["void"] = "void";
+		//idl_dlang_variable["void"] = "void";
 		idl_dlang_variable["bool"] = "bool";
 		idl_dlang_variable["byte"] = "byte";
 		idl_dlang_variable["ubyte"] = "ubyte";
@@ -102,8 +104,14 @@ class idl_parse
 	{
 		foreach(k, v ; idl_inerface_list)
 		{
-			writefln("##############%s", k);
-			writeln(v.create_server_code_for_language(CODE_LANGUAGE.CL_DLANG));
+			auto server_code = v.create_server_code_for_language(CODE_LANGUAGE.CL_DLANG);
+			auto client_code = v.create_client_code_for_language(CODE_LANGUAGE.CL_DLANG);
+
+			auto file = File(k~"_server.d", "w+");
+			file.write(server_code);
+
+			file = File(k~"_client.d", "w+");
+			file.write(client_code);
 		}
 	}
 

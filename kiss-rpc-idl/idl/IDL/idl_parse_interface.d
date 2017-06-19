@@ -19,6 +19,11 @@ class function_arg
 		type_name = type;
 		var_name = var;
 
+		if(idl_dlang_variable.get(type_name, null) is null && idl_struct_list.get(type_name, null) is null)
+		{
+			throw new Exception("parse type error, is not exist, type:" ~ type_name);
+		}
+
 		writefln("function argument: %s:%s", var_name, type_name);
 	}
 
@@ -78,12 +83,14 @@ class function_attr
 			throw new Exception("parse function arguments is failed, " ~ func_tlp);
 		}
 
-		ret_type = func_tlp_list[0];
+		writeln("********************************");
+
+		ret_value = new function_arg(func_tlp_list[0], "ret_" ~ func_tlp_list[0]);
+
 		func_name = func_tlp_list[1];
 
 		int func_arg_index = 0;
-		writeln("********************************");
-		writefln("function name:%s, return value:%s", func_name, ret_type);
+		writefln("function name:%s, return value:%s", func_name, ret_value.get_type_name);
 
 		for(int i = 2; i<func_tlp_list.length; i+=2)
 		{
@@ -98,9 +105,10 @@ class function_attr
 		return this.func_name;
 	}
 
+
 public:
 	string flag;
-	string ret_type;
+	function_arg ret_value;
 	string func_name;
 
 	function_arg[int] func_arg_map;
@@ -163,6 +171,24 @@ class idl_parse_interface : idl_base_interface
 		return code_text;
 	}
 
+
+	string create_client_code_for_language(CODE_LANGUAGE language)
+	{
+		string code_text;
+		
+		switch(language)
+		{
+			case CODE_LANGUAGE.CL_CPP:break;
+			case CODE_LANGUAGE.CL_DLANG:code_text = idl_inerface_dlang_code.create_client_code(this); break;
+			case CODE_LANGUAGE.CL_GOLANG:break;
+			case CODE_LANGUAGE.CL_JAVA:break;
+				
+			default:
+				new Exception("language is not exits!!");
+		}
+		
+		return code_text;
+	}
 
 public:
 	int func_index;

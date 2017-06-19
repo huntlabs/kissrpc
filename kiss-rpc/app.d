@@ -1,4 +1,4 @@
-﻿module app;
+﻿//module app;
 
 import std.stdio;
 
@@ -110,6 +110,13 @@ class rpc_hello : rpc_hello_interface
 
 void main()
 {
+	struct user_info{
+		string phone;
+		string usr_name;
+		int age;
+		double widget;
+	}
+
 
 	auto rp_server = new rpc_server(new server_socket);
 	auto hello_server_test = new rpc_hello(rp_server);

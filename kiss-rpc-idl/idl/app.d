@@ -14,12 +14,17 @@ void main()
         double wiget:4;
     }
 
+    @message:sites
+    {
+        string hander:1;
+        int length:2;
+    }
     @service:hello //接口类
     {
-        sync: string func_name_sync(string msg, int i, double d); //同步
+        sync: int func_name_sync(string msg, int i, double d, sites site); //同步
         async: string func_name_async(string msg, int i, double d); //异步
         sync: user_info query_user_info(string name); //同步调用返回结构化参数
-        sync: void save_user_info(string name, user_info info, int num, user_info user);
+        sync: sites save_user_info(string name, user_info info, int num, user_info user);
     }");
 
 }

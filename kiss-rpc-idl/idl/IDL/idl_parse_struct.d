@@ -7,6 +7,7 @@ import std.stdio;
 
 import IDL.idl_base_interface;
 import IDL.idl_unit;
+import IDL.idl_symbol;
 
 class member_attr{
 
@@ -86,6 +87,24 @@ class idl_parse_struct : idl_base_interface
 				new Exception("language is not exits!!");
 		}
 
+		return code_text;
+	}
+
+	string create_client_code_for_language(CODE_LANGUAGE language)
+	{
+		string code_text;
+		
+		switch(language)
+		{
+			case CODE_LANGUAGE.CL_CPP:break;
+			case CODE_LANGUAGE.CL_DLANG:break;
+			case CODE_LANGUAGE.CL_GOLANG:break;
+			case CODE_LANGUAGE.CL_JAVA:break;
+				
+			default:
+				new Exception("language is not exits!!");
+		}
+		
 		return code_text;
 	}
 

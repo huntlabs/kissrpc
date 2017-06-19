@@ -14,8 +14,8 @@ import core.thread;
 import std.conv;
 
 class rpc_server_socket:AsyncTcpBase, rpc_socket_base_interface{
+
 public:
-	
 	this(Poll poll, rpc_event_interface rpcEventDalegate)
 	{
 		readBuff = new byte[RPC_PACKAGE_MAX];
