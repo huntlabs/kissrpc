@@ -34,6 +34,7 @@ import std.stdio;
 	{
 		synchronized(this)
 		{
+
 			auto stream_binary_packge = new rpc_binary_package(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, req.get_sequence, req.get_nonblock);
 			auto capnproto_pack = new rpc_capnproto_package(req);
 			
@@ -41,7 +42,8 @@ import std.stdio;
 			auto send_stream = stream_binary_packge.to_stream(binary_stream);
 			
 			bool is_ok = req.get_socket.doWrite(cast(byte[]) send_stream);
-			
+
+
 			if(is_ok)
 			{
 				if(checkble)
@@ -84,6 +86,7 @@ protected:
 				synchronized(this)
 				{
 						RPC_SYSTEM_TIMESTAMP = Clock.currStdTime().stdTimeToUnixTime!(long)();
+						RPC_SYSTEM_TIMESTAMP_STR = SysTime.fromUnixTime(RPC_SYSTEM_TIMESTAMP).toISOExtString();
 						
 						foreach(k, v; send_pack)
 						{

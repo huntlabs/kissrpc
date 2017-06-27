@@ -3,6 +3,7 @@
 import KissRpc.rpc_capnproto_payload;
 import KissRpc.rpc_request;
 import KissRpc.rpc_response;
+import KissRpc.logs;
 
 import capnproto.FileDescriptor;
 import capnproto.MessageBuilder;
@@ -139,7 +140,7 @@ protected:
 			case .ArgsType.Type.tDchar : arg_tlp.from_bytes!(dchar)(data);	break;
 			case .ArgsType.Type.string : arg_tlp.from_bytes!(immutable(char)[])(data); break; 
 
-			default: 
+			default:
 				throw new Exception("instance template is failed! type:");
 		}
 
@@ -171,7 +172,7 @@ unittest{
 	writeln("send message packge stream :", send_stream);
 
 
-	auto recv_pack = new rpc_capnproto_package(send_byte_buf);
+	auto recv_pack = new rpc_capnproto_package(null, send_byte_buf);
 	req = recv_pack.get_request_data;
 
 	string req_arg1;

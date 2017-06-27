@@ -24,7 +24,7 @@ class func_arg_value(T)
 
 	}
 
-	T get_value() const
+	T get_value()
 	{
 		return value;
 	}
@@ -64,6 +64,10 @@ class func_arg_value(T)
 		{
 			bytes = new ubyte[1];
 			bytes[0] = cast(ubyte)(value);
+		}else
+		{
+
+			log_warning("function argument is failed, type:%s",typeid(T).toString());
 		}
 
 		return bytes;
@@ -91,6 +95,10 @@ class func_arg_value(T)
 		}else static if(isSomeChar!T)
 		{
 			value = cast(T)(bytes[0]);
+
+		}else
+		{
+			log_error("function argument is failed, type:%s", typeid(T).toString());
 		}
 
 		return value;
@@ -140,10 +148,12 @@ class func_arg_template
 			case "wchar":  return 	(cast(func_arg_value!(wchar)) func_arg).to_bytes();
 			case "dchar":  return 	(cast(func_arg_value!(dchar)) func_arg).to_bytes();
 			case "immutable(char)[]": return 	(cast(func_arg_value!(immutable(char)[])) func_arg).to_bytes();
-
+			
 			default: 
-				throw new Exception("convert to bytes fatal!! type:" ~ type_name);
+				log_error("function argument is failed, type:%s", type_name);
 		}
+			
+		return null;
 	}
 
 	T from_bytes(T)(const ubyte[] bytes)
@@ -193,31 +203,76 @@ class rpc_request
 		base_socket = socket;
 	}
 
+
+	struct test
+	{
+		int i=1;
+		int j=2;
+		long f=3;
+		long d=4;
+		
+	}
+
 	void push(T...)(T args)
 	{
 		foreach(i, arg; args)
 		{
-			de_writefln("function:%s, request push: %s:%s", func_name, typeid(arg), arg);
-			auto arg_template = new func_arg_template;
-			arg_template.add(arg);
-			func_arg_list[arg_num++] = arg_template;
+			static if(isBasicType!(T[i]) || isSomeString!(T[i]) || isArray!(T[i]))
+			{
+
+				if(isArray!(T[i]))
+
+
+
+
+
+				auto arg_template = new func_arg_template;
+				arg_template.add(arg);
+				func_arg_list[arg_num++] = arg_template;
+				de_writefln("function:%s, request push: %s:%s", func_name, typeid(arg), arg);
+
+			}else
+			{
+				de_writefln("function:%s, request push class: %s:%s", func_name, typeid(arg), arg);
+				arg.create_type_tulple();
+
+				foreach(v; arg.member_list)
+				{
+					this.push(v);
+				}
+			}
 		}
 	}
 
 	bool pop(T...)(ref T args)
 	{
 		try{
-			foreach(i, ref arg; args)
+
+			foreach(i, arg; args)
 			{
-				auto arg_template = func_arg_list[i];
+				static if(isBasicType!(T[i]) || isSomeString!(T[i]) || isArray!(T[i]))
+				{
+					auto arg_template = func_arg_list[func_arg_list_index++];
+					
+					if(typeid(arg).toString() != arg_template.type_name)
+					{	
+						throw(new Exception("value type is not match, in type:" ~ typeid(arg).toString()~", out type:" ~ arg_template.get_type_string()));
+					}
+					
+					arg = arg_template.get!(T[i]);
+					de_writefln("function:%s, request pop: %s:%s", func_name, typeid(arg), arg);
 
-				if(typeid(arg).toString() != arg_template.type_name)
-				{	
-					throw(new Exception("value type is not match, in type:" ~ typeid(arg).toString()~", out type:" ~ arg_template.get_type_string()));
+				}else
+				{
+					de_writefln("function:%s, request pop class: %s:%s", func_name, typeid(arg), arg);
+
+					foreach(ref v; arg.member_list)
+					{
+						this.pop(v);
+					}
+
+					arg.restore_type_tunlp();
 				}
-
-				arg = arg_template.get!(T[i]);
-				de_writefln("function:%s, request pop: %s:%s", func_name, typeid(arg), arg);
 			}
 
 		}catch(Exception e)
@@ -318,6 +373,7 @@ class rpc_request
 
 private:
 	int arg_num;
+	int func_arg_list_index;
 
 	RESPONSE_STATUS response_status;
 

@@ -133,5 +133,6 @@
     <Folder Include="KissRpc\" />
     <Folder Include="capnproto\" />
     <Folder Include="java\" />
+    <Folder Include="IDL\" />
   </ItemGroup>
 </Project>

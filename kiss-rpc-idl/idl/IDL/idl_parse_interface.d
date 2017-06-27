@@ -36,7 +36,7 @@ class function_arg
 		{
 			auto strings = appender!string();
 			
-			foreach(k,v ;struct_interface.member_attr_info)
+			foreach(k, v; struct_interface.member_attr_info)
 			{
 				formattedWrite(strings, "%s.%s, ", this.var_name, v.member_name);
 			}
@@ -139,12 +139,14 @@ class idl_parse_interface : idl_base_interface
 				string 	flag = member[0];
 				string func_tlp = member[1];
 
-				function_list[func_index++] = new function_attr(member[0], member[1]);
+				auto func_attr = new function_attr(member[0], member[1]);
+
+				function_list[func_index++] = func_attr;
+
 			}
 		}
 
 		writeln("----------------------------\n\n");
-	
 		return true;
 	}
 
@@ -153,42 +155,80 @@ class idl_parse_interface : idl_base_interface
 		return this.interface_name;
 	}
 
-	string create_server_code_for_language(CODE_LANGUAGE language)
+
+	string create_server_code_for_interface(CODE_LANGUAGE language)
 	{
 		string code_text;
 
 		switch(language)
 		{
 			case CODE_LANGUAGE.CL_CPP:break;
-			case CODE_LANGUAGE.CL_DLANG: code_text = idl_inerface_dlang_code.create_server_code(this); break;
+			case CODE_LANGUAGE.CL_DLANG: code_text = idl_inerface_dlang_code.create_server_code_for_interface(this); break;
 			case CODE_LANGUAGE.CL_GOLANG:break;
 			case CODE_LANGUAGE.CL_JAVA:break;
 			
 			default:
-				new Exception("language is not exits!!");
+				throw new Exception("language is not exits!!");
 		}
 
 		return code_text;
 	}
 
-
-	string create_client_code_for_language(CODE_LANGUAGE language)
+	string create_server_code_for_service(CODE_LANGUAGE language)
 	{
 		string code_text;
 		
 		switch(language)
 		{
 			case CODE_LANGUAGE.CL_CPP:break;
-			case CODE_LANGUAGE.CL_DLANG:code_text = idl_inerface_dlang_code.create_client_code(this); break;
+			case CODE_LANGUAGE.CL_DLANG: code_text = idl_inerface_dlang_code.create_server_code_for_service(this); break;
 			case CODE_LANGUAGE.CL_GOLANG:break;
 			case CODE_LANGUAGE.CL_JAVA:break;
 				
 			default:
-				new Exception("language is not exits!!");
+				throw new Exception("language is not exits!!");
 		}
 		
 		return code_text;
 	}
+
+
+	string create_client_code_for_interface(CODE_LANGUAGE language)
+	{
+		string code_text;
+		
+		switch(language)
+		{
+			case CODE_LANGUAGE.CL_CPP:break;
+			case CODE_LANGUAGE.CL_DLANG:code_text = idl_inerface_dlang_code.create_client_code_for_interface(this); break;
+			case CODE_LANGUAGE.CL_GOLANG:break;
+			case CODE_LANGUAGE.CL_JAVA:break;
+				
+			default:
+				throw new Exception("language is not exits!!");
+		}
+		
+		return code_text;
+	}
+
+	string create_client_code_for_service(CODE_LANGUAGE language)
+	{
+		string code_text;
+		
+		switch(language)
+		{
+			case CODE_LANGUAGE.CL_CPP:break;
+			case CODE_LANGUAGE.CL_DLANG:code_text = idl_inerface_dlang_code.create_client_code_for_service(this); break;
+			case CODE_LANGUAGE.CL_GOLANG:break;
+			case CODE_LANGUAGE.CL_JAVA:break;
+				
+			default:
+				throw new Exception("language is not exits!!");
+		}
+		
+		return code_text;
+	}
+
 
 public:
 	int func_index;

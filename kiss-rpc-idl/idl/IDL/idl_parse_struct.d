@@ -8,6 +8,7 @@ import std.stdio;
 import IDL.idl_base_interface;
 import IDL.idl_unit;
 import IDL.idl_symbol;
+import IDL.idl_struct_create_code;
 
 class member_attr{
 
@@ -25,7 +26,7 @@ public:
 }
 
 
-class idl_parse_struct : idl_base_interface
+class idl_parse_struct: idl_base_interface
 {
 	bool parse(string name, string struct_bodys)
 	{
@@ -72,40 +73,43 @@ class idl_parse_struct : idl_base_interface
 	}
 
 
-	string create_server_code_for_language(CODE_LANGUAGE language)
+	string create_code_for_language(CODE_LANGUAGE language)
 	{
 		string code_text;
 		
 		switch(language)
 		{
 			case CODE_LANGUAGE.CL_CPP:break;
-			case CODE_LANGUAGE.CL_DLANG:break;
+			case CODE_LANGUAGE.CL_DLANG: code_text = idl_struct_dlang_code.create_server_code(this); break;
 			case CODE_LANGUAGE.CL_GOLANG:break;
 			case CODE_LANGUAGE.CL_JAVA:break;
 				
 			default:
-				new Exception("language is not exits!!");
+				throw new Exception("language is not exits!!");
 		}
 
 		return code_text;
 	}
 
-	string create_client_code_for_language(CODE_LANGUAGE language)
+
+	string create_server_code_for_interface(CODE_LANGUAGE language)
 	{
-		string code_text;
-		
-		switch(language)
-		{
-			case CODE_LANGUAGE.CL_CPP:break;
-			case CODE_LANGUAGE.CL_DLANG:break;
-			case CODE_LANGUAGE.CL_GOLANG:break;
-			case CODE_LANGUAGE.CL_JAVA:break;
-				
-			default:
-				new Exception("language is not exits!!");
-		}
-		
-		return code_text;
+		return "";
+	}
+
+	string create_server_code_for_service(CODE_LANGUAGE language)
+	{
+		return "";
+	}
+	
+	string create_client_code_for_service(CODE_LANGUAGE language)
+	{
+		return "";
+	}
+
+	string create_client_code_for_interface(CODE_LANGUAGE language)
+	{
+		return "";
 	}
 
 public:

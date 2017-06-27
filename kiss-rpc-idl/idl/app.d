@@ -1,30 +1,27 @@
 ﻿module app;
 
 import IDL.idl_parse;
+import std.stdio;
 
-void main()
+void main(string[] args)
 {
-	auto idl = new idl_parse;
+	if(args.length < 3)
+	{
+		writefln("input parse idl path! or output file name");
+	}else
+	{
+		writeln("conmand: " ~args);
+	
+		auto idl = new idl_parse;
+		
+		idl.set_parse_file(args[1]);
+		idl.set_file_name(args[2]);
 
-	idl.parse("    @message:user_info //类型结构
-    {
-        string phone:3;
-        string user_name:1;
-        int age:2;
-        double wiget:4;
-    }
+		if(args.length == 4)
+		{
+			idl.set_output_file(args[3]);
+		}
 
-    @message:sites
-    {
-        string hander:1;
-        int length:2;
-    }
-    @service:hello //接口类
-    {
-        sync: int func_name_sync(string msg, int i, double d, sites site); //同步
-        async: string func_name_async(string msg, int i, double d); //异步
-        sync: user_info query_user_info(string name); //同步调用返回结构化参数
-        sync: sites save_user_info(string name, user_info info, int num, user_info user);
-    }");
-
+		idl.start_parse();
+	}
 }

@@ -74,7 +74,7 @@ private string convTostr(string msg , string file , size_t line)
 
 void log_kiss(string msg , LOG_LEVEL type ,  string file = __FILE__ , size_t line = __LINE__)
 {
-	string time_prior = SysTime.fromUnixTime(RPC_SYSTEM_TIMESTAMP).toISOExtString();
+	string time_prior = RPC_SYSTEM_TIMESTAMP_STR;
 
 	version(Posix)
 	{

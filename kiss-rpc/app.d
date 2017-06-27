@@ -1,17 +1,18 @@
-﻿//module app;
+﻿module app;
 
 import std.stdio;
+import std.conv;
 
 import KissRpc.unit;
 import KissRpc.logs;
 import KissRpc.rpc_server;
-import KissRpc.rpc_server_impl;
-import KissRpc.rpc_response;
 import KissRpc.rpc_socket_base_interface;
-import KissRpc.rpc_request;
-import kiss.event.GroupPoll;
 
-import std.conv;
+import KissRpc.rpc_request;
+
+import kiss.event.GroupPoll;
+import std.traits;
+
 
 class server_socket : server_socket_event_interface
 {
@@ -42,92 +43,124 @@ class server_socket : server_socket_event_interface
 	}
 }
 
-abstract class rpc_hello_interface{
-
-	this(rpc_server rp_server)
-	{
-		rp_impl = new rpc_server_impl!(rpc_hello)(rp_server);
-		rp_impl.bind_request_callback("say", &this.say_interface);
-		rp_impl.bind_request_callback("say_all", &this.say_all_interface);
-
-	}
+import std.typetuple;
 
 
-	void say_interface(rpc_request req)
-	{
-		auto resp = new rpc_response(req);
 
-		string r_s;
-		int r_i, r_num;
-		double r_d;
-
-		req.pop(r_s,  r_num, r_i, r_d);
-
-		writefln("hello.say:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
-
-		resp.push((cast(rpc_hello)this).say(r_s, r_num, r_i, r_d));
-		rp_impl.response(resp);
-	}
-
-	void say_all_interface(rpc_request req)
-	{
-		auto resp = new rpc_response(req);
-		
-		string r_s;
-		int r_i, r_num;
-		double r_d;
-		
-		req.pop(r_s,  r_num, r_i, r_d);
-		
-		writefln("hello.say_all:%s, %s, %s, num:%s,", r_s, r_i, r_d, r_num);
-		
-		resp.push((cast(rpc_hello)this).say_all(r_s, r_num, r_i, r_d));
-		rp_impl.response(resp);
-	}
-
-	rpc_server_impl!(rpc_hello) rp_impl;
-}
-
-class rpc_hello : rpc_hello_interface
+struct test_a
 {
-	this(rpc_server rp_server)
+	int i=1;
+	int j=2;
+	long f=3;
+	long d=4;
+	string s = "test_a";
+
+	TypeTuple!(int,int,long,long,string) member_list;
+
+	
+	void create_type_tulple()
 	{
-		super(rp_server);
+		member_list[0] = i;
+		member_list[1] = j;
+		member_list[2] = f;
+		member_list[3] = d;
+		member_list[4] = s;
 	}
 
-	string say(string r_s, int r_i, int r_num, double r_d)
-	{
-		return r_s ~ "+++++++++say+++++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
-	}
 
-	string say_all(string r_s, int r_i, int r_num, double r_d)
+	void restore_type_tunlp()
 	{
-		return r_s ~ "++++++++++++say all++++++++" ~ to!string(r_i) ~ "+++++++" ~ to!string(r_num) ~ " +++++" ~ to!string(r_d);		
+		i = member_list[0];
+		j = member_list[1];
+		f = member_list[2];
+		d = member_list[3];
+		s = member_list[4];
 	}
 }
 
-
-
-void main()
+struct test
 {
-	struct user_info{
-		string phone;
-		string usr_name;
-		int age;
-		double widget;
-	}
+	int i=1;
+	int j=2;
+	long f=3;
+	long d=4;
+	string s = "test";
+	test_a[] a_test;
+	TypeTuple!(int, int, long, long, string, test_a[]) member_list;
 
 
-	auto rp_server = new rpc_server(new server_socket);
-	auto hello_server_test = new rpc_hello(rp_server);
-
-	auto poll = new GroupPoll!();
-
-	if(rp_server.listen("0.0.0.0", 4444, poll))
+	void create_type_tulple()
 	{
-		log_info("start server is ok");
+		member_list[0] = i;
+		member_list[1] = j;
+		member_list[2] = f;
+		member_list[3] = d;
+		member_list[4] = s;
+		member_list[5] = a_test;
 	}
 
-	poll.start();
-	poll.wait();
+	void restore_type_tunlp()
+	{
+		i = member_list[0];
+		j = member_list[1];
+		f = member_list[2];
+		d = member_list[3];
+		s = member_list[4];
+		a_test = member_list[5];
+	}
+
+}
+
+class fal
+{
+	this()
+	{
+	 //writefln("####################:%s",isAggregateType!(T));
+	}
+
+	bool get(T...)(T args)
+	{
+		return isAggregateType!(T[0]);
+	}
+}
+
+
+void main(string[] args)
+{
+
+	test t;
+	rpc_request req = new rpc_request;
+	t.i = 100;
+	t.f =1233;
+	t.s = "$$$$$$$$$$$$";
+	t.a_test = new test_a[2];
+	t.a_test[0].s = "**************************";
+
+	req.push(t);
+
+	test b;
+
+	req.pop(b);
+
+	writeln(b.s);
+	foreach(i; b.a_test)
+	{
+		writefln(i.s);
+	}
+
+
+
+
+//	auto rp_server = new rpc_server(new server_socket);
+//	auto hello_service = new rpc_hello_service(rp_server);
+//
+//	auto poll = new GroupPoll!();
+//
+//	if(rp_server.listen("0.0.0.0", 4444, poll))
+//	{
+//		log_info("start server is ok");
+//	}
+//
+//	poll.start();
+//	poll.wait();
 }

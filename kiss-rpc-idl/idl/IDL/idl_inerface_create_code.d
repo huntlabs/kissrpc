@@ -62,8 +62,8 @@ class idl_function_attr_code
 	static string create_server_interface_code(function_attr function_attr_interface, string inerface_name)
 	{
 		auto strings = appender!string();
-		formattedWrite(strings, "\tvoid %s_interface(rpc_request req){\n\n", function_attr_interface.func_name);
 
+		formattedWrite(strings, "\tvoid %s_interface(rpc_request req){\n\n", function_attr_interface.func_name);
 		formattedWrite(strings, "\t\tauto resp = new rpc_response(req);\n\n");
 
 		foreach(k,v ;function_attr_interface.func_arg_map)
@@ -85,8 +85,8 @@ class idl_function_attr_code
 				formattedWrite(func_args_strirngs, "%s, ", v.get_struct_var_name);
 		}
 		
-		formattedWrite(strings, "\t\treq.pop(%s);\n\n", replaceAll(func_args_strirngs.data, regex(`\,\s*\,|\,\s$`), ""));
-
+		formattedWrite(strings, "\t\treq.pop(%s);\n\n", replaceAll(func_args_strirngs.data, regex(`\,\s*\,`), ", "));
+	
 		func_args_strirngs = appender!string();
 
 		for(int i = 0; i< function_attr_interface.func_arg_map.length; i++)
@@ -100,7 +100,6 @@ class idl_function_attr_code
 		}
 
 
-		formattedWrite(strings, "\t\t(cast(rpc_%s_service)this).%s(%s);\n\n", inerface_name, function_attr_interface.func_name, func_args_strirngs.data);
 
 		formattedWrite(strings, "\t\t%s %s;\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.ret_value.get_var_name);
 
@@ -133,9 +132,9 @@ class idl_function_attr_code
 				formattedWrite(func_args_strirngs, "%s %s, ", v.get_type_name, v.get_var_name);
 		}
 
-		formattedWrite(strings, "\t%s %s(%s)", function_attr_interface.ret_value.get_type_name, function_attr_interface.func_name, func_args_strirngs.data);
-
-		formattedWrite(strings, "{\n\n\n\t\treturn %s;\n\t}\n\n\n\n", function_attr_interface.ret_value.get_type_name);
+		formattedWrite(strings, "\t%s %s(%s){\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.func_name, func_args_strirngs.data);
+		formattedWrite(strings, "\t\t%s %s_ret;\n\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.ret_value.get_type_name);
+		formattedWrite(strings, "\t\treturn %s_ret;\n\t}\n\n\n\n", function_attr_interface.ret_value.get_type_name);
 
 		return strings.data;
 	}
@@ -179,8 +178,8 @@ class idl_function_attr_code
 		
 		}else if(function_attr_interface.flag == SYMBOL_ASYNC)
 		{
-			formattedWrite(strings, "\t%s %s(%s, rpc_%s_callback rpc_callback){\n\n", 
-				function_attr_interface.ret_value.get_type_name, function_attr_interface.func_name, func_args_strirngs.data, function_attr_interface.func_name);
+			formattedWrite(strings, "\tvoid %s(%s, rpc_%s_callback rpc_callback){\n\n", 
+				 function_attr_interface.func_name, func_args_strirngs.data, function_attr_interface.func_name);
 
 			formattedWrite(strings, "\t\tsuper.%s_interface(%s, rpc_callback);\n", function_attr_interface.func_name, func_values_args_strirngs.data);
 
@@ -229,8 +228,8 @@ class idl_function_attr_code
 			formattedWrite(strings, "\t%s %s_interface(%s, string bind_func = __FUNCTION__){\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.func_name, func_args_strirngs.data);
 			
 			formattedWrite(strings, "\t\tauto req = new rpc_request;\n\n");
-		
-			formattedWrite(strings, "\t\treq.push(%s);\n\n", func_args_struct_strirngs.data);
+
+			formattedWrite(strings, "\t\treq.push(%s);\n\n", replaceAll(func_args_struct_strirngs.data, regex(`\,\s*\,`), ", "));
 
 			formattedWrite(strings, "\t\trpc_response resp = rp_impl.sync_call(req, bind_func);\n\n");
 			formattedWrite(strings, "\t\tif(resp.get_status == RESPONSE_STATUS.RS_OK){\n");
@@ -239,25 +238,25 @@ class idl_function_attr_code
 			formattedWrite(strings, "\t\t\tresp.pop(%s);\n\n", function_attr_interface.ret_value.get_struct_var_name);
 
 			formattedWrite(strings, "\t\t\treturn %s;\n\t\t}else{\n", function_attr_interface.ret_value.get_var_name);
-			formattedWrite(strings, "\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ __FUNCTION__);\n\t\t}\n");
+			formattedWrite(strings, "\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ bind_func);\n\t\t}\n");
 
 
 		}else if(function_attr_interface.flag == SYMBOL_ASYNC)
 		{
 
-			formattedWrite(strings, "\t%s %s_interface(%s, rpc_%s_callback rpc_callback, string bind_func = __FUNCTION__){\n\n", 
-				function_attr_interface.ret_value.get_type_name, function_attr_interface.func_name, func_args_strirngs.data, function_attr_interface.func_name);
+			formattedWrite(strings, "\tvoid %s_interface(%s, rpc_%s_callback rpc_callback, string bind_func = __FUNCTION__){\n\n", 
+							function_attr_interface.func_name, func_args_strirngs.data, function_attr_interface.func_name);
 			
 			formattedWrite(strings, "\t\tauto req = new rpc_request;\n\n");
 			
-			formattedWrite(strings, "\t\treq.push(%s);\n\n", func_args_struct_strirngs.data);
+			formattedWrite(strings, "\t\treq.push(%s);\n\n", replaceAll(func_args_struct_strirngs.data, regex(`\,\s*\,`), ", "));
 
 			formattedWrite(strings, "\t\trp_impl.async_call(req, delegate(rpc_response resp){\n\n");
 			formattedWrite(strings, "\t\t\tif(resp.get_status == RESPONSE_STATUS.RS_OK){\n\n");
 			formattedWrite(strings, "\t\t\t\t%s %s;\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.ret_value.get_var_name);
 			formattedWrite(strings, "\t\t\t\tresp.pop(%s);\n\n", function_attr_interface.ret_value.get_struct_var_name);
 			formattedWrite(strings, "\t\t\t\trpc_callback(%s);\n", function_attr_interface.ret_value.get_var_name);
-			formattedWrite(strings, "\t\t\t}else{\n\t\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ __FUNCTION__);\n\t\t\t}}, bind_func);\n");
+			formattedWrite(strings, "\t\t\t}else{\n\t\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ bind_func);\n\t\t\t}}, bind_func);\n");
 
 		}else
 		{
@@ -273,21 +272,9 @@ class idl_function_attr_code
 
 class idl_inerface_dlang_code
 {
-	static string create_server_code(idl_parse_interface idl_interface)
+	static string create_server_code_for_interface(idl_parse_interface idl_interface)
 	{
 		auto strings = appender!string();
-
-		formattedWrite(strings, "module IDL.%s_stub;\n\n\n", idl_interface.interface_name);
-
-		formattedWrite(strings, "import KissRpc.rpc_server;\n");
-		formattedWrite(strings, "import KissRpc.rpc_server_impl;\n");
-		formattedWrite(strings, "import KissRpc.rpc_response;\n");
-		formattedWrite(strings, "import KissRpc.rpc_request;\n\n\n");
-
-		foreach(k, v; idl_struct_list)
-		{
-			formattedWrite(strings, idl_struct_dlang_code.create_server_code(v));
-		}
 
 		formattedWrite(strings, "abstract class rpc_%s_interface{ \n\n", idl_interface.interface_name);
 		formattedWrite(strings, "\tthis(rpc_server rp_server){ \n");
@@ -307,38 +294,34 @@ class idl_inerface_dlang_code
 		
 		formattedWrite(strings, "\trpc_server_impl!(rpc_%s_service) rp_impl;\n}\n\n\n", idl_interface.interface_name);
 		
+		return strings.data;
+	}
+
+
+	static string create_server_code_for_service(idl_parse_interface idl_interface)
+	{
+		auto strings = appender!string();
+
 		formattedWrite(strings, "class rpc_%s_service: rpc_%s_interface{\n\n", idl_interface.interface_name, idl_interface.interface_name);
 		formattedWrite(strings, "\tthis(rpc_server rp_server){\n");
 		formattedWrite(strings, "\t\tsuper(rp_server);\n");
 		formattedWrite(strings, "\t}\n\n");
 		
-
+		
 		foreach(k,v; idl_interface.function_list)
 		{
 			formattedWrite(strings, idl_function_attr_code.create_server_service_code(v));
 		}
 		
 		formattedWrite(strings,"}\n\n\n\n");
-		
+
 		return strings.data;
 	}
 
 
-	static string create_client_code(idl_parse_interface idl_interface)
+	static string create_client_code_for_interface(idl_parse_interface idl_interface)
 	{
 		auto strings = appender!string();
-
-		formattedWrite(strings, "module IDL.%s_stub;\n\n\n", idl_interface.interface_name);
-
-		formattedWrite(strings, "import KissRpc.rpc_request;\n");
-		formattedWrite(strings, "import KissRpc.rpc_client_impl;\n");
-		formattedWrite(strings, "import KissRpc.rpc_client;\n");
-		formattedWrite(strings, "import KissRpc.rpc_response;\n\n\n");
-
-		foreach(k, v; idl_struct_list)
-		{
-			formattedWrite(strings, idl_struct_dlang_code.create_server_code(v));
-		}
 
 		formattedWrite(strings, "abstract class rpc_%s_interface{ \n\n", idl_interface.interface_name);
 		formattedWrite(strings, "\tthis(rpc_client rp_client){ \n");
@@ -358,11 +341,19 @@ class idl_inerface_dlang_code
 		
 		formattedWrite(strings, "\trpc_client_impl!(rpc_%s_service) rp_impl;\n}\n\n\n", idl_interface.interface_name);
 		
+		return strings.data;
+	}
+
+
+	static string create_client_code_for_service(idl_parse_interface idl_interface)
+	{
+		auto strings = appender!string();
+
 		formattedWrite(strings, "class rpc_%s_service: rpc_%s_interface{\n\n", idl_interface.interface_name, idl_interface.interface_name);
 		formattedWrite(strings, "\tthis(rpc_client rp_client){\n");
 		formattedWrite(strings, "\t\tsuper(rp_client);\n");
 		formattedWrite(strings, "\t}\n\n");
-
+		
 		
 		foreach(k,v; idl_interface.function_list)
 		{
@@ -370,9 +361,10 @@ class idl_inerface_dlang_code
 		}
 		
 		formattedWrite(strings, "}\n\n\n\n");
-		
+
 		return strings.data;
 	}
+
 }
 
 

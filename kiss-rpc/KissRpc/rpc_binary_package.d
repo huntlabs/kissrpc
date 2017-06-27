@@ -254,7 +254,7 @@ private:
 unittest{
 	import std.stdio;
 
-	auto  send_pkg  = new rpc_binary_package(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, 0);
+	auto send_pkg  = new rpc_binary_package(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, 0);
 	auto send_data = "aaaaaaaabbbbbbbbbbbbbbcccccccccccccccdddddddddddddddddddd";
 
 	de_writefln("-----------------------------------------------------");

@@ -68,8 +68,8 @@ version(rpc_debug)
 
 	}
 
-	alias de_writefln = null_log;
-	alias de_writeln = null_log;
+	alias de_writefln = log_format_debug;
+	alias de_writeln = log_format_debug;
 }
 
 version(ultra_high)
