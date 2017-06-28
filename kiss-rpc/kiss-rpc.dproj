@@ -128,11 +128,20 @@
     <Compile Include="kiss\time\Timer.d" />
     <Compile Include="kiss\util\Log.d" />
     <Compile Include="KissRpc\logs.d" />
+    <Compile Include="..\..\..\..\桌面\server\kiss_idl_interface.d">
+      <Link>IDL_DEMO\kiss_idl_interface.d</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\桌面\server\kiss_idl_message.d">
+      <Link>IDL_DEMO\kiss_idl_message.d</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\桌面\server\kiss_idl_service.d">
+      <Link>IDL_DEMO\kiss_idl_service.d</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="KissRpc\" />
     <Folder Include="capnproto\" />
     <Folder Include="java\" />
-    <Folder Include="IDL\" />
+    <Folder Include="IDL_DEMO\" />
   </ItemGroup>
 </Project>

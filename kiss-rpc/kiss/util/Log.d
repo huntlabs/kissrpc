@@ -19,6 +19,7 @@ import KissRpc.unit;
 immutable string PRINT_COLOR_NONE  = "\033[m";
 immutable string PRINT_COLOR_RED   =  "\033[0;32;31m";
 immutable string PRINT_COLOR_GREEN  = "\033[0;32;32m";
+immutable string PRINT_COLOR_YELLOW = "\033[0;33m";
 
 enum LOG_LEVEL
 {
@@ -79,16 +80,19 @@ void log_kiss(string msg , LOG_LEVEL type ,  string file = __FILE__ , size_t lin
 	version(Posix)
 	{
 		string prior;
-		string suffix;
+		string suffix = PRINT_COLOR_NONE;
+
 		if(type == LOG_LEVEL.LL_ERROR || type == LOG_LEVEL.LL_FATAL ||  type == LOG_LEVEL.LL_CRITICAL)
 		{
 			prior = PRINT_COLOR_RED;
-			suffix = PRINT_COLOR_NONE;
 		}
-		else if(type == LOG_LEVEL.LL_WARNING || type == LOG_LEVEL.LL_INFO)
+		else if(type == LOG_LEVEL.LL_INFO)
 		{
 			prior = PRINT_COLOR_GREEN;
-			suffix = PRINT_COLOR_NONE;
+
+		}else if(type == LOG_LEVEL.LL_WARNING)
+		{
+			prior = PRINT_COLOR_YELLOW;
 		}
 
 		string out_info = format("%s %s [%s] %s %s", prior, time_prior, type, msg, suffix);

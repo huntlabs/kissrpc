@@ -112,7 +112,9 @@ protected:
 			case "char": return .ArgsType.Type.tChar;
 			case "wchar": return .ArgsType.Type.tWchar;
 			case "dchar": return .ArgsType.Type.tDchar;
-			case "immutable(char)[]": return .ArgsType.Type.string;
+			case "immutable(char)[]": return .ArgsType.Type.tString;
+			case "array": return .ArgsType.Type.tArray;
+
 			default: return .ArgsType.Type._NOT_IN_SCHEMA;
 		}
 	}
@@ -138,7 +140,8 @@ protected:
 			case .ArgsType.Type.tChar  : arg_tlp.from_bytes!(char)(data);	break;
 			case .ArgsType.Type.tWchar : arg_tlp.from_bytes!(wchar)(data);	break;
 			case .ArgsType.Type.tDchar : arg_tlp.from_bytes!(dchar)(data);	break;
-			case .ArgsType.Type.string : arg_tlp.from_bytes!(immutable(char)[])(data); break; 
+			case .ArgsType.Type.tString : arg_tlp.from_bytes!(immutable(char)[])(data); break;
+			case .ArgsType.Type.tArray : arg_tlp.from_bytes!(ushort)(data); break;
 
 			default:
 				throw new Exception("instance template is failed! type:");
@@ -156,9 +159,100 @@ private:
 unittest{
 
 	import std.stdio;
+	import std.typetuple;
 
-	auto req = new rpc_request;
-	req.push("test message builder", 1, 0.1, 't');
+	struct test_a
+	{
+		int i=1;
+		int j=2;
+		long f=3;
+		long d=4;
+		string s = "test_a";
+		int[] d_list;
+		
+		TypeTuple!(int,int,long,long,string, int[]) member_list;
+		
+		
+		void create_type_tulple()
+		{
+			member_list[0] = i;
+			member_list[1] = j;
+			member_list[2] = f;
+			member_list[3] = d;
+			member_list[4] = s;
+			member_list[5] = d_list;
+		}
+		
+		
+		void restore_type_tunlp()
+		{
+			i = member_list[0];
+			j = member_list[1];
+			f = member_list[2];
+			d = member_list[3];
+			s = member_list[4];
+			d_list = member_list[5];
+		}
+	}
+	
+	struct test
+	{
+		int i=1;
+		int j=2;
+		long f=3;
+		long d=4;
+		string s = "test";
+		test_a[] a_test;
+		long[] l_list;
+		TypeTuple!(int, int, long, long, string, test_a[], long[]) member_list;
+		
+		
+		void create_type_tulple()
+		{
+			member_list[0] = i;
+			member_list[1] = j;
+			member_list[2] = f;
+			member_list[3] = d;
+			member_list[4] = s;
+			member_list[5] = a_test;
+			member_list[6] = l_list;
+		}
+		
+		void restore_type_tunlp()
+		{
+			i = member_list[0];
+			j = member_list[1];
+			f = member_list[2];
+			d = member_list[3];
+			s = member_list[4];
+			a_test = member_list[5];
+			l_list = member_list[6];
+		}
+		
+	}
+
+
+	test t;
+	t.i = 100;
+	t.f =1233;
+	t.s = "$$$$$$$$$$$$";
+	t.a_test = new test_a[6];
+	t.l_list = new long[6];
+	t.a_test[0].d_list = new int[6];
+
+	t.a_test[0].d_list[0] = 888888;
+
+	t.a_test[0].s = "**************************";
+	
+	t.l_list[0] = 123456781;
+	t.l_list[1] = 9876543321;
+	
+
+
+
+	rpc_request req = new rpc_request;
+
+	req.push(t);
 	req.bind_func("rpc_message_pack");
 
 	auto send_pack = new rpc_capnproto_package(req);
@@ -169,20 +263,17 @@ unittest{
 	send_byte_buf[0].get(send_stream, 0, send_stream.length);
 
 	writeln("------------------------send rpc capnproto packge--------------------------------");
-	writeln("send message packge stream :", send_stream);
+	writefln("send message, length:%s stream:%s", send_stream.length, send_stream);
 
 
 	auto recv_pack = new rpc_capnproto_package(null, send_byte_buf);
 	req = recv_pack.get_request_data;
 
-	string req_arg1;
-	int req_arg2;
-	double req_arg3;
-	char req_arg4;
+	test b;
 
-	req.pop(req_arg1, req_arg2, req_arg3, req_arg4);
+	req.pop(b);
 
 	writeln("------------------------recv rpc capnproto packge--------------------------------");
-	writefln("recv message packge, call func:%s(%s, %s, %s, %s)", req.get_call_func_name(), 
-		req_arg1, req_arg2, req_arg3, req_arg4);
+	writefln("recv message packge, call func:%s, values:%s, %s, %s, %s, %s", req.get_call_func_name(), 
+		b.i, b.s, b.l_list[0], b.a_test[0].s, b.a_test[0].d_list[0]);
 }

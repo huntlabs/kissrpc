@@ -69,7 +69,7 @@ class idl_parse
 	bool parse(string data)
 	{
 		data = replaceAll(data, regex(`\/\/[^\n]*`), "");
-		data = replaceAll(data, regex("\n"), "");
+		data = replaceAll(data, regex("\n|\t"), "");
 		data = replaceAll(data, regex(`\s{2,}`), "");
 
 		auto clesses = split(data, regex(`[@\}]`));
@@ -175,9 +175,9 @@ class idl_parse
 
 
 
-
 		auto struct_strings = appender!string();
-		formattedWrite(struct_strings, "module KissRpc.IDL.%s_message;\n\n\n", file_name);
+		formattedWrite(struct_strings, "module KissRpc.IDL.%s_message;\n", file_name);
+		formattedWrite(struct_strings, "import std.typetuple;\n\n\n");
 
 
 		foreach(k, v; idl_inerface_list)

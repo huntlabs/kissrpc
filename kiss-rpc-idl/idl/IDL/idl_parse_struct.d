@@ -16,7 +16,7 @@ class member_attr{
 	{
 		type_name = type;
 		member_name = member;
-
+			
 		writefln("message member: %s: %s", member_name, type_name);
 	}
 

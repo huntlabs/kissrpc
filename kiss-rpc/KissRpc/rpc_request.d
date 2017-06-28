@@ -79,7 +79,6 @@ class func_arg_value(T)
 		{
 			IntBuf!(T) bits;
 			bits.bytes = bytes[0 .. bytes.length];
-
 			value = netToHost(bits.value);
 			
 		}else static if(isFloatingPoint!T){
@@ -117,15 +116,38 @@ class func_arg_template
 
 	void add(T)(T t)
 	{
-		func_arg = cast(void *)new func_arg_value!(T)(t);
-		type_name = typeid(t).toString();
+
+		static if(!isSomeString!(T)&& isDynamicArray!(T))
+		{
+			func_arg = cast(void *)new func_arg_value!(ushort)(cast(ushort)t.length);
+			type_name = "array";
+
+		}else
+		{
+			func_arg = cast(void *)new func_arg_value!(T)(t);
+			type_name = typeid(t).toString();
+		}
 	}
+
 
 	T get(T)() const
 	{
-		auto arg = cast(func_arg_value!(T)) func_arg;
-		return arg.get_value();
+		static if(!isSomeString!(T)&& isDynamicArray!(T))
+		{
+			auto arg = cast(func_arg_value!(ushort)) func_arg;
+
+			T array_list;
+			array_list.length = arg.get_value;
+
+			return array_list;
+
+		}else
+		{
+			auto arg = cast(func_arg_value!(T)) func_arg;
+			return arg.get_value();
+		}
 	}
+
 
 	ubyte[] to_bytes()const
 	{
@@ -138,7 +160,7 @@ class func_arg_template
 			//case "void":   return 	(cast(func_arg_value!(void))  func_arg).to_bytes();
 			case "long":   return 	(cast(func_arg_value!(long))  func_arg).to_bytes();
 			case "ubyte":  return 	(cast(func_arg_value!(ubyte)) func_arg).to_bytes();
-			case "ushort": return 	(cast(func_arg_value!(ushort)) func_arg).to_bytes();
+			case "ushort", "array": return 	(cast(func_arg_value!(ushort)) func_arg).to_bytes();
 			case "uint" :  return 	(cast(func_arg_value!(uint))  func_arg).to_bytes();
 			case "ulong":  return 	(cast(func_arg_value!(ulong)) func_arg).to_bytes();
 			case "float":  return 	(cast(func_arg_value!(float)) func_arg).to_bytes();
@@ -204,39 +226,48 @@ class rpc_request
 	}
 
 
-	struct test
-	{
-		int i=1;
-		int j=2;
-		long f=3;
-		long d=4;
-		
-	}
-
 	void push(T...)(T args)
 	{
-		foreach(i, arg; args)
+		foreach(i, ref arg; args)
 		{
-			static if(isBasicType!(T[i]) || isSomeString!(T[i]) || isArray!(T[i]))
+			static if(isBasicType!(T[i]) || isSomeString!(T[i]) || isDynamicArray!(T[i]))
 			{
-
-				if(isArray!(T[i]))
-
-
-
-
-
 				auto arg_template = new func_arg_template;
 				arg_template.add(arg);
 				func_arg_list[arg_num++] = arg_template;
-				de_writefln("function:%s, request push: %s:%s", func_name, typeid(arg), arg);
+
+				static if(!isSomeString!(T[i]) && isDynamicArray!(T[i]))
+				{
+					if(arg.length > 0)
+					{
+						de_writefln("function:%s, request push array: %s:%s", func_name, typeid(arg), arg);
+
+						foreach(ref r; arg)
+						{
+							this.push(r);
+						}
+
+					}else
+					{
+						log_warning("function:%s, request push array is null, %s:%s", func_name, typeid(arg), arg);
+					}
+
+				}else
+				{
+					static if(isStaticArray!(T[i]))
+					{
+						throw(new Exception("value type is static array!!, the array must be dynamic!! in type:"~typeid(arg).toString()));
+					}
+
+					de_writefln("function:%s, request push: %s:%s", func_name, typeid(arg), arg);
+				}
 
 			}else
 			{
 				de_writefln("function:%s, request push class: %s:%s", func_name, typeid(arg), arg);
 				arg.create_type_tulple();
 
-				foreach(v; arg.member_list)
+				foreach(ref v; arg.member_list)
 				{
 					this.push(v);
 				}
@@ -244,23 +275,52 @@ class rpc_request
 		}
 	}
 
+
+
 	bool pop(T...)(ref T args)
 	{
 		try{
 
-			foreach(i, arg; args)
+			foreach(i, ref arg; args)
 			{
-				static if(isBasicType!(T[i]) || isSomeString!(T[i]) || isArray!(T[i]))
+				static if(isBasicType!(T[i]) || isSomeString!(T[i]) || isDynamicArray!(T[i]))
 				{
 					auto arg_template = func_arg_list[func_arg_list_index++];
-					
-					if(typeid(arg).toString() != arg_template.type_name)
-					{	
-						throw(new Exception("value type is not match, in type:" ~ typeid(arg).toString()~", out type:" ~ arg_template.get_type_string()));
-					}
-					
 					arg = arg_template.get!(T[i]);
-					de_writefln("function:%s, request pop: %s:%s", func_name, typeid(arg), arg);
+
+					static if(!isSomeString!(T[i]) && isDynamicArray!(T[i]))
+					{
+						if(arg.length > 0)
+						{
+							de_writefln("function:%s, request pop array: %s:%s", func_name, typeid(arg), arg);
+
+							foreach(ref r; arg)
+							{
+								this.pop(r);
+							}
+
+						}else
+						{
+							log_warning("function:%s, request pop array is null, %s:%s", func_name, typeid(arg), arg);
+						}
+
+					}else
+					{
+
+						static if(isStaticArray!(T[i]))
+						{
+							throw(new Exception("value type is static array!!, the array must be dynamic!! in type:"~typeid(arg).toString()));
+						}
+
+
+						if(typeid(arg).toString() != arg_template.type_name)
+						{	
+							throw(new Exception("value type is not match, in type:" ~ typeid(arg).toString()~", out type:" ~ arg_template.get_type_string()));
+						}
+
+						de_writefln("function:%s, request pop: %s:%s", func_name, typeid(arg), arg);
+					}
+
 
 				}else
 				{

@@ -1,35 +1,24 @@
 ﻿<Properties StartupItem="idl/idl.dproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="idl/IDL/idl_parse.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="idl/app.d">
     <Files>
       <File FileName="idl/app.d" Line="27" Column="2" />
-      <File FileName="idl/IDL/idl_parse.d" Line="119" Column="8" />
-      <File FileName="idl/IDL/idl_base_interface.d" Line="10" Column="1" />
-      <File FileName="idl/IDL/idl_parse_struct.d" Line="92" Column="3" />
-      <File FileName="idl/IDL/idl_unit.d" Line="4" Column="48" />
-      <File FileName="../../../../usr/include/dmd/phobos/std/stdio.d" Line="3982" Column="15" />
-      <File FileName="../../../../usr/include/dmd/phobos/std/file.d" Line="3064" Column="12" />
-      <File FileName="idl/IDL/idl_struct_create_code.d" Line="11" Column="16" NotebookId="1" />
-      <File FileName="idl/IDL/idl_symbol.d" Line="1" Column="8" NotebookId="1" />
-      <File FileName="idl/IDL/idl_inerface_create_code.d" Line="298" Column="3" NotebookId="1" />
-      <File FileName="idl/IDL/idl_parse_interface.d" Line="159" Column="32" NotebookId="1" />
+      <File FileName="idl/IDL/idl_parse.d" Line="1" Column="1" />
+      <File FileName="idl/IDL/idl_base_interface.d" Line="1" Column="1" />
+      <File FileName="idl/IDL/idl_parse_struct.d" Line="1" Column="1" />
+      <File FileName="idl/IDL/idl_unit.d" Line="1" Column="1" />
+      <File FileName="../../../../../../usr/include/dmd/phobos/std/regex/package.d" Line="1" Column="1" />
+      <File FileName="idl/IDL/idl_struct_create_code.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="idl/IDL/idl_symbol.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="idl/IDL/idl_inerface_create_code.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="idl/IDL/idl_parse_interface.d" Line="1" Column="1" NotebookId="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="kiss-rpc-idl" expanded="True" selected="True">
-            <Node name="idl" expanded="True">
-              <Node name="IDL" expanded="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.ItemProperties.idl>
     <MonoDevelop.Ide.CustomExecutionModes>
       <Data Name="默认 (Custom 3)" Id="3381b90c-084b-49ad-88e7-f0ffd8e6b1ba" ModeId="Default">

@@ -80,9 +80,9 @@ class idl_function_attr_code
 			auto v = function_attr_interface.func_arg_map[i];
 			
 			if(i == function_attr_interface.func_arg_map.length-1)
-				formattedWrite(func_args_strirngs, "%s", v.get_struct_var_name);
+				formattedWrite(func_args_strirngs, "%s", v.get_var_name);
 			else
-				formattedWrite(func_args_strirngs, "%s, ", v.get_struct_var_name);
+				formattedWrite(func_args_strirngs, "%s, ", v.get_var_name);
 		}
 		
 		formattedWrite(strings, "\t\treq.pop(%s);\n\n", replaceAll(func_args_strirngs.data, regex(`\,\s*\,`), ", "));
@@ -106,7 +106,7 @@ class idl_function_attr_code
 		formattedWrite(strings, "\t\t%s = (cast(rpc_%s_service)this).%s(%s);\n\n", function_attr_interface.ret_value.get_var_name, inerface_name, function_attr_interface.get_func_name, func_args_strirngs.data);
 
 		func_args_strirngs = appender!string();
-		formattedWrite(func_args_strirngs, "%s", function_attr_interface.ret_value.get_struct_var_name);
+		formattedWrite(func_args_strirngs, "%s", function_attr_interface.ret_value.get_var_name);
 
 		formattedWrite(strings, "\t\tresp.push(%s);\n\n", replaceAll(func_args_strirngs.data, regex(`\,\s*\,|\,\s$`), ""));
 		formattedWrite(strings, "\t\trp_impl.response(resp);\n");
@@ -217,9 +217,9 @@ class idl_function_attr_code
 			auto v = function_attr_interface.func_arg_map[i];
 			
 			if(i == function_attr_interface.func_arg_map.length-1)
-				formattedWrite(func_args_struct_strirngs, "%s", v.get_struct_var_name);
+				formattedWrite(func_args_struct_strirngs, "%s", v.get_var_name);
 			else
-				formattedWrite(func_args_struct_strirngs, "%s, ", v.get_struct_var_name);
+				formattedWrite(func_args_struct_strirngs, "%s, ", v.get_var_name);
 		}
 
 
@@ -235,7 +235,7 @@ class idl_function_attr_code
 			formattedWrite(strings, "\t\tif(resp.get_status == RESPONSE_STATUS.RS_OK){\n");
 			formattedWrite(strings, "\t\t\t%s %s;\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.ret_value.get_var_name);
 
-			formattedWrite(strings, "\t\t\tresp.pop(%s);\n\n", function_attr_interface.ret_value.get_struct_var_name);
+			formattedWrite(strings, "\t\t\tresp.pop(%s);\n\n", function_attr_interface.ret_value.get_var_name);
 
 			formattedWrite(strings, "\t\t\treturn %s;\n\t\t}else{\n", function_attr_interface.ret_value.get_var_name);
 			formattedWrite(strings, "\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ bind_func);\n\t\t}\n");
@@ -254,13 +254,13 @@ class idl_function_attr_code
 			formattedWrite(strings, "\t\trp_impl.async_call(req, delegate(rpc_response resp){\n\n");
 			formattedWrite(strings, "\t\t\tif(resp.get_status == RESPONSE_STATUS.RS_OK){\n\n");
 			formattedWrite(strings, "\t\t\t\t%s %s;\n\n", function_attr_interface.ret_value.get_type_name, function_attr_interface.ret_value.get_var_name);
-			formattedWrite(strings, "\t\t\t\tresp.pop(%s);\n\n", function_attr_interface.ret_value.get_struct_var_name);
+			formattedWrite(strings, "\t\t\t\tresp.pop(%s);\n\n", function_attr_interface.ret_value.get_var_name);
 			formattedWrite(strings, "\t\t\t\trpc_callback(%s);\n", function_attr_interface.ret_value.get_var_name);
 			formattedWrite(strings, "\t\t\t}else{\n\t\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ bind_func);\n\t\t\t}}, bind_func);\n");
 
 		}else
 		{
-			throw new Exception("function call method is failed:%s, method:"~ function_attr_interface.flag);
+			throw new Exception("function call method is failed, method:" ~ function_attr_interface.flag);
 		}
 
 		formattedWrite(strings, "\t}\n\n\n\n");

@@ -1,36 +1,23 @@
 ﻿<Properties StartupItem="kiss-rpc/kiss-rpc.dproj">
   <MonoDevelop.Ide.Workbench ActiveDocument="kiss-rpc/app.d">
     <Files>
-      <File FileName="kiss-rpc/KissRpc/rpc_server_socket.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_recv_packge_manage.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_client_socket.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_client_impl.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/aio/AsyncTcpBase.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/aio/AsyncTcpClient.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_send_package_manage.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_client.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_event_interface.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_package_base.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/app.d" Line="74" Column="2" />
-      <File FileName="kiss-rpc/KissRpc/rpc_server.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/event/GroupPoll.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_request.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/util/Log.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/unit.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_socket_base_interface.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_server_impl.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_response.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_capnproto_payload.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_capnproto_package.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/rpc_binary_package.d" Line="1" Column="1" />
-      <File FileName="../../../../../usr/include/dmd/phobos/std/string.d" Line="1" Column="1" />
-      <File FileName="../../../../../usr/include/dmd/phobos/std/format.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/logs.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/KissRpc/endian.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/aio/AsyncGroupTcpServer.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/aio/package.d" Line="1" Column="1" />
-      <File FileName="kiss-rpc/kiss/aio/AsyncTcpServer.d" Line="1" Column="1" />
+      <File FileName="kiss-rpc/app.d" Line="54" Column="19" />
+      <File FileName="../../../../../usr/include/dmd/druntime/import/object.d" Line="41" Column="26" />
+      <File FileName="../../../../../usr/include/dmd/phobos/std/meta.d" Line="78" Column="1" />
+      <File FileName="kiss-rpc/kiss/aio/Acceptor.d" Line="1" Column="1" />
+      <File FileName="kiss-rpc/kiss/aio/AsyncGroupTcpServer.d" Line="24" Column="34" />
+      <File FileName="kiss-rpc/kiss/aio/AsyncTcpServer.d" Line="22" Column="13" />
+      <File FileName="kiss-rpc/KissRpc/rpc_binary_package.d" Line="257" Column="7" />
+      <File FileName="kiss-rpc/KissRpc/rpc_server.d" Line="70" Column="86" />
+      <File FileName="../../../桌面/server/kiss_idl_interface.d" Line="1" Column="1" />
+      <File FileName="../../../桌面/server/kiss_idl_service.d" Line="25" Column="15" />
+      <File FileName="kiss-rpc/KissRpc/logs.d" Line="72" Column="29" />
       <File FileName="kiss-rpc/kiss/aio/AsynchronousSocketChannel.d" Line="13" Column="1" NotebookId="1" />
+      <File FileName="kiss-rpc/KissRpc/rpc_request.d" Line="231" Column="3" NotebookId="1" />
+      <File FileName="kiss-rpc/KissRpc/rpc_capnproto_package.d" Line="71" Column="14" NotebookId="1" />
+      <File FileName="kiss-rpc/KissRpc/rpc_capnproto_payload.d" Line="137" Column="8" NotebookId="1" />
+      <File FileName="../../../../../usr/include/dmd/phobos/std/traits.d" Line="6040" Column="33" NotebookId="1" />
+      <File FileName="../../../桌面/server/kiss_idl_message.d" Line="5" Column="17" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

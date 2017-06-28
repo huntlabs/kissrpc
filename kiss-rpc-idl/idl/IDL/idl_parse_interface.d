@@ -27,28 +27,6 @@ class function_arg
 		writefln("function argument: %s:%s", var_name, type_name);
 	}
 
-
-	string get_struct_var_name()
-	{
-		auto struct_interface = idl_struct_list.get(type_name, null);
-		
-		if(struct_interface !is null)
-		{
-			auto strings = appender!string();
-			
-			foreach(k, v; struct_interface.member_attr_info)
-			{
-				formattedWrite(strings, "%s.%s, ", this.var_name, v.member_name);
-			}
-			
-			return strings.data;
-
-		}else
-		{
-			return var_name;
-		}
-	}
-
 	string get_var_name()
 	{
 		return var_name;
@@ -136,10 +114,11 @@ class idl_parse_interface : idl_base_interface
 			
 			if(member.length > 1)
 			{
-				string 	flag = member[0];
+				string flag = replaceAll(member[0], regex(`\s+`), "");
+
 				string func_tlp = member[1];
 
-				auto func_attr = new function_attr(member[0], member[1]);
+				auto func_attr = new function_attr(flag, func_tlp);
 
 				function_list[func_index++] = func_attr;
 
