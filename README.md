@@ -1,13 +1,15 @@
-# Ultra high performance RPC for D dlang
+# kiss-rpc:
+* features: analog stack call mode, support for multiple value returns, multi-layer type structure nested, multi-layer array embedded, support IDL protocol writing. The call is simple and secure, and the server uses multi-threaded asynchronous mode to mine server performance. Client supports multi-threaded synchronization and asynchronous mode, timeout mechanism, Linux support epoll network model, analog grpc, thrift, Dubbo, several times faster or even dozens of times.
+* environment: Linux, UNIX, windows, macOS
+* transport protocol: capnproto
+* development language: dlang
+* compiler: DMD
+* github:https://github.com/huntlabs/kiss-rpc
+* developer notes: [Development Notes] (http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ3xapdS0TaQCk2ieqTL2UN24T)
+* 简书介绍:http://www.jianshu.com/p/68d5bed1887b
 
-###### Kiss-rpc Features: Analog stack call, support multi valued return, simple and safe call, the server adopts multi-threaded asynchronous mode, mining server performance. Client supports multi-threaded synchronization and asynchronous mode, timeout mechanism, Linux support epoll network model, analog grpc, thrift, Dubbo, several times faster or even dozens of times
-		
-		
- #### Environment: linux, unix, windows, macOS
-
- #### Kiss-rpc introduction and testing: http://www.jianshu.com/p/68d5bed1887b
-
- #### Developer notes:[kiss-rpc developer note](http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ3xapdS0TaQCk2ieqTL2UN24T)
+# IDL introduction and instructions for use:
+* IDL protocol preparation and use of instructions: [IDL protocol detailed description] (http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ02PboQ0P_kXV2XlO0z3W9I69)
 
 
 #### Setup:
@@ -27,6 +29,7 @@
 	single connection: "example/app-sync-block-single.d"
 	
 	mutil connection: "example/app-sync-block-mutil.d"
+<<<<<<< HEAD
 
 #### IDL Example
 
@@ -35,6 +38,17 @@
 2. server test: "IDL-Example/server/app.d"
 
 3. idl protocol: "IDL-Example/kiss-idl"
+=======
+
+#### IDL Example
+
+1. client test: "IDL-Example/client/app.d"
+
+2. server test: "IDL-Example/server/app.d"
+
+3. idl protocol: "IDL-Example/kiss-idl"
+
+>>>>>>> ee9d48f4e41752a53c54bc682e98e373810f5a82
 
 # 什么是IDL
             IDL是kiss-rpc接口代码生成协议，通过定义IDL，可以生成对应的服务端和客户端通用的RPC代码调用接口，不必手写生成相应的代码接口，规范统一化，接口统一化，使用简单。 下面就是IDL协议编写示例，以及生成的对应RPC代码接口源码示例。 如果你想要手动编写RPC代码接口的话，也是可以的，但我们不建议你那么做。
@@ -170,6 +184,7 @@
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -182,3 +197,5 @@
 
 
 
+=======
+>>>>>>> ee9d48f4e41752a53c54bc682e98e373810f5a82
