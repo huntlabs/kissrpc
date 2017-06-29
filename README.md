@@ -6,7 +6,7 @@
 * compiler: DMD
 * github:https://github.com/huntlabs/kiss-rpc
 * developer notes: [Development Notes] (http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ3xapdS0TaQCk2ieqTL2UN24T)
-#IDL introduction and instructions for use:
+# IDL introduction and instructions for use:
 * IDL protocol preparation and use of instructions: [IDL protocol detailed description] (http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ02PboQ0P_kXV2XlO0z3W9I69)
 
 
