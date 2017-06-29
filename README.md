@@ -29,16 +29,16 @@
 	mutil connection: "kiss-rpc/example/app-sync-block-mutil.d"
 
 
-#About kiss rpc idl
+# About kiss rpc idl
 
-#什么是IDL
+# 什么是IDL
             IDL是kiss-rpc接口代码生成协议，通过定义IDL，可以生成对应的服务端和客户端通用的RPC代码调用接口，不必手写生成相应的代码接口，规范统一化，接口统一化，使用简单。 下面就是IDL协议编写示例，以及生成的对应RPC代码接口源码示例。 如果你想要手动编写RPC代码接口的话，也是可以的，但我们不建议你那么做。
 
-#IDL使用方式，
+# IDL使用方式，
     [idl文件路径]    [输出名字]    [输出路径，默认为当前目录]
     同时输出client和server文件代码，只需要拷贝到对应的客户端和服务端目录就行了。
 
-#代码编写方式
+# 代码编写方式
     * 服务端只要填充service文件的接口代码就行了；
     * 客户端只需要调用server接口的文件就行了。
 
@@ -102,7 +102,7 @@
             );  
 ```
 
-#服务端service文件代码 rpc_address_book_servicec class:
+# 服务端service文件代码 rpc_address_book_servicec class:
 
 * rpc_address_book_service.sync_get_contact_list
 
