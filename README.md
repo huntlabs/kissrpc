@@ -29,17 +29,141 @@
 	mutil connection: "kiss-rpc/example/app-sync-block-mutil.d"
 
 
-# client rpc remote call demo
-* client sync call server function  for say
+#About kiss rpc idl
+
+#什么是IDL
+            IDL是kiss-rpc接口代码生成协议，通过定义IDL，可以生成对应的服务端和客户端通用的RPC代码调用接口，不必手写生成相应的代码接口，规范统一化，接口统一化，使用简单。 下面就是IDL协议编写示例，以及生成的对应RPC代码接口源码示例。 如果你想要手动编写RPC代码接口的话，也是可以的，但我们不建议你那么做。
+
+#IDL使用方式，
+    [idl文件路径]    [输出名字]    [输出路径，默认为当前目录]
+    同时输出client和server文件代码，只需要拷贝到对应的客户端和服务端目录就行了。
+
+#代码编写方式
+    * 服务端只要填充service文件的接口代码就行了；
+    * 客户端只需要调用server接口的文件就行了。
+
+# kiss-rpc IDL 编写示例
 ```
-            auto sync_ret = hello_client.say("sync test hello client", test_num - i , i, 0.1);
-            writefln("hello call sync:%s", sync_ret);
-```
-* client async call server fucntion  for say_all
+	//kiss rpc idl demo
+
+	@message:user_info
+	{
+		string phone:3;
+		string user_name:1;
+		int age:2;
+		double wiget:4;
+		
+		string[] address_list:5;
+	}
+
+	@message:contacts
+	{
+		int number:1;
+		user_info[] user_info_list:2;		
+	}
+
+
+	@service:address_book	//接口类
+	{
+		sync: contacts sync_get_contact_list(string account_name);	//同步
+		async: string async_get_contact_list(string account_name);	//异步
+	}
 
 ```
-            hello_client.say_all("async test hello client,", test_num - i, i, 0.2, delegate(string s){
-                    writefln("hello call async:%s", s);
-                });  
+
+# 客户端远程调用
+* import files
+```
+    import KissRpc.IDL.kiss_idl_service;
+    import KissRpc.IDL.kiss_idl_message;  
+```
+
+
+* client sync call server function for rpc_address_book_service.sync_get_contact_list
+```
+            auto contact = address_book_service.sync_get_contact_list("jasonalex");
+
+            foreach(v; contact.user_info_list)
+            {
+                writefln("number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
+            }  
+```
+* client async call server fucntion  for rpc_address_book_service.async_get_contact_list
 
 ```
+            address_book_service.async_get_contact_list("jasonsalex", delegate(contacts c){
+                
+                    foreach(v; contact.user_info_list)
+                    {
+                        writefln("async number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
+                    }
+
+                }
+            );  
+```
+
+#服务端service文件代码 rpc_address_book_servicec class:
+
+* rpc_address_book_service.sync_get_contact_list
+
+```
+    contacts sync_get_contact_list(string account_name){
+
+        contacts contacts_ret;
+
+        import std.conv;
+        import std.stdio;
+
+        contacts_ret.number = 100;
+        contacts_ret.user_info_list = new user_info[10];
+
+
+        foreach(i,ref v; contacts_ret.user_info_list)
+        {
+            v.phone ~= "135167321"~to!string(i);
+            v.age = cast(int)i;
+            v.user_name = account_name~to!string(i);
+            v.address_list = new string[2];
+            v.address_list[0] =  account_name ~ "address1 :" ~ to!string(i);
+            v.address_list[1] =  account_name ~ "address2 :" ~ to!string(i);
+
+        }
+
+        return contacts_ret;
+    }  
+```
+
+* rpc_address_book_service.async_get_contact_list
+```
+    contacts async_get_contact_list(string account_name){
+
+        contacts contacts_ret;
+
+        import std.conv;
+        import std.stdio;
+        
+        contacts_ret.number = 100;
+        contacts_ret.user_info_list = new user_info[10];
+        
+        
+        foreach(i,ref v; contacts_ret.user_info_list)
+        {
+            v.phone ~= "135167321"~to!string(i);
+            v.age = cast(int)i;
+            v.user_name = account_name~to!string(i);
+            v.address_list = new string[2];
+            v.address_list[0] =  account_name ~ "address1 :" ~ to!string(i);
+            v.address_list[1] =  account_name ~ "address2 :" ~ to!string(i);
+            
+        }
+        
+        return contacts_ret;
+
+    }  
+```
+
+
+
+
+
+
