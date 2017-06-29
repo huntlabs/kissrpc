@@ -18,18 +18,23 @@
 #### Example:
 1. Asynchronous test:
 
-	single connection: "kiss-rpc/example/app-async-single.d"
+	single connection: "example/app-async-single.d"
 
-	mutil connection: "kiss-rpc/example/app-async-mutil.d"
+	mutil connection: "example/app-async-mutil.d"
 
 2. Synchronous test:
 	
-	single connection: "kiss-rpc/example/app-sync-block-single.d"
+	single connection: "example/app-sync-block-single.d"
 	
-	mutil connection: "kiss-rpc/example/app-sync-block-mutil.d"
+	mutil connection: "example/app-sync-block-mutil.d"
 
+#### IDL Example
 
-# About kiss rpc idl
+1. client test: "IDL-Example/client/app.d"
+
+2. server test: "IDL-Example/server/app.d"
+
+3. idl protocol: "IDL-Example/kiss-idl"
 
 # 什么是IDL
             IDL是kiss-rpc接口代码生成协议，通过定义IDL，可以生成对应的服务端和客户端通用的RPC代码调用接口，不必手写生成相应的代码接口，规范统一化，接口统一化，使用简单。 下面就是IDL协议编写示例，以及生成的对应RPC代码接口源码示例。 如果你想要手动编写RPC代码接口的话，也是可以的，但我们不建议你那么做。
@@ -79,7 +84,7 @@
 ```
 
 
-* client sync call server function for rpc_address_book_service.sync_get_contact_list
+* client sync call rpc_address_book_service.sync_get_contact_list for server function
 ```
             auto contact = address_book_service.sync_get_contact_list("jasonalex");
 
@@ -88,7 +93,7 @@
                 writefln("number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
             }  
 ```
-* client async call server fucntion  for rpc_address_book_service.async_get_contact_list
+* client async call rpc_address_book_service.async_get_contact_list for server fucntion
 
 ```
             address_book_service.async_get_contact_list("jasonsalex", delegate(contacts c){
@@ -161,6 +166,16 @@
 
     }  
 ```
+
+
+
+
+
+
+
+
+
+
 
 
 
