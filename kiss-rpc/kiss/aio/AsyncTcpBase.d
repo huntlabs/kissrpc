@@ -12,7 +12,7 @@ module kiss.aio.AsyncTcpBase;
 
 import kiss.event.Event;
 import kiss.event.Poll;
-import kiss.util.Log;
+import KissRpc.logs;
 
 import std.string;
 import std.socket;

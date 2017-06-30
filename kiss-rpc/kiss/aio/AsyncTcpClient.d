@@ -14,7 +14,7 @@ import kiss.aio.AsyncTcpBase;
 import kiss.time.Timer;
 import kiss.event.Poll;
 import kiss.event.Event;
-import kiss.util.Log;
+import KissRpc.logs;
 
 import std.string;
 import std.socket;

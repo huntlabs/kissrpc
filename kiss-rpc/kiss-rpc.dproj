@@ -126,7 +126,6 @@
     <Compile Include="kiss\event\package.d" />
     <Compile Include="kiss\time\Itimer.d" />
     <Compile Include="kiss\time\Timer.d" />
-    <Compile Include="kiss\util\Log.d" />
     <Compile Include="KissRpc\logs.d" />
     <Compile Include="..\..\..\..\桌面\server\kiss_idl_interface.d">
       <Link>IDL_DEMO\kiss_idl_interface.d</Link>

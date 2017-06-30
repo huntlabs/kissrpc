@@ -12,9 +12,3 @@ const uint RPC_CLIENT_DEFAULT_THREAD_POOL = 1;
 
 shared ulong RPC_SYSTEM_TIMESTAMP = 0;
 shared string RPC_SYSTEM_TIMESTAMP_STR;
-
-
-bool isClassType(T)(T t)
-{
-	return isAggregateType!(T);
-}

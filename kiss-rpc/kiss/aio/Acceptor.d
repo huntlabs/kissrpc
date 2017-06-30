@@ -10,7 +10,7 @@
  */
 module kiss.aio.Acceptor;
 
-import kiss.util.Log;
+import KissRpc.logs;
 
 import std.socket;
 import std.string;

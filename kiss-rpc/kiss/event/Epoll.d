@@ -15,7 +15,7 @@ import kiss.event.Event;
 import kiss.event.Poll;
 import kiss.time.Timer;
 import kiss.time.Itimer;
-import kiss.util.Log;
+import KissRpc.logs;
 
 import std.conv;
 import std.stdio;

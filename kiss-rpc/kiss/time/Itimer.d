@@ -11,7 +11,7 @@
 module kiss.time.Itimer;
 
 import kiss.time.Timer;
-import kiss.util.Log;
+import KissRpc.logs;
 
 import std.exception;
 import std.stdio;

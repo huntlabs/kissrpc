@@ -14,11 +14,13 @@
 
 
 #### Setup:
+
 1. install capnproto (https://capnproto.org/install.html)
 
 2. dmd Compiler
 
 #### Example:
+
 1. Asynchronous test:
 
 	single connection: "example/app-async-single.d"
@@ -30,15 +32,6 @@
 	single connection: "example/app-sync-block-single.d"
 	
 	mutil connection: "example/app-sync-block-mutil.d"
-
-
-#### IDL Example
-
-1. client test: "IDL-Example/client/app.d"
-
-2. server test: "IDL-Example/server/app.d"
-
-3. idl protocol: "IDL-Example/kiss-idl"
 
 
 #### IDL Example
