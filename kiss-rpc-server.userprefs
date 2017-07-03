@@ -1,5 +1,5 @@
 ﻿<Properties StartupItem="kiss-rpc/kiss-rpc.dproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../../桌面/server/kiss_idl_service.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../../桌面/server/kiss_idl_message.d">
     <Files>
       <File FileName="kiss-rpc/app.d" Line="32" Column="97" />
       <File FileName="../../../../../usr/include/dmd/druntime/import/object.d" Line="1" Column="1" />
@@ -27,7 +27,7 @@
       <File FileName="kiss-rpc/KissRpc/rpc_capnproto_package.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="kiss-rpc/KissRpc/rpc_capnproto_payload.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="../../../../../usr/include/dmd/phobos/std/traits.d" Line="1" Column="1" NotebookId="1" />
-      <File FileName="../../../桌面/server/kiss_idl_message.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="../../../桌面/server/kiss_idl_message.d" Line="8" Column="15" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
