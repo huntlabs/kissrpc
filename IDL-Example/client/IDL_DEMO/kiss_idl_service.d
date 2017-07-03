@@ -12,19 +12,17 @@ class rpc_address_book_service: rpc_address_book_interface{
 		super(rp_client);
 	}
 
-	contacts sync_get_contact_list(string account_name){
+	contacts get_contact_list(string account_name){
 
-		contacts ret = super.sync_get_contact_list_interface(account_name);
+		contacts ret = super.get_contact_list_interface(account_name);
 		return ret;
 	}
 
 
+	void get_contact_list(string account_name, rpc_get_contact_list_callback rpc_callback){
 
-	void async_get_contact_list(string account_name, rpc_async_get_contact_list_callback rpc_callback){
-
-		super.async_get_contact_list_interface(account_name, rpc_callback);
+		super.get_contact_list_interface(account_name, rpc_callback);
 	}
-
 
 
 }

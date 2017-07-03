@@ -1,7 +1,7 @@
 ﻿<Properties StartupItem="idl/idl.dproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="idl/IDL/idl_parse.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="idl/IDL/idl_inerface_create_code.d">
     <Files>
-      <File FileName="idl/app.d" Line="27" Column="2" />
+      <File FileName="idl/app.d" Line="1" Column="1" />
       <File FileName="idl/IDL/idl_parse.d" Line="206" Column="3" />
       <File FileName="idl/IDL/idl_base_interface.d" Line="1" Column="1" />
       <File FileName="idl/IDL/idl_parse_struct.d" Line="1" Column="1" />
@@ -9,8 +9,8 @@
       <File FileName="../../../../../../usr/include/dmd/phobos/std/regex/package.d" Line="1" Column="1" />
       <File FileName="idl/IDL/idl_struct_create_code.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="idl/IDL/idl_symbol.d" Line="1" Column="1" NotebookId="1" />
-      <File FileName="idl/IDL/idl_inerface_create_code.d" Line="1" Column="1" NotebookId="1" />
-      <File FileName="idl/IDL/idl_parse_interface.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="idl/IDL/idl_inerface_create_code.d" Line="233" Column="163" NotebookId="1" />
+      <File FileName="idl/IDL/idl_parse_interface.d" Line="35" Column="9" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

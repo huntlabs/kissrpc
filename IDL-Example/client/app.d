@@ -29,37 +29,36 @@ class client_socket : client_socket_event_interface
 	{
 		rp_client.connect("0.0.0.0", 4444, poll);
 	}
+
 	
 	void connectd(rpc_socket_base_interface socket)
 	{
-		writefln("connect to server, %s:%s", socket.getIp, socket.getPort);
 		
-		auto address_book_service = new rpc_address_book_service(rp_client);
-		start_clock = Clock.currStdTime().stdTimeToUnixTime!(long)();
+		writefln("connect to server, %s:%s", socket.getIp, socket.getPort);
 
 		for(int i= 0; i < test_num; ++i)
 		{
-			auto contact = address_book_service.sync_get_contact_list("jasonalex");
+			auto c = address_book_service.get_contact_list("jasonalex");
 
-			foreach(v; contact.user_info_list)
+			foreach(v; c.user_info_list)
 			{
-				writefln("sync number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
+				writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
+
 			}
+		
 
-			address_book_service.async_get_contact_list("jasonsalex", delegate(contacts c){
+			address_book_service.get_contact_list("jasonsalex", delegate(contacts c){
 				
-
-					foreach(v; contact.user_info_list)
+					foreach(v; c.user_info_list)
 					{
-						writefln("async number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
+						writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
 					}
-
 				}
 			);
 
-
 		}
 	}
+
 	
 	void disconnectd(rpc_socket_base_interface socket)
 	{

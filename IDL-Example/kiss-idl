@@ -20,7 +20,6 @@
 
 	@service:address_book	//接口类
 	{
-		sync: contacts sync_get_contact_list(string account_name);	//同步
-		async: contacts async_get_contact_list(string account_name);	//异步
+		contacts get_contact_list(string account_name);
 	}
 

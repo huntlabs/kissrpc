@@ -11,13 +11,11 @@ abstract class rpc_address_book_interface{
 
 	this(rpc_server rp_server){ 
 		rp_impl = new rpc_server_impl!(rpc_address_book_service)(rp_server); 
-		rp_impl.bind_request_callback("sync_get_contact_list", &this.sync_get_contact_list_interface); 
-
-		rp_impl.bind_request_callback("async_get_contact_list", &this.async_get_contact_list_interface); 
+		rp_impl.bind_request_callback("get_contact_list", &this.get_contact_list_interface); 
 
 	}
 
-	void sync_get_contact_list_interface(rpc_request req){
+	void get_contact_list_interface(rpc_request req){
 
 		auto resp = new rpc_response(req);
 
@@ -28,27 +26,7 @@ abstract class rpc_address_book_interface{
 
 		contacts ret_contacts;
 
-		ret_contacts = (cast(rpc_address_book_service)this).sync_get_contact_list(account_name);
-
-		resp.push(ret_contacts);
-
-		rp_impl.response(resp);
-	}
-
-
-
-	void async_get_contact_list_interface(rpc_request req){
-
-		auto resp = new rpc_response(req);
-
-		string account_name;
-
-
-		req.pop(account_name);
-
-		contacts ret_contacts;
-
-		ret_contacts = (cast(rpc_address_book_service)this).async_get_contact_list(account_name);
+		ret_contacts = (cast(rpc_address_book_service)this).get_contact_list(account_name);
 
 		resp.push(ret_contacts);
 

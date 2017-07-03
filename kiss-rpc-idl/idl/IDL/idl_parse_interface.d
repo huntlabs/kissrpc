@@ -44,10 +44,8 @@ public:
 
 class function_attr
 {
-	this(string flag_attr, string func_tlp)
+	this(string func_tlp)
 	{
-		this.flag = flag_attr;
-
 		auto format_func_tlp = replaceAll(func_tlp, regex(`\(|\)`), " ");
 
 		format_func_tlp = replaceAll(format_func_tlp, regex(`\,`),"");
@@ -85,10 +83,8 @@ class function_attr
 
 
 public:
-	string flag;
 	function_arg ret_value;
 	string func_name;
-
 	function_arg[int] func_arg_map;
 }
 
@@ -110,18 +106,10 @@ class idl_parse_interface : idl_base_interface
 
 		foreach(attr; member_attr_list)
 		{
-			auto member = split(attr, ":");
-			
-			if(member.length > 1)
+			if(attr.length > 1)
 			{
-				string flag = replaceAll(member[0], regex(`\s+`), "");
-
-				string func_tlp = member[1];
-
-				auto func_attr = new function_attr(flag, func_tlp);
-
+				auto func_attr = new function_attr(attr);
 				function_list[func_index++] = func_attr;
-
 			}
 		}
 

@@ -14,7 +14,7 @@ abstract class rpc_address_book_interface{
 		rp_impl = new rpc_client_impl!(rpc_address_book_service)(rp_client); 
 	}
 
-	contacts sync_get_contact_list_interface(string account_name, string bind_func = __FUNCTION__){
+	contacts get_contact_list_interface(string account_name, string bind_func = __FUNCTION__){
 
 		auto req = new rpc_request;
 
@@ -34,10 +34,9 @@ abstract class rpc_address_book_interface{
 	}
 
 
+	alias rpc_get_contact_list_callback = void delegate(contacts);
 
-	alias rpc_async_get_contact_list_callback = void delegate(contacts);
-
-	void async_get_contact_list_interface(string account_name, rpc_async_get_contact_list_callback rpc_callback, string bind_func = __FUNCTION__){
+	void get_contact_list_interface(string account_name, rpc_get_contact_list_callback rpc_callback, string bind_func = __FUNCTION__){
 
 		auto req = new rpc_request;
 
@@ -56,7 +55,6 @@ abstract class rpc_address_book_interface{
 				throw new Exception("rpc sync call error, function:" ~ bind_func);
 			}}, bind_func);
 	}
-
 
 
 	rpc_client_impl!(rpc_address_book_service) rp_impl;
