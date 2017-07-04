@@ -4,7 +4,7 @@
 * environment: Linux, UNIX, windows, macOS
 * transport protocol: capnproto
 * development language: dlang
-* compiler: DMD
+* compiler: dub
 * github:https://github.com/huntlabs/kiss-rpc
 * developer notes: [Development Notes] (http://e222f542.wiz03.com/share/s/3y8Ll23R1kuW2E2Bv211ZNaJ3xapdS0TaQCk2ieqTL2UN24T)
 * 简书介绍:http://www.jianshu.com/p/68d5bed1887b
@@ -17,7 +17,7 @@
 
 1. install capnproto (https://capnproto.org/install.html)
 
-2. dmd Compiler
+2. dub Compiler
 
 #### Example:
 
@@ -36,12 +36,23 @@
 
 #### IDL Example
 
-1. client test: "IDL-Example/client/app.d"
+1. client test: "IDL-Example/client/"
 
-2. server test: "IDL-Example/server/app.d"
+2. server test: "IDL-Example/server/"
 
 3. idl protocol: "IDL-Example/kiss-idl"
 
+
+#### Performance test code
+1. 50W QPS synchronous testing takes time: 15 seconds, average 3.3w QPS per second
+
+2. 50W QPS asynchronous testing takes 9 seconds, with an average of 5.5W QPS per second
+
+* server test code:"test/server"
+
+* client test code: "test/client"
+
+![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/69039892.png)
 
 # 什么是IDL
     1. IDL是kiss rpc接口代码生成协议, 编写IDL协议, 可以生成对应的服务端和客户端通用的RPC代码调用接口.

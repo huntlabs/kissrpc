@@ -1,0 +1,13 @@
+﻿<Properties StartupItem="dub.json">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" PreferredExecutionTarget="cov" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="source/IDL/test_rpc_service.d">
+    <Files>
+      <File FileName="source/app.d" Line="54" Column="50" />
+      <File FileName="source/IDL/test_rpc_service.d" Line="17" Column="3" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

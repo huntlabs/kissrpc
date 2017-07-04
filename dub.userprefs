@@ -1,0 +1,18 @@
+﻿<Properties StartupItem="dub.json">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" PreferredExecutionTarget="cov" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/rpc_recv_package_manage.d">
+    <Files>
+      <File FileName="source/.dub/dub.json" Line="1" Column="1" />
+      <File FileName="dub.json" Line="1" Column="1" />
+      <File FileName="source/KissRpc/.dub/dub.json" Line="1" Column="1" />
+      <File FileName="source/KissRpc/unit.d" Line="1" Column="1" />
+      <File FileName="source/kiss/event/Select.d" Line="1" Column="1" />
+      <File FileName="source/KissRpc/rpc_client_impl.d" Line="1" Column="1" />
+      <File FileName="source/KissRpc/rpc_recv_package_manage.d" Line="11" Column="18" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
