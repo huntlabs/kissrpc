@@ -48,11 +48,14 @@
 
 2. 50W QPS asynchronous testing takes 9 seconds, with an average of 5.5W QPS per second
 
+3. 1000 concurrent, 100wQPS asynchronous testing takes time: 25 seconds, average QPS:4W per second
+
 * server test code:"test/server"
 
 * client test code: "test/client"
 
 ![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/69039892.png)
+![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/59007921.png)
 
 # 什么是IDL
     1. IDL是kiss rpc接口代码生成协议, 编写IDL协议, 可以生成对应的服务端和客户端通用的RPC代码调用接口.

@@ -40,23 +40,38 @@ class client_socket : client_socket_event_interface
 
 		for(int i= 0; i < test_num; ++i)
 		{
-			auto c = address_book_service.get_contact_list("jasonalex");
 
-			foreach(v; c.user_info_list)
-			{
-				writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
+			try{
 
-			}
-		
-
-			address_book_service.get_contact_list("jasonsalex", delegate(contacts c){
-				
-					foreach(v; c.user_info_list)
-					{
-						writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
-					}
+				auto c = address_book_service.get_contact_list("jasonalex");
+				foreach(v; c.user_info_list)
+				{
+					writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
+					
 				}
-			);
+
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
+
+
+
+
+			try{
+
+				address_book_service.get_contact_list("jasonsalex", delegate(contacts c){
+						
+						foreach(v; c.user_info_list)
+						{
+							writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
+						}
+					}
+					);
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
 
 		}
 	}

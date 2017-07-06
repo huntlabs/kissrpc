@@ -45,12 +45,18 @@ class client_socket : client_socket_event_interface
 			user.name = "jasonsalex";
 			user.i = i;
 
-			auto s = service.get_name(user);
-
-			if(s.i % 50000 == 0)
+			try{
+				auto s = service.get_name(user);
+				
+				if(s.i % 50000 == 0)
+				{
+					writefln("ret:%s, request:%s, time:%s", s, i, Clock.currStdTime().stdTimeToUnixTime!(long)() - start_time);
+				}
+			}catch(Exception e)
 			{
-				writefln("ret:%s, request:%s, time:%s", s, i, Clock.currStdTime().stdTimeToUnixTime!(long)() - start_time);
+				writeln(e.msg);
 			}
+
 
 		}
 
@@ -70,21 +76,28 @@ class client_socket : client_socket_event_interface
 			user_info user;
 			user.name = "jasonsalex";
 			user.i = i;
-
-					service.get_name(user, delegate(user_info s){
+				
+			try{
+				service.get_name(user, delegate(user_info s){
 						
-							if(s.i%50000 == 0)
-							{
-								writefln("ret:%s, request:%s, time:%s", s, s.i, Clock.currStdTime().stdTimeToUnixTime!(long)() - start_time);
-							}
+						if(s.i%50000 == 0)
+						{
+							writefln("ret:%s, request:%s, time:%s", s, s.i, Clock.currStdTime().stdTimeToUnixTime!(long)() - start_time);
+						}
+						
+						if(s.i == test_num)
+						{
+							time = Clock.currStdTime().stdTimeToUnixTime!(long)() - start_time;
+							writefln("async test, total request:%s, time:%s, QPS:%s", s.i, time, test_num/time);
+						}
+						
+					});
+			}catch(Exception e)
+			{
+				writeln(e.msg);
 
-							if(s.i == test_num)
-							{
-								time = Clock.currStdTime().stdTimeToUnixTime!(long)() - start_time;
-								writefln("async test, total request:%s, time:%s, QPS:%s", s.i, time, test_num/time);
-							}
-							
-						});
+			}
+
 
 		}
 

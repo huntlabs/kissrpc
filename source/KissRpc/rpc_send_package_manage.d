@@ -13,6 +13,7 @@ import KissRpc.logs;
 
 import std.datetime;
 import core.thread;
+import core.memory:GC;
 
 import std.stdio;
 
