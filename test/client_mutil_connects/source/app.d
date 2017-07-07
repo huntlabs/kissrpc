@@ -1,50 +1,53 @@
 ﻿import std.stdio;
 import core.time;
 import std.datetime;
+import std.stdio;
+import core.time;
+import std.datetime;
 
-import KissRpc.rpc_client;
-import KissRpc.rpc_socket_base_interface;
-import KissRpc.logs;
+import KissRpc.RpcClient;
+import KissRpc.RpcSocketBaseInterface;
+import KissRpc.Logs;
 
-import KissRpc.IDL.test_rpc_service;
-import KissRpc.IDL.test_rpc_message;
+import KissRpc.IDL.TestRpcService;
+import KissRpc.IDL.TestRpcMessage;
 
 import kiss.event.GroupPoll;
 
 import std.conv;
 
-shared static int test_num = 1000;
-shared static int client_num = 1000;
+shared static int testNum = 1000;
+shared static int clientNum = 1000;
 
-shared static long start_all_time;
+shared static long startAllTime;
 
-class client_socket : client_socket_event_interface
+class ClientSocket : ClientSocketEventInterface
 {
 	
 	this(int id)
 	{
-		rp_client = new rpc_client(this);
-		client_id = id;
+		rpClient = new RpcClient(this);
+		clientId = id;
 	}
 	
-	void connect_to_server(GroupPoll!() poll)
+	void connectToServer(GroupPoll!() poll)
 	{
-		rp_client.connect("0.0.0.0", 4444, poll);
+		rpClient.connect("0.0.0.0", 4444, poll);
 	}
 	
-	void connectd(rpc_socket_base_interface socket)
+	void connectd(RpcSocketBaseInterface socket)
 	{
 		//writefln("connect to server, %s:%s", socket.getIp, socket.getPort);
-		rpc_test_service service = new rpc_test_service(rp_client);
+		RpcTestService service = new RpcTestService(rpClient);
 
 //		writefln("start sync test.......................");
-//		for(int i= 1; i <= test_num; ++i)
+//		for(int i= 1; i <= testNum; ++i)
 //		{
-//			user_info user;
+//			UserInfo user;
 //			user.name = "jasonsalex";
 //			user.i = i;
 //
-//			auto s = service.get_name(user);
+//			auto s = service.getName(user);
 //
 //			if(s.i % 50000 == 0)
 //			{
@@ -54,35 +57,35 @@ class client_socket : client_socket_event_interface
 //		}
 //
 //
-//		writefln("sync test, total request:%s, time:%s, QPS:%s\n\n", test_num, time, test_num/time);
+//		writefln("sync test, total request:%s, time:%s, QPS:%s\n\n", testNum, time, testNum/time);
 //
 //
 //
 //
 //		start_time  = Clock.currStdTime().stdTimeToUnixTime!(long)();
 
-		for(int i= 1; i <= test_num; ++i)
+		for(int i= 1; i <= testNum; ++i)
 		{
-			user_info user;
-			user.name = "jasonsalex:" ~ to!string(client_id);
+			UserInfo user;
+			user.name = "jasonsalex:" ~ to!string(clientId);
 			user.i = i;
 
 			try{
 
-				service.get_name(user, delegate(user_info s){
+				service.getName(user, delegate(UserInfo s){
 						
-						if(s.i== test_num)
+						if(s.i== testNum)
 						{
-							auto time = (Clock.currStdTime()/10000 - start_all_time)/1000;
+							auto time = (Clock.currStdTime()/10000 - startAllTime)/1000;
 							writefln("async test, client id:%s, total request:%s, time:%s", s.name, s.i, time);
 						}
 						
 						
 						
-						if(s.i == test_num && s.name == "jasonsalex:" ~ to!string(client_num))
+						if(s.i == testNum && s.name == "jasonsalex:" ~ to!string(clientNum))
 						{
-							auto time = (Clock.currStdTime()/10000 - start_all_time)/1000;
-							writefln("total async test, total client:%s, total request:%s, time:%s, QPS:%s", s.name, s.i*client_num, time, test_num*client_num/time);
+							auto time = (Clock.currStdTime()/10000 - startAllTime)/1000;
+							writefln("total async test, total client:%s, total request:%s, time:%s, QPS:%s", s.name, s.i*clientNum, time, testNum*clientNum/time);
 						}
 						
 					});
@@ -95,25 +98,25 @@ class client_socket : client_socket_event_interface
 
 	}
 	
-	void disconnectd(rpc_socket_base_interface socket)
+	void disconnectd(RpcSocketBaseInterface socket)
 	{
 		writefln("client disconnect ....");
 	}
 	
-	void write_failed(rpc_socket_base_interface socket)
+	void writeFailed(RpcSocketBaseInterface socket)
 	{
-		de_writefln("client write failed , %s:%s", socket.getIp, socket.getPort);
+		deWritefln("client write failed , %s:%s", socket.getIp, socket.getPort);
 	}
 	
-	void read_failed(rpc_socket_base_interface socket)
+	void readFailed(RpcSocketBaseInterface socket)
 	{
-		de_writefln("client read failed , %s:%s", socket.getIp, socket.getPort);
+		deWritefln("client read failed , %s:%s", socket.getIp, socket.getPort);
 	}
 	
 private:
 	
-	rpc_client rp_client;
-	int client_id;
+	RpcClient rpClient;
+	int clientId;
 }
 
 
@@ -122,13 +125,13 @@ void main()
 
 	auto poll = new GroupPoll!();
 
-	start_all_time = Clock.currStdTime()/10000;
+	startAllTime = Clock.currStdTime()/10000;
 
-	for(int i = 1; i <= client_num; ++i)
+	for(int i = 1; i <= clientNum; ++i)
 	{
-		auto client = new client_socket(i);
+		auto client = new ClientSocket(i);
 
-		client.connect_to_server(poll);
+		client.connectToServer(poll);
 	}
 
 

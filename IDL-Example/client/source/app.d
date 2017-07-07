@@ -2,51 +2,51 @@
 import core.time;
 import std.datetime;
 
-import KissRpc.rpc_client;
-import KissRpc.rpc_socket_base_interface;
-import KissRpc.logs;
+import KissRpc.RpcClient;
+import KissRpc.RpcSocketBaseInterface;
+import KissRpc.Logs;
 
-import KissRpc.IDL.kiss_idl_service;
-import KissRpc.IDL.kiss_idl_message;
+import KissRpc.IDL.KissIdlService;
+import KissRpc.IDL.KissIdlMessage;
 
 import kiss.event.GroupPoll;
 
 
-static ulong start_clock;
+static ulong startClock;
 
-static int test_num = 1;
+static int testNum = 1;
 
 
-class client_socket : client_socket_event_interface
+class ClientSocket : ClientSocketEventInterface
 {
 	
 	this()
 	{
-		rp_client = new rpc_client(this);
+		rpClient = new RpcClient(this);
 	}
 	
-	void connect_to_server(GroupPoll!() poll)
+	void connectToServer(GroupPoll!() poll)
 	{
-		rp_client.connect("0.0.0.0", 4444, poll);
+		rpClient.connect("0.0.0.0", 4444, poll);
 	}
 
 	
-	void connectd(rpc_socket_base_interface socket)
+	void connectd(RpcSocketBaseInterface socket)
 	{
 
-		auto address_book_service = new rpc_address_book_service(rp_client);
+		auto addressBookService = new RpcAddressBookService(rpClient);
 
 		writefln("connect to server, %s:%s", socket.getIp, socket.getPort);
 
-		for(int i= 0; i < test_num; ++i)
+		for(int i= 0; i < testNum; ++i)
 		{
 
 			try{
 
-				auto c = address_book_service.get_contact_list("jasonalex");
-				foreach(v; c.user_info_list)
+				auto c = addressBookService.getContactList("jasonalex");
+				foreach(v; c.userInfoList)
 				{
-					writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
+					writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
 					
 				}
 
@@ -60,11 +60,11 @@ class client_socket : client_socket_event_interface
 
 			try{
 
-				address_book_service.get_contact_list("jasonsalex", delegate(contacts c){
+				addressBookService.getContactList("jasonsalex", delegate(contacts c){
 						
-						foreach(v; c.user_info_list)
+						foreach(v; c.userInfoList)
 						{
-							writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.user_name, v.phone, v.address_list);
+							writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
 						}
 					}
 					);
@@ -77,33 +77,33 @@ class client_socket : client_socket_event_interface
 	}
 
 	
-	void disconnectd(rpc_socket_base_interface socket)
+	void disconnectd(RpcSocketBaseInterface socket)
 	{
 		writefln("client disconnect ....");
 	}
 	
-	void write_failed(rpc_socket_base_interface socket)
+	void writeFailed(RpcSocketBaseInterface socket)
 	{
-		de_writefln("client write failed , %s:%s", socket.getIp, socket.getPort);
+		deWritefln("client write failed , %s:%s", socket.getIp, socket.getPort);
 	}
 	
-	void read_failed(rpc_socket_base_interface socket)
+	void readFailed(RpcSocketBaseInterface socket)
 	{
-		de_writefln("client read failed , %s:%s", socket.getIp, socket.getPort);
+		deWritefln("client read failed , %s:%s", socket.getIp, socket.getPort);
 	}
 	
 private:
 	
-	rpc_client rp_client;
+	RpcClient rpClient;
 }
 
 
 void main()
 {
-	import KissRpc.logs;
+	import KissRpc.Logs;
 	auto poll = new GroupPoll!();
-	auto client = new client_socket;
-	client.connect_to_server(poll);
+	auto client = new ClientSocket;
+	client.connectToServer(poll);
 	
 	poll.start;
 	poll.wait;

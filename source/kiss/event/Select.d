@@ -14,7 +14,7 @@ import kiss.event.Poll;
 import kiss.event.Event;
 import kiss.time.Timer;
 import kiss.time.Itimer;
-import KissRpc.logs;
+import KissRpc.Logs;
 
 import std.socket;
 import std.conv;
@@ -71,7 +71,7 @@ final class Select : Thread , Poll
 
 		if(_mapevents.length >= _maxfd )
 		{
-			log_error("too much fd , len :" ~ to!string(_mapevents.length) ~ "max:" ~ to!string(_maxfd));
+			logError("too much fd , len :" ~ to!string(_mapevents.length) ~ "max:" ~ to!string(_maxfd));
 				return false;
 		}
 
@@ -161,7 +161,7 @@ final class Select : Thread , Poll
 
 					if(v.type & (~IOEventType.IO_EVENT_ERROR)) 
 					{
-						log_error("io_event_error");
+						logError("io_event_error");
 					}
 
 					if(!v.event.onClose())
@@ -175,7 +175,7 @@ final class Select : Thread , Poll
 
 					if(v.type & (~IOEventType.IO_EVENT_READ)) 
 					{
-						log_error("io_event_read");
+						logError("io_event_read");
 					}
 
 					if(!v.event.onRead())
@@ -190,7 +190,7 @@ final class Select : Thread , Poll
 				{
 					if(v.type & (~IOEventType.IO_EVENT_WRITE))
 					{
-						log_error("io_event_write");
+						logError("io_event_write");
 					}
 
 					if(!v.event.onWrite())
@@ -234,7 +234,7 @@ final class Select : Thread , Poll
 	{
 		if(_flag)
 		{
-			log_error("already started");
+			logError("already started");
 			return ;
 		}
 		_flag = true;

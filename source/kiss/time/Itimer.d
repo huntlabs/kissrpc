@@ -11,7 +11,7 @@
 module kiss.time.Itimer;
 
 import kiss.time.Timer;
-import KissRpc.logs;
+import KissRpc.Logs;
 
 import std.exception;
 import std.stdio;
@@ -225,7 +225,7 @@ final class WheelTimer
 				if(link._tm.onTimer(link , _checktime) && 
 					link._type == WheelType.WHEEL_PERIODIC)
 				{
-					log_info("interval:" ~ to!string(link._interval));
+					logInfo("interval:" ~ to!string(link._interval));
 					add(link);
 				}
 			} 

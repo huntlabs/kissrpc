@@ -14,14 +14,14 @@ void main(string[] args)
 	
 		auto idl = new idl_parse;
 		
-		idl.set_parse_file(args[1]);
-		idl.set_file_name(args[2]);
+		idl.setParseFile(args[1]);
+		idl.setFileName(args[2]);
 
 		if(args.length == 4)
 		{
-			idl.set_output_file(args[3]);
+			idl.setOutputFile(args[3]);
 		}
 
-		idl.start_parse();
+		idl.startParse();
 	}
 }

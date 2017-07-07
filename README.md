@@ -78,26 +78,26 @@
 ```
 	//kiss rpc idl demo
 
-	@message:user_info
+	@message:UserInfo
 	{
 		string phone:3;
-		string user_name:1;
+		string userName:1;
 		int age:2;
 		double wiget:4;
 		
-		string[] address_list:5;
+		string[] addressList:5;
 	}
 
 	@message:contacts
 	{
 		int number:1;
-		user_info[] user_info_list:2;		
+		UserInfo[] userInfoList:2;		
 	}
 
 
-	@service:address_book	//inerface class
+	@service:AddressBook	//class interface
 	{
-		contacts get_contact_list(string account_name);
+		contacts getContactList(string accountName);
 	}
 
 
@@ -111,62 +111,76 @@
 * import hander files
 
 ```
-    import KissRpc.IDL.kiss_idl_service;
-    import KissRpc.IDL.kiss_idl_message;  
+import KissRpc.IDL.KissIdlService;
+import KissRpc.IDL.KissIdlMessage;
 ```
 
 
 * Client synchronous invocation
 ```
-    auto contact = address_book_service.get_contact_list("jasonalex");
-    
-    foreach(v; contact.user_info_list)
-    {
-        writefln("number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
-    }
+			try{
+
+				auto c = addressBookService.getContactList("jasonalex");
+				foreach(v; c.userInfoList)
+				{
+					writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+					
+				}
+
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
+
 ```
 * Client asynchronous call
 
 ```
-    address_book_service.get_contact_list("jasonsalex", delegate(contacts c){
-            foreach(v; c.user_info_list)
-            {
-                writefln("async number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
-             }
-        });  
+ 			try{
+
+				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+						
+						foreach(v; c.userInfoList)
+						{
+							writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+						}
+					}
+					);
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
 ```
 
 # Server service file code rpc_address_book_service:
 
 ######  The server interface can handle asynchronous events.
 
-* rpc_address_book_service.sync_get_contact_list
+*  RpcAddressBookService.getContactList
 
 ```
-    contacts get_contact_list(string account_name){
+	contacts getContactList(string accountName){
+		
+		contacts contactsRet;
+		
+		contactsRet.number = 100;
+		contactsRet.userInfoList = new UserInfo[10];
+		
+		
+		foreach(i,ref v; contactsRet.userInfoList)
+		{
+			v.phone ~= "135167321"~to!string(i);
+			v.age = cast(int)i;
+			v.userName = accountName~to!string(i);
+			v.addressList = new string[2];
+			v.addressList[0] =  accountName ~ "address1 :" ~ to!string(i);
+			v.addressList[1] =  accountName ~ "address2 :" ~ to!string(i);
+			
+		}
 
-        contacts contacts_ret;
 
-        import std.conv;
-        import std.stdio;
-
-        contacts_ret.number = 100;
-        contacts_ret.user_info_list = new user_info[10];
-
-
-        foreach(i,ref v; contacts_ret.user_info_list)
-        {
-            v.phone ~= "135167321"~to!string(i);
-            v.age = cast(int)i;
-            v.user_name = account_name~to!string(i);
-            v.address_list = new string[2];
-            v.address_list[0] =  account_name ~ "address1 :" ~ to!string(i);
-            v.address_list[1] =  account_name ~ "address2 :" ~ to!string(i);
-
-        }
-
-        return contacts_ret;
-    }  
+		return contactsRet;
+	}
 ```
 
 

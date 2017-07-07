@@ -1,25 +1,25 @@
 	
 	//kiss rpc idl demo
 
-	@message:user_info
+	@message:UserInfo
 	{
 		string phone:3;
-		string user_name:1;
+		string userName:1;
 		int age:2;
 		double wiget:4;
 		
-		string[] address_list:5;
+		string[] addressList:5;
 	}
 
 	@message:contacts
 	{
 		int number:1;
-		user_info[] user_info_list:2;		
+		UserInfo[] userInfoList:2;		
 	}
 
 
-	@service:address_book	//接口类
+	@service:AddressBook	//接口类
 	{
-		contacts get_contact_list(string account_name);
+		contacts getContactList(string accountName);
 	}
 

@@ -15,7 +15,7 @@ import kiss.event.Event;
 import kiss.event.Poll;
 import kiss.time.Timer;
 import kiss.time.Itimer;
-import KissRpc.logs;
+import KissRpc.Logs;
 
 import std.conv;
 import std.stdio;
@@ -90,7 +90,7 @@ final class Epoll :Thread , Poll
 		{
 			int err = errno();
 			string errstr = cast(string)fromStringz(strerror(err));
-			log_fatal(errstr ~ " errno:" ~ to!string(err));
+			logFatal(errstr ~ " errno:" ~ to!string(err));
 		}
 		_timeout = timeout;
 		_wheeltimer = new WheelTimer();
@@ -151,7 +151,7 @@ final class Epoll :Thread , Poll
 		{
 			int err = errno();
 			string errstr = cast(string)fromStringz(strerror(err));
-			log_fatal( to!string(op) ~ errstr ~ " errno:" ~ to!string(err));
+			logFatal( to!string(op) ~ errstr ~ " errno:" ~ to!string(err));
 			return false;
 		}
 		
@@ -178,7 +178,7 @@ final class Epoll :Thread , Poll
 	{
 		if(_flag)
 		{
-			log_warning("already started");
+			logWarning("already started");
 			return ;
 		}
 		_flag = true;
@@ -220,7 +220,7 @@ final class Epoll :Thread , Poll
 				return true;
 
 			string errstr = cast(string)fromStringz(strerror(err));
-			log_fatal(errstr ~ " errno:" ~ to!string(err));
+			logFatal(errstr ~ " errno:" ~ to!string(err));
 			return false;
 		}
 		else if(result == 0)

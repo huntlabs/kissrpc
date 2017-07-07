@@ -1,6 +1,6 @@
 module java.nio.ByteBuffer;
 
-//TODO: Always little endian.
+//TODO: Always little Endian.
 struct ByteBuffer
 {
 public: //Variables.

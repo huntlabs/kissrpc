@@ -12,7 +12,7 @@ module kiss.aio.AsyncTcpBase;
 
 import kiss.event.Event;
 import kiss.event.Poll;
-import KissRpc.logs;
+import KissRpc.Logs;
 
 import std.string;
 import std.socket;
@@ -74,12 +74,12 @@ class AsyncTcpBase:Event
 				{
 					if(net_error())
 					{
-						log_error( "write net error");
+						logError( "write net error");
 						close();
 						return -1;
 					}
 					//blocking rarely happened.
-					log_warning("blocking rarely happened");
+					logWarning("blocking rarely happened");
 					QueueBuffer buffer = {writebuf , ob , 0 , finish};
 					_writebuffer.insertBack(buffer);
 					schedule_write();
@@ -187,7 +187,7 @@ class AsyncTcpBase:Event
 		}
 		else if(ret == -1 && net_error())
 		{
-			log_error("error");
+			logError("error");
 			return false;
 		}
 		
@@ -229,7 +229,7 @@ class AsyncTcpBase:Event
 	{
 		if(_curEventType & IOEventType.IO_EVENT_WRITE)
 		{
-			log_error("already IO_EVENT_WRITE");
+			logError("already IO_EVENT_WRITE");
 		}
 		
 		_curEventType |= IOEventType.IO_EVENT_WRITE;
@@ -240,7 +240,7 @@ class AsyncTcpBase:Event
 	{
 		if(! (_curEventType & IOEventType.IO_EVENT_WRITE))
 		{
-			log_error( "already no IO_EVENT_WRITE");
+			logError( "already no IO_EVENT_WRITE");
 		}
 		
 		_curEventType &= ~IOEventType.IO_EVENT_WRITE;

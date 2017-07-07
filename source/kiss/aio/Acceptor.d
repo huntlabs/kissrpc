@@ -10,7 +10,7 @@
  */
 module kiss.aio.Acceptor;
 
-import KissRpc.logs;
+import KissRpc.Logs;
 
 import std.socket;
 import std.string;
@@ -32,7 +32,7 @@ final package class Acceptor
 		AddressInfo[] arr = getAddressInfo(ipaddr , strPort , AddressInfoFlags.PASSIVE);
 		if(arr.length == 0)
 		{
-			log_error("getAddressInfo" ~ ipaddr ~ ":" ~ strPort);
+			logError("getAddressInfo" ~ ipaddr ~ ":" ~ strPort);
 			return false;
 		}
 		_socket = new Socket(arr[0].family , arr[0].type , arr[0].protocol);

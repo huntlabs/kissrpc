@@ -1,22 +1,22 @@
-module KissRpc.IDL.test_rpc_service;
+module KissRpc.IDL.TestRpcService;
 
-import KissRpc.IDL.test_rpc_interface;
-import KissRpc.IDL.test_rpc_message;
+import KissRpc.IDL.TestRpcInterface;
+import KissRpc.IDL.TestRpcMessage;
 
-import KissRpc.rpc_server;
+import KissRpc.RpcServer;
 
-class rpc_test_service: rpc_test_interface{
+class RpcTestService: RpcTestInterface{
 
-	this(rpc_server rp_server){
-		super(rp_server);
+	this(RpcServer rpServer){
+		super(rpServer);
 	}
 
-	user_info get_name(user_info info){
+	UserInfo getName(UserInfo info){
 
-		user_info user_info_ret = info;
+		UserInfo userInfoRet = info;
 
 
-		return user_info_ret;
+		return userInfoRet;
 	}
 
 

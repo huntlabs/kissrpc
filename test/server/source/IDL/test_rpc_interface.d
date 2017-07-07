@@ -1,41 +1,41 @@
-module KissRpc.IDL.test_rpc_interface;
+module KissRpc.IDL.TestRpcInterface;
 
-import KissRpc.IDL.test_rpc_message;
-import KissRpc.IDL.test_rpc_service;
+import KissRpc.IDL.TestRpcMessage;
+import KissRpc.IDL.TestRpcService;
 
-import KissRpc.rpc_server;
-import KissRpc.rpc_server_impl;
-import KissRpc.rpc_response;
-import KissRpc.rpc_request;
-abstract class rpc_test_interface{ 
+import KissRpc.RpcServer;
+import KissRpc.RpcServerImpl;
+import KissRpc.RpcResponse;
+import KissRpc.RpcRequest;
+abstract class RpcTestInterface{ 
 
-	this(rpc_server rp_server){ 
-		rp_impl = new rpc_server_impl!(rpc_test_service)(rp_server); 
-		rp_impl.bind_request_callback("get_name", &this.get_name_interface); 
+	this(RpcServer rpServer){ 
+		rpImpl = new RpcServerImpl!(RpcTestService)(rpServer); 
+		rpImpl.bindRequestCallback("getName", &this.getNameInterface); 
 
 	}
 
-	void get_name_interface(rpc_request req){
+	void getNameInterface(RpcRequest req){
 
-		auto resp = new rpc_response(req);
+		auto resp = new RpcResponse(req);
 
-		user_info info;
+		UserInfo info;
 
 
 		req.pop(info);
 
-		user_info ret_user_info;
+		UserInfo retUserInfo;
 
-		ret_user_info = (cast(rpc_test_service)this).get_name(info);
+		retUserInfo = (cast(RpcTestService)this).getName(info);
 
-		resp.push(ret_user_info);
+		resp.push(retUserInfo);
 
-		rp_impl.response(resp);
+		rpImpl.response(resp);
 	}
 
 
 
-	rpc_server_impl!(rpc_test_service) rp_impl;
+	RpcServerImpl!(RpcTestService) rpImpl;
 }
 
 

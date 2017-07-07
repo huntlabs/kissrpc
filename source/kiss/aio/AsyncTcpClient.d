@@ -14,7 +14,7 @@ import kiss.aio.AsyncTcpBase;
 import kiss.time.Timer;
 import kiss.event.Poll;
 import kiss.event.Event;
-import KissRpc.logs;
+import KissRpc.Logs;
 
 import std.string;
 import std.socket;
@@ -46,7 +46,7 @@ class AsyncTcpClient:AsyncTcpBase,Timer
 		AddressInfo[] arr = getAddressInfo(host , strPort , AddressInfoFlags.CANONNAME);
 		if(arr.length == 0)
 		{
-			log_error(host ~ ":" ~ strPort);
+			logError(host ~ ":" ~ strPort);
 			return false;
 		}
 		
