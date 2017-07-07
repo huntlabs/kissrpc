@@ -57,19 +57,24 @@
 ![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/69039892.png)
 ![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/59007921.png)
 
-# 什么是IDL
-    1. IDL是kiss rpc接口代码生成协议, 编写IDL协议, 可以生成对应的服务端和客户端通用的RPC代码调用接口.
-    2. 规范统一化, 接口统一化, 使用简单.
+# What is IDL?
+    1. IDL is the kiss RPC interface code generation protocol, the preparation of IDL protocol, you can generate the corresponding server and client common RPC code call interface.
 
-# IDL使用方式
-    1. [idl文件路径]    [输出名字]    [输出路径，默认为当前目录].
-    2. 同时输出client和server文件代码，只需要拷贝到对应的客户端和服务端目录就行了.
+    2. Standardize the unity, interface unification, simple to use.
 
-# IDL代码使用方式
-    1. 服务端只要填充server目录下service文件的函数接口代码.
-    2. 客户端只需要调用client目录下service文件的接口的函数.
 
-# kiss-rpc IDL 编写示例
+# IDL usage
+    1. [idl file path]    [output file name]    [output file path，default current dir]
+    2. At the same time output client and server file code, only need to copy to the corresponding client and server directory.
+
+
+
+# IDL code usage
+    1. IDL code usage, server-side as long as the server directory to fill the service file function interface code.
+
+    2. The client only needs to call the function of the interface of the service file under the client directory.
+
+# Kiss-rpc IDL writing examples
 ```
 	//kiss rpc idl demo
 
@@ -90,7 +95,7 @@
 	}
 
 
-	@service:address_book	//接口类
+	@service:address_book	//inerface class
 	{
 		contacts get_contact_list(string account_name);
 	}
@@ -98,18 +103,20 @@
 
 ```
 
-# 客户端远程调用
+# Client remote call
 
-###### IDL会同时生成同步接口和异步接口，异步接口都为参数回调的方式。
 
-* 倒入头文件
+###### IDL generates both synchronous and asynchronous interfaces, and asynchronous interfaces are all parameter callbacks.
+
+* import hander files
+
 ```
     import KissRpc.IDL.kiss_idl_service;
     import KissRpc.IDL.kiss_idl_message;  
 ```
 
 
-* 客户端同步调用
+* Client synchronous invocation
 ```
     auto contact = address_book_service.get_contact_list("jasonalex");
     
@@ -118,7 +125,7 @@
         writefln("number:%s, name:%s, phone:%s, address list:%s", contact.number, v.user_name, v.phone, v.address_list);
     }
 ```
-* 客户端异步调用
+* Client asynchronous call
 
 ```
     address_book_service.get_contact_list("jasonsalex", delegate(contacts c){
@@ -129,8 +136,9 @@
         });  
 ```
 
-# 服务端service文件代码 rpc_address_book_service:
-###### 服务端接口都会异步事件处理。
+# Server service file code rpc_address_book_service:
+
+######  The server interface can handle asynchronous events.
 
 * rpc_address_book_service.sync_get_contact_list
 
