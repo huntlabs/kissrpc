@@ -15,7 +15,7 @@ class CapnprotoRecvPackage
 {
 	this()
 	{
-		binaryPackage = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, 0);
+		binaryPackage = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF);
 		hander = new ubyte[binaryPackage.getHanderSize];
 		recvRemainBytes = hander.length;
 	}

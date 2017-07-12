@@ -1,11 +1,12 @@
 {
 	    "name": "KissRpc",
 	    "description": "A refined core library for D programming language.",
-	    "copyright": "Copyright (C) 2015-2016 Shanghai Putao Technology Co., Ltd",
+	    "copyright": "Copyright (C) 2015-2017 Shanghai Putao Technology Co., Ltd",
 	    "authors": [
 		"HuntLabs.cn"
 	    ],
 
-	    "license": "Apache-2.0"
-
+	    "license": "Apache-2.0",
+		"lflags":["-L/usr/local/lib"],
+		"libs":["snappy"]
 }

@@ -206,12 +206,13 @@ private:
 
 class RpcRequest
 {
-	this(const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS)
+	this(RPC_PACKAGE_COMPRESS_TYPE type = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS)
 	{
 		timeOut = secondsTimeOut;
 		timestamp = RPC_SYSTEM_TIMESTAMP;
 		semaphore = new Semaphore;
 		nonblock = true;
+		compressType = type;
 	}
 
 	this(RpcRequest req)
@@ -220,6 +221,7 @@ class RpcRequest
 		this.funcName = req.funcName;
 		this.sequeNum = req.sequeNum;
 		this.nonblock = req.nonblock;
+		this.compressType = req.compressType;
 	}
 
 	this(RpcSocketBaseInterface socket)
@@ -433,9 +435,21 @@ class RpcRequest
 		semaphore.notify();
 	}
 
+	RPC_PACKAGE_COMPRESS_TYPE getCompressType()
+	{
+		return compressType;
+	}
+
+	void setCompressType(RPC_PACKAGE_COMPRESS_TYPE type)
+	{
+		compressType = type;
+	}
+
 private:
 	int argNum;
 	int funcArgListIndex;
+
+	RPC_PACKAGE_COMPRESS_TYPE compressType;
 
 	RESPONSE_STATUS response_status;
 

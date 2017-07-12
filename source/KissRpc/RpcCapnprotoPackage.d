@@ -160,6 +160,7 @@ unittest{
 
 	import std.stdio;
 	import std.typetuple;
+	import util.snappy;
 
 	struct test_a
 	{
@@ -263,7 +264,7 @@ unittest{
 	send_byte_buf[0].get(sendStream, 0, sendStream.length);
 
 	writeln("------------------------send rpc capnproto packge--------------------------------");
-	writefln("send message, length:%s stream:%s", sendStream.length, sendStream);
+	writefln("send message, length:%s, compress length:%s, stream:%s, ", sendStream.length, Snappy.compress(cast(byte[])sendStream).length, sendStream);
 
 
 	auto recv_pack = new RpcCapnprotoPackage(null, send_byte_buf);

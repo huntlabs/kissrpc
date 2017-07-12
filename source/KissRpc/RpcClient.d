@@ -30,6 +30,7 @@ class RpcClient:RpcEventInterface{
 		clientSocketEvent = socketEvent;
 		sendPackManage = new RpcSendPackageManage(this);
 		defaultPoolThreads = RPC_CLIENT_DEFAULT_THREAD_POOL;
+		compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO;
 	}
 	
 	void bind(string className, string funcName)
@@ -50,6 +51,11 @@ class RpcClient:RpcEventInterface{
 		req.setSequence(packMessageCount);
 		req.setSocket(clientSocket);
 
+		if(req.getCompressType == RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO)
+		{
+			req.setCompressType(this.compressType);
+		}
+
 		deWritefln("rpc client request remote call:%s", req.getCallFuncName());
 		return sendPackManage.add(req);
 	}
@@ -59,8 +65,8 @@ class RpcClient:RpcEventInterface{
 
 		if(sendPackManage.remove(pack.getSequenceId))
 		{
-			deWritefln("client recv package event, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s", 
-				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize);
+			deWritefln("client recv package event, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s, compress:%s", 
+				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
 
 			RpcPackageBase packageBase;
 			
@@ -80,6 +86,7 @@ class RpcClient:RpcEventInterface{
 
 			rpcResp.setSequence(pack.getSequenceId());
 			rpcResp.setNonblock(pack.getNonblock());
+			rpcResp.setCompressType(pack.getCompressType);
 
 			if(pack.getStatusCode != RPC_PACKAGE_STATUS_CODE.RPSC_OK)
 			{
@@ -189,9 +196,14 @@ class RpcClient:RpcEventInterface{
 		return sendPackManage.getWaitResponseNum;
 	}
 
+	void setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE type)
+	{
+		compressType = type;
+	}
 	
 private:
 	RpcSendPackageManage sendPackManage;
+	RPC_PACKAGE_COMPRESS_TYPE compressType;
 
 	ReponsCallback[string] rpcCallbackMap;
 

@@ -4,6 +4,8 @@ import KissRpc.Endian;
 import KissRpc.Unit;
 import KissRpc.Logs;
 
+import util.snappy;
+
 import std.stdio;
 
 
@@ -16,6 +18,7 @@ enum RPC_PACKAGE_PROTOCOL
 	TPP_CAPNP_BUF,
 }
 
+
 enum RPC_PACKAGE_STATUS_CODE
 {
 	RPSC_OK,
@@ -25,7 +28,7 @@ enum RPC_PACKAGE_STATUS_CODE
 
 class RpcBinaryPackage
 {
-	this(RPC_PACKAGE_PROTOCOL tpp, ulong msgId, bool isNonblock = true)
+	this(RPC_PACKAGE_PROTOCOL tpp, ulong msgId = 0, RPC_PACKAGE_COMPRESS_TYPE compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, bool isNonblock = true)
 	{
 		magic = RPC_HANDER_MAGIC;
 		ver = RPC_HANDER_VERSION;
@@ -33,6 +36,10 @@ class RpcBinaryPackage
 		nonblock = isNonblock;
 
 		st = cast(short)tpp;
+
+		st|=(compressType<<8);
+
+
 		statusCode = cast(short)RPC_PACKAGE_STATUS_CODE.RPSC_OK;
 
 		handerSize = ver.sizeof + st.sizeof + nb.sizeof + ow.sizeof + rp.sizeof + nonblock.sizeof + statusCode.sizeof 
@@ -67,7 +74,7 @@ class RpcBinaryPackage
 
 	short getSerializedType()const
 	{
-		return st;
+		return st&0x00ff;
 	}
 
 	ulong getSequenceId()const
@@ -97,11 +104,32 @@ class RpcBinaryPackage
 
 	ubyte[] toStream(ubyte[] payload)
 	{
+		switch(this.getCompressType())
+		{
+			case RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS:
+				payload =cast(ubyte[]) Snappy.compress(cast(byte[])payload);
+				break;
+				
+			case RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC:
+				if(payload.length >= RPC_PACKAGE_COMPRESS_DYNAMIC_VALUE)
+				{
+					payload = cast(ubyte[]) Snappy.compress(cast(byte[])payload);
+
+				}else
+				{
+					st&=0x00ff;
+				}
+				break;
+				
+			default:break;
+		}
+
 		bodySize = payload.length;
-
+		
 		auto stream = new ubyte[this.getPackgeSize()];
-
+		
 		ulong pos = 0;
+
 
 		pos = writeBytesPos(stream, magic,  pos);
 		pos = writeBinaryPos(stream, handerSize, pos);
@@ -139,6 +167,18 @@ class RpcBinaryPackage
 			pos = readBinaryPos(data, bodySize, pos);
 			
 			bodyPayload = data[pos .. $];
+
+
+			switch(this.getCompressType())
+			{
+				case RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC:
+					bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
+					bodySize = bodyPayload.length;
+					break;
+					
+				default:break;
+			}
+
 					
 		}catch(Exception e)
 		{
@@ -183,7 +223,18 @@ class RpcBinaryPackage
 		try{
 
 			bodyPayload = data[0 .. $];
-		
+				
+			switch(this.getCompressType())
+			{
+				case RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC:
+					bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
+					bodySize = bodyPayload.length;
+					break;
+					
+				default:break;
+			}
+
+
 		}catch(Exception e)
 		{
 			logWarning("decode body stream is error:%s", e.msg);
@@ -197,6 +248,11 @@ class RpcBinaryPackage
 	bool checkHanderValid()
 	{
 		return magic == RPC_HANDER_MAGIC && ver == RPC_HANDER_VERSION && this.getPackgeSize <= RPC_PACKAGE_MAX;
+	}
+
+	RPC_PACKAGE_COMPRESS_TYPE getCompressType()
+	{
+		return cast(RPC_PACKAGE_COMPRESS_TYPE)((st & 0xff00)>>8);
 	}
 
 protected:
@@ -254,21 +310,21 @@ private:
 unittest{
 	import std.stdio;
 
-	auto send_pkg  = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, 0);
+	auto send_pkg  = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, 0, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC);
 	auto send_data = "aaaaaaaabbbbbbbbbbbbbbcccccccccccccccdddddddddddddddddddd";
 
-	deWritefln("-----------------------------------------------------");
+	writeln("-----------------------------------------------------");
 
 	auto snd_stream = send_pkg.toStream(cast(ubyte[])send_data);
 
-	writefln("send stream:%s, length:%s", snd_stream, send_pkg.getPackgeSize());
+	writefln("send stream, length:%s, compress:%s, data:%s", snd_stream.length, send_pkg.getCompressType, snd_stream);
 
-	auto recvPkg = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, 0);
+	auto recvPkg = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF);
 
 	recvPkg.fromStream(snd_stream);
 
-	deWritefln("----------------------------------------------------");
+	writeln("----------------------------------------------------");
 
-	writefln("recv stream:%s. length:%s", recvPkg.getPayload(), recvPkg.getPackgeSize());
+	writefln("recv stream, length:%s, compress:%s, data:%s", recvPkg.getPackgeSize(), recvPkg.getCompressType, recvPkg.getPayload());
 
 }

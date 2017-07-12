@@ -351,10 +351,11 @@ version(UltraHigh)
 unittest
 {
 	import KissRpc.Logs;
-
-	setOutputLogPath("./info.log");
-
-
+//
+//	setOutputLogPath("./info.log");
+//
+//
+	writeln("-------------------------------------------------------");
 	logFormatDebug("debug");
 	logInfo("info");
 	logError("errro");

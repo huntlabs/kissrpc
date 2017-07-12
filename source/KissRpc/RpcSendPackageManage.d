@@ -10,7 +10,6 @@ import KissRpc.RpcCapnprotoPackage;
 import KissRpc.Unit;
 import KissRpc.Logs;
 
-
 import std.datetime;
 import core.thread;
 import core.memory:GC;
@@ -36,14 +35,14 @@ import std.stdio;
 		synchronized(this)
 		{
 
-			auto streamBinaryPackge = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, req.getSequence, req.getNonblock);
+			auto streamBinaryPackge = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, req.getSequence, req.getCompressType, req.getNonblock);
 			auto capnprotoPack = new RpcCapnprotoPackage(req);
-			
-			auto binaryStream = capnprotoPack.toBinaryStream();
-			auto sendStream = streamBinaryPackge.toStream(binaryStream);
-			
-			bool isOk = req.getSocket.doWrite(cast(byte[]) sendStream);
 
+			auto binaryStream = capnprotoPack.toBinaryStream();
+
+			auto sendStream = streamBinaryPackge.toStream(binaryStream);
+
+			bool isOk = req.getSocket.doWrite(cast(byte[]) sendStream);
 
 			if(isOk)
 			{
@@ -52,7 +51,7 @@ import std.stdio;
 					sendPack[req.getSequence()] = capnprotoPack;
 				}
 
-				deWritefln("send binary stream, length:%s", binaryStream.length);
+				deWritefln("send binary stream, length:%s", sendStream.length);
 				
 			}else
 			{

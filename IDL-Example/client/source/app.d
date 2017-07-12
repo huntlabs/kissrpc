@@ -10,7 +10,7 @@ import KissRpc.IDL.KissIdlService;
 import KissRpc.IDL.KissIdlMessage;
 
 import kiss.event.GroupPoll;
-
+import KissRpc.Unit;
 
 static ulong startClock;
 
@@ -23,6 +23,7 @@ class ClientSocket : ClientSocketEventInterface
 	this()
 	{
 		rpClient = new RpcClient(this);
+		//rpClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
 	}
 	
 	void connectToServer(GroupPoll!() poll)
@@ -42,7 +43,7 @@ class ClientSocket : ClientSocketEventInterface
 		{
 
 			try{
-
+				writeln("----------------------------------------------------------------------");
 				auto c = addressBookService.getContactList("jasonalex");
 				foreach(v; c.userInfoList)
 				{

@@ -24,6 +24,8 @@ class RpcServer:RpcEventInterface{
 	{
 		serverSocketEvent = socketEvent;
 		sendPackManage = new RpcSendPackageManage(this);
+		compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO;
+
 	}
 
 	void bind(string className, string funcName)
@@ -42,6 +44,11 @@ class RpcServer:RpcEventInterface{
 
 	bool RpcResponseRemoteCall(RpcResponse resp)
 	{
+		if(resp.getCompressType == RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO)
+		{
+			resp.setCompressType(this.compressType);
+		}
+
 		deWritefln("rpc response remote call, func:%s", resp.getCallFuncName);
 		return 	sendPackManage.add(resp, false);
 	}
@@ -49,13 +56,13 @@ class RpcServer:RpcEventInterface{
 
 	void rpcRecvPackageEvent(RpcSocketBaseInterface socket, RpcBinaryPackage pack)
 	{
-		deWritefln("server recv package event, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s", 
-					pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize);
+		deWritefln("server recv package event, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s, compress:%s", 
+					pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
 
 		if(pack.getStatusCode != RPC_PACKAGE_STATUS_CODE.RPSC_OK)
 		{
-			logWarning("server recv binary package is failed, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s, status code:%s", 
-				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize, pack.getStatusCode);
+			logWarning("server recv binary package is failed, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s, compress:%s, status code:%s", 
+				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize, pack.getCompressType, pack.getStatusCode);
 		
 		}else
 		{
@@ -74,8 +81,10 @@ class RpcServer:RpcEventInterface{
 			}
 			
 			auto rpcReq = packageBase.getRequestData();
+
 			rpcReq.setSequence(pack.getSequenceId());
 			rpcReq.setNonblock(pack.getNonblock());
+			rpcReq.setCompressType(pack.getCompressType());
 
 			deWritefln("rpc client request call, func:%s, arg num:%s", rpcReq.getCallFuncName(), rpcReq.getArgsNum());
 
@@ -132,8 +141,14 @@ class RpcServer:RpcEventInterface{
 		return server_poll.open(ip , port);
 	}
 
+	void setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE type)
+	{
+		compressType = type;
+	}
+
 private:
 	RpcSendPackageManage sendPackManage;
+	RPC_PACKAGE_COMPRESS_TYPE compressType;
 
 	ServerSocketEventInterface serverSocketEvent;
 	RequestCallback[string] rpcCallbackMap;

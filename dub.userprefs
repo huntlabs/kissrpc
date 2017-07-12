@@ -1,54 +1,16 @@
 ﻿<Properties StartupItem="dub.json">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" PreferredExecutionTarget="cov" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/RpcRequest.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/RpcRecvPackageManage.d">
     <Files>
-      <File FileName="source/KissRpc/RpcSendPackageManage.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcServer.d" Line="1" Column="1" />
-      <File FileName="source/kiss/aio/AsyncGroupTcpServer.d" Line="1" Column="1" />
-      <File FileName="dub.json" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcClient.d" Line="1" Column="1" />
-      <File FileName="source/kiss/event/GroupPoll.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcClientSocket.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcRecvPackageManage.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/Unit.d" Line="1" Column="1" />
-      <File FileName="source/kiss/time/Timer.d" Line="1" Column="1" />
-      <File FileName="source/kiss/time/Itimer.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/Logs.d" Line="1" Column="1" />
-      <File FileName="source/kiss/aio/Acceptor.d" Line="1" Column="1" />
-      <File FileName="source/kiss/aio/AsyncTcpBase.d" Line="1" Column="1" />
-      <File FileName="source/kiss/aio/package.d" Line="1" Column="1" />
-      <File FileName="source/kiss/aio/AsyncTcpServer.d" Line="1" Column="1" />
-      <File FileName="source/kiss/event/Epoll.d" Line="1" Column="1" />
-      <File FileName="source/kiss/event/Event.d" Line="1" Column="1" />
-      <File FileName="source/kiss/event/Select.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/Endian.d" Line="1" Column="1" />
-      <File FileName="source/kiss/event/package.d" Line="1" Column="1" />
-      <File FileName="source/kiss/event/Poll.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/.dub/dub.json" Line="1" Column="1" />
-      <File FileName="source/kiss/aio/AsyncTcpClient.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcClientImpl.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/Arena.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/ArrayOutputStream.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/DataList.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/ListBuilder.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/StructReader.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/WireHelpers.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/WirePointer.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/ArrayInputStream.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/AnyPointer.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/BufferedOutputStream.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/BufferedOutputStreamWrapper.d" Line="1" Column="1" />
-      <File FileName="source/capnproto/SegmentBuilder.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcBinaryPackage.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcCapnprotoPackage.d" Line="1" Column="1" />
+      <File FileName="source/KissRpc/RpcSendPackageManage.d" Line="34" Column="3" />
+      <File FileName="source/KissRpc/RpcRequest.d" Line="225" Column="3" />
+      <File FileName="source/KissRpc/RpcResponse.d" Line="13" Column="1" />
+      <File FileName="source/KissRpc/RpcClient.d" Line="56" Column="41" />
+      <File FileName="source/KissRpc/RpcCapnprotoPackage.d" Line="22" Column="7" />
       <File FileName="source/KissRpc/RpcCapnprotoPayload.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcEventInterface.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcPackageBase.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcRequest.d" Line="239" Column="41" />
-      <File FileName="source/KissRpc/RpcResponse.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcServerImpl.d" Line="24" Column="26" />
-      <File FileName="source/KissRpc/RpcServerSocket.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcSocketBaseInterface.d" Line="1" Column="1" />
+      <File FileName="source/KissRpc/RpcRecvPackageManage.d" Line="10" Column="24" />
+      <File FileName="source/KissRpc/RpcBinaryPackage.d" Line="7" Column="19" NotebookId="1" />
+      <File FileName="source/KissRpc/Unit.d" Line="14" Column="54" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
