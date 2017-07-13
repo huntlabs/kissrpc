@@ -2,7 +2,8 @@
 * features: analog stack call mode, support for multiple value returns, multi-layer type structure nested, multi-layer array embedded, support IDL protocol writing. The call is simple and secure, and the server uses multi-threaded asynchronous mode to mine server performance. Client supports multi-threaded synchronization and asynchronous mode, timeout mechanism, Linux support epoll network model, analog grpc, thrift, Dubbo, several times faster or even dozens of times.
 
 * environment: Linux, UNIX, windows, macOS
-* transport protocol: capnproto
+* transport protocol: capnproto(Install dependency Libraries:https://github.com/capnproto/capnproto)
+* Compression protocol: snappy(Install dependency Libraries:https://github.com/google/snappy)
 * development language: dlang
 * compiler: dub
 * github:https://github.com/huntlabs/kiss-rpc
@@ -16,8 +17,20 @@
 #### Setup:
 
 1. install capnproto (https://capnproto.org/install.html)
+2. install google snappy
+3. dub Compiler
 
-2. dub Compiler
+#### About the compression mode used by kiss-rpc
+
+* data compression: using Google snappy compression technology to support forced compression and dynamic compression, flexible compression methods can be applied to a variety of scenarios.
+
+* dynamic compression technique: when data packets larger than 200 bytes or set the threshold, compressed packet, otherwise not compressed packets, use and help to improve the performance of space, response will be based on whether the request needs dynamic data compression.
+
+* single request compression: compression of a single request request, and response compression based on the way data packets are pressed.
+
+
+* pipeline compression: packet compression can be performed on the specified pipeline.
+
 
 #### Example:
 
@@ -124,7 +137,7 @@ string              |            string
 
 ```
 
-# Client remote call
+# Client remote call(demo path:IDL-Example/client/source/app.d):
 
 
 ###### IDL generates both synchronous and asynchronous interfaces, and asynchronous interfaces are all parameter callbacks.
@@ -134,6 +147,7 @@ string              |            string
 ```
 import KissRpc.IDL.KissIdlService;
 import KissRpc.IDL.KissIdlMessage;
+import KissRpc.Unit;
 ```
 
 
@@ -173,7 +187,60 @@ import KissRpc.IDL.KissIdlMessage;
 			}
 ```
 
-# Server service file code rpc_address_book_service:
+###### Call in compression (support for dynamic compression and forced compression)
+
+*  Bind socket mode compression
+
+```
+RpcClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC); //The dynamic compression mode defaults to more than 200 bytes of compression
+
+RpcClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS); //forced compression method
+
+```
+
+* Single request compression, synchronous call, forced compression
+
+```
+			//use compress demo
+			try{
+				writeln("-------------------------user request compress---------------------------------------------");
+				auto c = addressBookService.getContactList("jasonalex", RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+				foreach(v; c.userInfoList)
+				{
+					writefln("compress test: sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+					
+				}
+				
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
+```
+
+* Single request compression, asynchronous call, 100 bytes of dynamic compression, request timeout 30 seconds
+
+```
+			//use dynamic compress and set request timeout
+			try{
+				RPC_PACKAGE_COMPRESS_DYNAMIC_VALUE = 100; //reset compress dynamaic value 100 byte, default:200 byte
+
+				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+						
+						foreach(v; c.userInfoList)
+						{
+							writefln("dynamic compress test: async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+						}
+					}, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC, 30
+					);
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
+
+```
+
+
+# Server service file code rpc_address_book_service(file path:IDL-Example/server/source/app.d):
 
 ######  The server interface can handle asynchronous events.
 

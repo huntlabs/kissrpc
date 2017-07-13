@@ -164,14 +164,16 @@ class idl_parse
 		formattedWrite(client_interface_strings, "import KissRpc.RpcRequest;\n");
 		formattedWrite(client_interface_strings, "import KissRpc.RpcClientImpl;\n");
 		formattedWrite(client_interface_strings, "import KissRpc.RpcClient;\n");
-		formattedWrite(client_interface_strings, "import KissRpc.RpcResponse;\n\n");
+		formattedWrite(client_interface_strings, "import KissRpc.RpcResponse;\n");
+		formattedWrite(client_interface_strings, "import KissRpc.Unit;\n\n");
 
 
 		auto client_service_strings = appender!string();
 		formattedWrite(client_service_strings, "module KissRpc.IDL.%sService;\n\n\n", fileName);
 		formattedWrite(client_service_strings, "import KissRpc.IDL.%sInterface;\n", fileName);
 		formattedWrite(client_service_strings, "import KissRpc.IDL.%sMessage;\n\n", fileName);
-		formattedWrite(client_service_strings, "import KissRpc.RpcClient;\n\n");
+		formattedWrite(client_service_strings, "import KissRpc.RpcClient;\n");
+		formattedWrite(client_service_strings, "import KissRpc.Unit;\n\n");
 
 
 

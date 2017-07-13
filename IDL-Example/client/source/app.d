@@ -23,7 +23,7 @@ class ClientSocket : ClientSocketEventInterface
 	this()
 	{
 		rpClient = new RpcClient(this);
-		//rpClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+		// rpClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC); //bind socket compress
 	}
 	
 	void connectToServer(GroupPoll!() poll)
@@ -57,8 +57,6 @@ class ClientSocket : ClientSocketEventInterface
 			}
 
 
-
-
 			try{
 
 				addressBookService.getContactList("jasonsalex", delegate(contacts c){
@@ -73,6 +71,42 @@ class ClientSocket : ClientSocketEventInterface
 			{
 				writeln(e.msg);
 			}
+
+			//use compress demo
+			try{
+				writeln("-------------------------user request compress---------------------------------------------");
+				auto c = addressBookService.getContactList("jasonalex", RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+				foreach(v; c.userInfoList)
+				{
+					writefln("compress test: sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+					
+				}
+				
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
+
+			//use dynamic compress and set request timeout
+
+
+			try{
+				RPC_PACKAGE_COMPRESS_DYNAMIC_VALUE = 100; //reset compress dynamaic value 100 byte, default:200 byte
+
+				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+						
+						foreach(v; c.userInfoList)
+						{
+							writefln("dynamic compress test: async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+						}
+					}, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC, 30
+					);
+			}catch(Exception e)
+			{
+				writeln(e.msg);
+			}
+
+
 
 		}
 	}

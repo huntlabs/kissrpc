@@ -10,6 +10,7 @@ import KissRpc.IDL.TestRpcService;
 import KissRpc.IDL.TestRpcMessage;
 
 import kiss.event.GroupPoll;
+import KissRpc.Unit;
 
 import std.conv;
 
@@ -22,6 +23,7 @@ class ClientSocket : ClientSocketEventInterface
 	this()
 	{
 		rpClient = new RpcClient(this);
+		//rpClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
 	}
 	
 	void connectToServer(GroupPoll!() poll)
@@ -42,7 +44,7 @@ class ClientSocket : ClientSocketEventInterface
 		for(int i= 1; i <= testNum; ++i)
 		{
 			UserInfo user;
-			user.name = "jasonsalex";
+			user.name = "jasonsalex1111111111111111111111111111111111111111111111111111111111111111111112222222222222222222222222222222222222222222222222222222223333333333333333333333333333333333333333333344444444444444444444444444444444444444444444444444444445555555555555555555555555555555555555555555555555555555555555555555566666666666666666666666666666666666666666666666666666666666666666666666666777777777777777777777777777777777777777777777777777fdsafadsfadsfadsfadsvcvcbgdfghfgdasfaewtraewtregafgdfagafdasfkljdhasgkjhafkjhadfdkjashfdkjashfhawjuyfaueiwfhdsfkjldhasfkjdhasfkjdhasfkljdasfkljvnc";
 			user.i = i;
 
 			try{
@@ -74,7 +76,7 @@ class ClientSocket : ClientSocketEventInterface
 		for(int i= 1; i <= testNum; ++i)
 		{
 			UserInfo user;
-			user.name = "jasonsalex";
+			user.name = "jasonsalex1111111111111111111111111111111111111111111111111111111111111111111112222222222222222222222222222222222222222222222222222222223333333333333333333333333333333333333333333344444444444444444444444444444444444444444444444444444445555555555555555555555555555555555555555555555555555555555555555555566666666666666666666666666666666666666666666666666666666666666666666666666777777777777777777777777777777777777777777777777777fdsafadsfadsfadsfadsvcvcbgdfghfgdasfaewtraewtregafgdfagafdasfkljdhasgkjhafkjhadfdkjashfdkjashfhawjuyfaueiwfhdsfkjldhasfkjdhasfkjdhasfkljdasfkljvnc,nkvbncmzkvndkjashfdasklfhaewokgfjriuewrt34eofjdsfkldasjfkldsa";
 			user.i = i;
 				
 			try{

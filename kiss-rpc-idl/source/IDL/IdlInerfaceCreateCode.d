@@ -170,15 +170,19 @@ class IdlFunctionAttrCode
 		}
 
 
-			formattedWrite(strings, "\t%s %s(%s){\n\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data);
-			formattedWrite(strings, "\t\t%s ret = super.%sInterface(%s);\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcValuesArgsStrirngs.data);
+			formattedWrite(strings, "\t%s %s(%s, const RPC_PACKAGE_COMPRESS_TYPE compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS){\n\n", 
+							FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data);
+
+			formattedWrite(strings, "\t\t%s ret = super.%sInterface(%s, compressType, secondsTimeOut);\n", 
+							FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcValuesArgsStrirngs.data);
+			
 			formattedWrite(strings, "\t\treturn ret;\n");
 			formattedWrite(strings, "\t}\n\n\n");
 
 
-			formattedWrite(strings, "\tvoid %s(%s, Rpc%sCallback rpcCallback){\n\n", 
+			formattedWrite(strings, "\tvoid %s(%s, Rpc%sCallback rpcCallback, const RPC_PACKAGE_COMPRESS_TYPE compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS){\n\n", 
 			FunctionAttrInterface.funcName, funcArgsStrirngs.data, FunctionAttrInterface.funcName);
-			formattedWrite(strings, "\t\tsuper.%sInterface(%s, rpcCallback);\n", FunctionAttrInterface.funcName, funcValuesArgsStrirngs.data);
+			formattedWrite(strings, "\t\tsuper.%sInterface(%s, rpcCallback, compressType, secondsTimeOut);\n", FunctionAttrInterface.funcName, funcValuesArgsStrirngs.data);
 			formattedWrite(strings, "\t}\n\n\n");
 
 		return strings.data;
@@ -216,9 +220,9 @@ class IdlFunctionAttrCode
 
 
 
-		formattedWrite(strings, "\t%s %sInterface(%s, string bindFunc = __FUNCTION__){\n\n", 
+		formattedWrite(strings, "\t%s %sInterface(%s, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, string bindFunc = __FUNCTION__){\n\n", 
 								FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data);
-		formattedWrite(strings, "\t\tauto req = new RpcRequest;\n\n");
+		formattedWrite(strings, "\t\tauto req = new RpcRequest(compressType, secondsTimeOut);\n\n");
 		formattedWrite(strings, "\t\treq.push(%s);\n\n", replaceAll(funcArgsStructStrirngs.data, regex(`\,\s*\,`), ", "));
 		formattedWrite(strings, "\t\tRpcResponse resp = rpImpl.syncCall(req, bindFunc);\n\n");
 		formattedWrite(strings, "\t\tif(resp.getStatus == RESPONSE_STATUS.RS_OK){\n");
@@ -231,9 +235,9 @@ class IdlFunctionAttrCode
 
 
 		formattedWrite(strings, "\talias Rpc%sCallback = void delegate(%s);\n\n", FunctionAttrInterface.funcName, FunctionAttrInterface.retValue.getTypeName);
-		formattedWrite(strings, "\tvoid %sInterface(%s, Rpc%sCallback rpcCallback, string bindFunc = __FUNCTION__){\n\n", 
+		formattedWrite(strings, "\tvoid %sInterface(%s, Rpc%sCallback rpcCallback, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, string bindFunc = __FUNCTION__){\n\n", 
 								FunctionAttrInterface.funcName, funcArgsStrirngs.data, FunctionAttrInterface.funcName);
-		formattedWrite(strings, "\t\tauto req = new RpcRequest;\n\n");
+		formattedWrite(strings, "\t\tauto req = new RpcRequest(compressType, secondsTimeOut);\n\n");
 		formattedWrite(strings, "\t\treq.push(%s);\n\n", replaceAll(funcArgsStructStrirngs.data, regex(`\,\s*\,`), ", "));
 		formattedWrite(strings, "\t\trpImpl.asyncCall(req, delegate(RpcResponse resp){\n\n");
 		formattedWrite(strings, "\t\t\tif(resp.getStatus == RESPONSE_STATUS.RS_OK){\n\n");

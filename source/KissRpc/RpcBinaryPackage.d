@@ -32,18 +32,17 @@ class RpcBinaryPackage
 	{
 		magic = RPC_HANDER_MAGIC;
 		ver = RPC_HANDER_VERSION;
-		sequenceId = msgId;
-		nonblock = isNonblock;
+		sequenceId = cast(uint)msgId;
+
+		statusInfo |= (isNonblock ? RPC_HANDER_NONBLOCK_FLAG : 0);
 
 		st = cast(short)tpp;
 
-		st|=(compressType<<8);
+		st |= (compressType << 8);
 
+		statusInfo |= (RPC_PACKAGE_STATUS_CODE.RPSC_OK & RPC_HANDER_STATUS_CODE_FLAG);
 
-		statusCode = cast(short)RPC_PACKAGE_STATUS_CODE.RPSC_OK;
-
-		handerSize = ver.sizeof + st.sizeof + nb.sizeof + ow.sizeof + rp.sizeof + nonblock.sizeof + statusCode.sizeof 
-			+ reserved.sizeof + sequenceId.sizeof + bodySize.sizeof;					
+		handerSize = ver.sizeof + st.sizeof + statusInfo.sizeof + reserved.sizeof + sequenceId.sizeof + bodySize.sizeof;					
 	}
 
 	int getStartHanderLength()const
@@ -72,9 +71,14 @@ class RpcBinaryPackage
 		return ver;
 	}
 
+	ulong getBodySize()const
+	{
+		return bodySize;
+	}
+
 	short getSerializedType()const
 	{
-		return st&0x00ff;
+		return st & RPC_HANDER_SERI_FLAG;
 	}
 
 	ulong getSequenceId()const
@@ -84,23 +88,49 @@ class RpcBinaryPackage
 
 	bool getNonblock()const
 	{
-		return cast(bool)nonblock;
+		return cast(bool)statusInfo & RPC_HANDER_NONBLOCK_FLAG;
 	}
 
 	short getStatusCode()const
 	{
-		return statusCode;
+		return statusInfo & RPC_HANDER_STATUS_CODE_FLAG;
 	}
 
 	void setStatusCode(const RPC_PACKAGE_STATUS_CODE code)
 	{
-		statusCode = cast(short)code;
+		statusInfo |= (code & RPC_HANDER_STATUS_CODE_FLAG);
 	}
 
-	ulong getBodySize()const
+	bool getHB()const
 	{
-		return bodySize;
+		return statusInfo & RPC_HANDER_HB_FLAG;
 	}
+
+	void setHBPackage()
+	{
+		statusInfo |= RPC_HANDER_HB_FLAG;
+	}
+
+	bool getOW()const
+	{
+		return cast(bool)statusInfo & RPC_HANDER_OW_FLAG;
+	}
+
+	void setOWPackage()
+	{
+		statusInfo |= RPC_HANDER_OW_FLAG;
+	}
+
+	bool getRP()const
+	{
+		return cast(bool)statusInfo & RPC_HANDER_RP_FLAG;
+	}
+
+	void setRP()
+	{
+		statusInfo |= RPC_HANDER_RP_FLAG;
+	}
+
 
 	ubyte[] toStream(ubyte[] payload)
 	{
@@ -108,23 +138,24 @@ class RpcBinaryPackage
 		{
 			case RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS:
 				payload =cast(ubyte[]) Snappy.compress(cast(byte[])payload);
+				st |= RPC_HANDER_COMPRESS_FLAG;
 				break;
 				
 			case RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC:
 				if(payload.length >= RPC_PACKAGE_COMPRESS_DYNAMIC_VALUE)
 				{
 					payload = cast(ubyte[]) Snappy.compress(cast(byte[])payload);
-
+					st |= RPC_HANDER_COMPRESS_FLAG;
 				}else
 				{
-					st&=0x00ff;
+					st &= ~RPC_HANDER_COMPRESS_FLAG;
 				}
 				break;
 				
 			default:break;
 		}
 
-		bodySize = payload.length;
+		bodySize = cast(ushort)payload.length;
 		
 		auto stream = new ubyte[this.getPackgeSize()];
 		
@@ -132,17 +163,17 @@ class RpcBinaryPackage
 
 
 		pos = writeBytesPos(stream, magic,  pos);
-		pos = writeBinaryPos(stream, handerSize, pos);
-		pos = writeBinaryPos(stream, ver, pos);
+		pos = writeBytePos(stream, handerSize, pos);
+		pos = writeBytePos(stream, ver, pos);
+
 		pos = writeBinaryPos(stream, st, pos);
-		pos = writeBinaryPos(stream, nb, pos);
-		pos = writeBinaryPos(stream, ow, pos);
-		pos = writeBinaryPos(stream, rp, pos);
-		pos = writeBinaryPos(stream, nonblock, pos);
-		pos = writeBinaryPos(stream, statusCode, pos);
+
+		pos = writeBytePos(stream, statusInfo, pos);
 		pos = writeBytesPos(stream, reserved, pos);
+
 		pos = writeBinaryPos(stream, sequenceId, pos);
 		pos = writeBinaryPos(stream, bodySize, pos);
+
 		pos = writeBytesPos(stream, payload, pos);
 
 		return stream;
@@ -154,30 +185,25 @@ class RpcBinaryPackage
 
 		try{
 			pos = readBytesPos(data, magic, pos);
-			pos = readBinaryPos(data, handerSize, pos);
-			pos = readBinaryPos(data, ver, pos);
+			pos = readBytePos(data, handerSize, pos);
+			pos = readBytePos(data, ver, pos);
+
 			pos = readBinaryPos(data, st, pos);
-			pos = readBinaryPos(data, nb, pos);
-			pos = readBinaryPos(data, ow, pos);
-			pos = readBinaryPos(data, rp, pos);
-			pos = readBinaryPos(data, nonblock, pos);
-			pos = readBinaryPos(data, statusCode, pos);
+
+			pos = readBytePos(data, statusInfo, pos);
 			pos = readBytesPos(data, reserved, pos);
+
 			pos = readBinaryPos(data, sequenceId, pos);
 			pos = readBinaryPos(data, bodySize, pos);
 			
 			bodyPayload = data[pos .. $];
 
-
-			switch(this.getCompressType())
+			if(this.isCompress)
 			{
-				case RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC:
-					bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
-					bodySize = bodyPayload.length;
-					break;
-					
-				default:break;
+				bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
+				bodySize = cast(ushort)bodyPayload.length;
 			}
+
 
 					
 		}catch(Exception e)
@@ -196,15 +222,14 @@ class RpcBinaryPackage
 		try{
 
 			pos = readBytesPos(data, magic, pos);
-			pos = readBinaryPos(data, handerSize, pos);
-			pos = readBinaryPos(data, ver, pos);
+			pos = readBytePos(data, handerSize, pos);
+			pos = readBytePos(data, ver, pos);
+			
 			pos = readBinaryPos(data, st, pos);
-			pos = readBinaryPos(data, nb, pos);
-			pos = readBinaryPos(data, ow, pos);
-			pos = readBinaryPos(data, rp, pos);
-			pos = readBinaryPos(data, nonblock, pos);
-			pos = readBinaryPos(data, statusCode, pos);
+			
+			pos = readBytePos(data, statusInfo, pos);
 			pos = readBytesPos(data, reserved, pos);
+			
 			pos = readBinaryPos(data, sequenceId, pos);
 			pos = readBinaryPos(data, bodySize, pos);
 
@@ -224,16 +249,11 @@ class RpcBinaryPackage
 
 			bodyPayload = data[0 .. $];
 				
-			switch(this.getCompressType())
+			if(this.isCompress)
 			{
-				case RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC:
-					bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
-					bodySize = bodyPayload.length;
-					break;
-					
-				default:break;
+				bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
+				bodySize = cast(ushort)bodyPayload.length;
 			}
-
 
 		}catch(Exception e)
 		{
@@ -252,7 +272,12 @@ class RpcBinaryPackage
 
 	RPC_PACKAGE_COMPRESS_TYPE getCompressType()
 	{
-		return cast(RPC_PACKAGE_COMPRESS_TYPE)((st & 0xff00)>>8);
+		return cast(RPC_PACKAGE_COMPRESS_TYPE)((st & RPC_HANDER_CPNPRESS_TYPE_FLAG)>>8);
+	}
+
+	bool isCompress()
+	{
+		return cast(bool)(st & RPC_HANDER_COMPRESS_FLAG);
 	}
 
 protected:
@@ -268,6 +293,12 @@ protected:
 	{
 		data[pos .. pos + bytes.length] = bytes[0 .. bytes.length];
 		return pos + bytes.length;
+	}
+
+	ulong writeBytePos(ubyte[] data, ubyte abyte, ulong pos)
+	{
+		data[pos .. pos + abyte.sizeof] = abyte;
+		return pos + abyte.sizeof;
 	}
 
 	ulong readBinaryPos(T)(ubyte[] data, ref T t, ulong pos)
@@ -286,22 +317,25 @@ protected:
 		return pos + bytes.length;
 	}
 
+	ulong readBytePos(ubyte[] data, ref ubyte abyte, ulong pos)
+	{
+		abyte = (data[pos .. pos + abyte.sizeof])[0];
+		return pos + abyte.sizeof;
+	}
+
 
 private:
-	ubyte[8] magic;
+	ubyte[2] magic;
 
-	short handerSize;
-	short ver;
+	ubyte handerSize;
+	ubyte ver;
 	short st;
-	short nb;
-	short ow;
-	short rp;
-	short nonblock;
-	short statusCode;
 
-	ubyte[8] reserved;
-	ulong sequenceId;
-	ulong bodySize;
+	ubyte statusInfo; // [nb:1bit, ow:1bit, rp:1bit, nonblock:1bit, statusCode:4bit] 
+
+	ubyte[2] reserved;
+	uint sequenceId;
+	ushort bodySize;
 
 	ubyte[] bodyPayload;
 }

@@ -9,15 +9,15 @@ import KissRpc.RpcClient;
 import KissRpc.RpcResponse;
 import KissRpc.Unit;
 
-abstract class RpcAddressBookInterface{
+abstract class RpcAddressBookInterface{ 
 
 	this(RpcClient rpClient){ 
 		rpImpl = new RpcClientImpl!(RpcAddressBookService)(rpClient); 
 	}
 
-	contacts getContactListInterface(string accountName, string bindFunc = __FUNCTION__){
+	contacts getContactListInterface(string accountName, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, string bindFunc = __FUNCTION__){
 
-		auto req = new RpcRequest(RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC);
+		auto req = new RpcRequest(compressType, secondsTimeOut);
 
 		req.push(accountName);
 
@@ -37,9 +37,9 @@ abstract class RpcAddressBookInterface{
 
 	alias RpcgetContactListCallback = void delegate(contacts);
 
-	void getContactListInterface(string accountName, RpcgetContactListCallback rpcCallback, string bindFunc = __FUNCTION__){
+	void getContactListInterface(string accountName, RpcgetContactListCallback rpcCallback, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, string bindFunc = __FUNCTION__){
 
-		auto req = new RpcRequest(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+		auto req = new RpcRequest(compressType, secondsTimeOut);
 
 		req.push(accountName);
 

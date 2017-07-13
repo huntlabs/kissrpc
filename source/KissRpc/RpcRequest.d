@@ -206,7 +206,7 @@ private:
 
 class RpcRequest
 {
-	this(RPC_PACKAGE_COMPRESS_TYPE type = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS)
+	this(const RPC_PACKAGE_COMPRESS_TYPE type = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS)
 	{
 		timeOut = secondsTimeOut;
 		timestamp = RPC_SYSTEM_TIMESTAMP;

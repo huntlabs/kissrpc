@@ -6,7 +6,8 @@
 		"HuntLabs.cn"
 	    ],
 
+
 	    "license": "Apache-2.0",
-		"lflags":["-L/usr/local/lib"],
-		"libs":["snappy"]
+	    "lflags":["-L/usr/local/lib"],
+	    "libs":["snappy"]
 }
