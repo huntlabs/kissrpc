@@ -1,5 +1,18 @@
-# kiss-rpc:
-* features: analog stack call mode, support for multiple value returns, multi-layer type structure nested, multi-layer array embedded, support IDL protocol writing. The call is simple and secure, and the server uses multi-threaded asynchronous mode to mine server performance. Client supports multi-threaded synchronization and asynchronous mode, timeout mechanism, Linux support epoll network model, analog grpc, thrift, Dubbo, several times faster or even dozens of times.
+# kiss-rpc features:
+1. Lightweight and easy to use. There are two ways to support IDL and manually write protocols. Analog function call, more in line with the RPC remote call logic, simple, transparent.
+
+2. Easy to change, easy to use, existing code can be used directly
+
+3. Data formats support backward compatibility
+
+4. Support multi valued return feature, support timeout mechanism, analog grpc, thrift, Dubbo fast several times or even dozens of times.
+
+5. Support snappy compression algorithm, compression speed, superior performance.
+
+6. Support pipeline data compression, dynamic data compression, request data compression, flexible use of a wide range of scenarios.
+
+
+###### 开发环境
 
 * environment: Linux, UNIX, windows, macOS
 * transport protocol: capnproto(Install dependency Libraries:https://github.com/capnproto/capnproto)
