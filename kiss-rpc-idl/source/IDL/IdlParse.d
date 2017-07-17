@@ -196,6 +196,21 @@ class idl_parse
 			structCode ~= v.createCodeForLanguage(CODE_LANGUAGE.CL_DLANG);
 		}
 
+		auto modulePath = split(fileName, ".");
+		
+		if(modulePath.length > 1)
+		{
+			for(int i = 0; i < modulePath.length-1; ++i)
+			{
+				outFilePath ~= ("/" ~ modulePath[i]);
+				if(!exists(outFilePath))
+					mkdir(outFilePath);
+			}
+			
+			fileName = modulePath[modulePath.length-1];
+		}
+
+
 		if(!exists(outFilePath ~ "/server/"))
 				mkdir(outFilePath ~ "/server/");
 

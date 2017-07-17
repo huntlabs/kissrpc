@@ -12,7 +12,7 @@
 6. Support pipeline data compression, dynamic data compression, request data compression, flexible use of a wide range of scenarios.
 
 
-###### 开发环境
+######  development environment 
 
 * environment: Linux, UNIX, windows, macOS
 * transport protocol: capnproto(Install dependency Libraries:https://github.com/capnproto/capnproto)
@@ -91,8 +91,8 @@
 
 # IDL usage
     1. [idl file path]    [output file name]    [output file path，default current dir]  E."/root/home/kiss-rpc.idl"	kiss-rpc	"/root/home/rpc/"
-
-    2. At the same time output client and server file code, only need to copy to the corresponding client and server directory.
+    2. module name output, module path is ".": E."/root/home/kiss-rpc.idl"	module.test.kiss-rpc	 "/root/home/rpc/"	
+    3. At the same time output client and server file code, only need to copy to the corresponding client and server directory.
 
 
 # IDL Supported type

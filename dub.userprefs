@@ -1,15 +1,15 @@
 ﻿<Properties StartupItem="dub.json">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" PreferredExecutionTarget="cov" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/Unit.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/RpcSendPackageManage.d">
     <Files>
-      <File FileName="source/KissRpc/RpcSendPackageManage.d" Line="1" Column="1" />
+      <File FileName="source/KissRpc/RpcSendPackageManage.d" Line="98" Column="55" />
       <File FileName="source/KissRpc/RpcRequest.d" Line="1" Column="1" />
       <File FileName="source/KissRpc/RpcResponse.d" Line="1" Column="1" />
       <File FileName="source/KissRpc/RpcCapnprotoPackage.d" Line="1" Column="1" />
       <File FileName="source/KissRpc/RpcCapnprotoPayload.d" Line="1" Column="1" />
       <File FileName="source/KissRpc/RpcRecvPackageManage.d" Line="1" Column="1" />
       <File FileName="source/util/snappy.d" Line="1" Column="1" />
-      <File FileName="source/KissRpc/RpcServer.d" Line="1" Column="1" />
+      <File FileName="source/KissRpc/RpcServer.d" Line="53" Column="29" />
       <File FileName="source/KissRpc/Logs.d" Line="1" Column="1" />
       <File FileName="source/KissRpc/Unit.d" Line="10" Column="48" />
       <File FileName="source/KissRpc/RpcSocketBaseInterface.d" Line="1" Column="1" />
@@ -17,6 +17,8 @@
       <File FileName="source/KissRpc/RpcBinaryPackage.d" Line="126" Column="19" NotebookId="1" />
       <File FileName="source/KissRpc/RpcClient.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="source/KissRpc/Endian.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="source/KissRpc/RpcClientImpl.d" Line="1" Column="1" NotebookId="1" />
+      <File FileName="../../../Projects/grpc/examples/cpp/helloworld/greeter_async_client2.cc" Line="1" Column="1" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

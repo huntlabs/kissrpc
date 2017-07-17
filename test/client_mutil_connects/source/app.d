@@ -16,7 +16,7 @@ import kiss.event.GroupPoll;
 
 import std.conv;
 
-shared static int testNum = 1000;
+shared static int testNum = 500;
 shared static int clientNum = 1000;
 
 shared static long startAllTime;

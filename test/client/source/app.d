@@ -15,7 +15,7 @@ import KissRpc.Unit;
 import std.conv;
 
 static int testNum = 500000;
-
+static int atestNum = 100000;
 
 class ClientSocket : ClientSocketEventInterface
 {
@@ -44,7 +44,7 @@ class ClientSocket : ClientSocketEventInterface
 		for(int i= 1; i <= testNum; ++i)
 		{
 			UserInfo user;
-			user.name = "jasonsalex1111111111111111111111111111111111111111111111111111111111111111111112222222222222222222222222222222222222222222222222222222223333333333333333333333333333333333333333333344444444444444444444444444444444444444444444444444444445555555555555555555555555555555555555555555555555555555555555555555566666666666666666666666666666666666666666666666666666666666666666666666666777777777777777777777777777777777777777777777777777fdsafadsfadsfadsfadsvcvcbgdfghfgdasfaewtraewtregafgdfagafdasfkljdhasgkjhafkjhadfdkjashfdkjashfhawjuyfaueiwfhdsfkjldhasfkjdhasfkjdhasfkljdasfkljvnc";
+			user.name = "jasonsalex";
 			user.i = i;
 
 			try{
@@ -73,10 +73,10 @@ class ClientSocket : ClientSocketEventInterface
 
 		writefln("start async test.......................");
 
-		for(int i= 1; i <= testNum; ++i)
+		for(int i= 1; i <= atestNum; ++i)
 		{
 			UserInfo user;
-			user.name = "jasonsalex1111111111111111111111111111111111111111111111111111111111111111111112222222222222222222222222222222222222222222222222222222223333333333333333333333333333333333333333333344444444444444444444444444444444444444444444444444444445555555555555555555555555555555555555555555555555555555555555555555566666666666666666666666666666666666666666666666666666666666666666666666666777777777777777777777777777777777777777777777777777fdsafadsfadsfadsfadsvcvcbgdfghfgdasfaewtraewtregafgdfagafdasfkljdhasgkjhafkjhadfdkjashfdkjashfhawjuyfaueiwfhdsfkjldhasfkjdhasfkjdhasfkljdasfkljvnc,nkvbncmzkvndkjashfdasklfhaewokgfjriuewrt34eofjdsfkldasjfkldsa";
+			user.name = "jasonaslex";
 			user.i = i;
 				
 			try{
@@ -87,10 +87,10 @@ class ClientSocket : ClientSocketEventInterface
 							writefln("ret:%s, request:%s, time:%s", s, s.i, Clock.currStdTime().stdTimeToUnixTime!(long)() - startTime);
 						}
 						
-						if(s.i == testNum)
+						if(s.i == atestNum)
 						{
 							time = Clock.currStdTime().stdTimeToUnixTime!(long)() - startTime;
-							writefln("async test, total request:%s, time:%s, QPS:%s", s.i, time, testNum/time);
+							writefln("async test, total request:%s, time:%s, QPS:%s", s.i, time, atestNum/time);
 						}
 						
 					});

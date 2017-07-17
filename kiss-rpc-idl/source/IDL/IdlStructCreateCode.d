@@ -5,6 +5,9 @@ import IDL.IdlUnit;
 
 import std.array : appender;
 import std.format;
+import std.algorithm.iteration : map;
+import std.numeric : entropy;
+import std.algorithm.sorting;
 
 class IdlStructDlangCode
 {
@@ -13,15 +16,18 @@ class IdlStructDlangCode
 		auto strings = appender!string();
 		formattedWrite(strings, "struct %s{\n\n", idlStructInterface.structName);
 
-		foreach(k, v; idlStructInterface.memberAttrInfo)
+
+		for(int i =1; i <= idlStructInterface.memberAttrInfo.length; ++i)
 		{
+			auto v = idlStructInterface.memberAttrInfo[i];
 			formattedWrite(strings, "\t%s %s;\n", v.typeName, v.memberName);
 		}
 
 		auto memberList_str = appender!string();
 
-		foreach(k,v; idlStructInterface.memberAttrInfo)
+		for(int i =1; i <= idlStructInterface.memberAttrInfo.length; ++i)
 		{
+			auto v = idlStructInterface.memberAttrInfo[i];
 			formattedWrite(memberList_str, "%s, ", v.typeName);
 		}
 
@@ -31,8 +37,9 @@ class IdlStructDlangCode
 
 		int index = 0;
 
-		foreach(k, v; idlStructInterface.memberAttrInfo)
+		for(int i =1; i <= idlStructInterface.memberAttrInfo.length; ++i)
 		{
+			auto v = idlStructInterface.memberAttrInfo[i];
 			formattedWrite(strings, "\t\tmemberList[%s] = %s;\n", index++, v.memberName);
 		}
 
@@ -41,8 +48,9 @@ class IdlStructDlangCode
 		formattedWrite(strings, "\tvoid restoreTypeTunlp(){\n\n");
 		index = 0;
 
-		foreach(k, v; idlStructInterface.memberAttrInfo)
+		for(int i =1; i <= idlStructInterface.memberAttrInfo.length; ++i)
 		{
+			auto v = idlStructInterface.memberAttrInfo[i];
 			formattedWrite(strings, "\t\t%s = memberList[%s];\n", v.memberName, index++);
 		}
 

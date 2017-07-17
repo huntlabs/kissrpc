@@ -3,14 +3,15 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="source/IDL/IdlParse.d">
     <Files>
       <File FileName="source/IDL/IdlBaseInterface.d" Line="1" Column="1" />
-      <File FileName="source/IDL/IdlInerfaceCreateCode.d" Line="185" Column="96" />
-      <File FileName="source/IDL/IdlParse.d" Line="176" Column="40" />
-      <File FileName="source/app.d" Line="1" Column="1" />
+      <File FileName="source/IDL/IdlInerfaceCreateCode.d" Line="1" Column="1" />
+      <File FileName="source/IDL/IdlParse.d" Line="207" Column="25" />
+      <File FileName="source/app.d" Line="19" Column="3" />
       <File FileName="source/IDL/IdlUnit.d" Line="1" Column="1" />
       <File FileName="source/IDL/IdlSymbol.d" Line="1" Column="1" />
-      <File FileName="source/IDL/IdlStructCreateCode.d" Line="1" Column="1" />
-      <File FileName="source/IDL/IdlParseStruct.d" Line="1" Column="1" />
+      <File FileName="source/IDL/IdlParseStruct.d" Line="107" Column="13" />
       <File FileName="source/IDL/IdlParseInterface.d" Line="1" Column="1" />
+      <File FileName="dub.json" Line="1" Column="1" />
+      <File FileName="source/IDL/IdlStructCreateCode.d" Line="45" Column="3" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
