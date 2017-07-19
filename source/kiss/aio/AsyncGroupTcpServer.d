@@ -33,6 +33,7 @@ class AsyncGroupTcpServer(T , A ...)
 			if(!_servers[i].open(ipaddr , port , back_log , breuse))
 				return false;
 		}
+
 		return true;
 	}
 

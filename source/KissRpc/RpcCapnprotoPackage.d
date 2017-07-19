@@ -247,8 +247,6 @@ unittest{
 	
 	t.l_list[0] = 123456781;
 	t.l_list[1] = 9876543321;
-	
-
 
 
 	RpcRequest req = new RpcRequest;

@@ -9,7 +9,7 @@
  *
  */
 module kiss.aio.AsyncTcpBase;
-
+import kiss.socket.SocketBase;
 import kiss.event.Event;
 import kiss.event.Poll;
 import KissRpc.Logs;
@@ -25,12 +25,7 @@ import core.stdc.time;
 
 import std.stdio;
 
-
-
-
-
 alias TcpWriteFinish = void delegate(Object ob);
-
 
 class AsyncTcpBase:Event 
 {
@@ -57,17 +52,16 @@ class AsyncTcpBase:Event
 
 			if(_writebuffer.empty())
 			{
-				long ret = _socket.send(writebuf);
+				long ret = _socket.write(writebuf);
+
 				if(ret == writebuf.length)
 				{
-					alread_write += ret;
 					return 1;
 				}
 				else if(ret > 0)
 				{
 					QueueBuffer buffer = {writebuf , ob , cast(int)ret , finish};
 					_writebuffer.insertBack(buffer);
-					alread_write += ret;
 					schedule_write();
 				}
 				else
@@ -138,7 +132,7 @@ class AsyncTcpBase:Event
 			while(!_writebuffer.empty())
 			{
 				auto  data = _writebuffer.front();
-				long ret = _socket.send(data.buffer[data.index .. data.buffer.length]);
+				long ret = _socket.write(data.buffer[data.index .. data.buffer.length]);
 
 				if(ret == data.buffer.length - data.index)
 				{
@@ -147,12 +141,10 @@ class AsyncTcpBase:Event
 						data.finish(data.ob);
 					}
 					_writebuffer.removeFront();
-					alread_write += ret;
 				}
 				else if(ret > 0)
 				{
 					_writebuffer.front().index += ret;
-					alread_write += ret;
 					return true;
 				}
 				else if ( ret <= 0)
@@ -172,10 +164,11 @@ class AsyncTcpBase:Event
 		return true;
 
 	}
-	static int alread_write = 0;
+
 	protected bool onRead()
 	{
-		long ret = _socket.receive(_readbuffer);
+		long ret = _socket.read(_readbuffer);
+
 		if(ret > 0)
 		{
 			return doRead(_readbuffer , cast(int)ret);
@@ -221,7 +214,8 @@ class AsyncTcpBase:Event
 
 	void setSocket(Socket socket)
 	{
-		_socket = socket;
+		_socket = new KissTcpSocket;
+		_socket.setSocket(socket);
 	}
 
 	//private member's below
@@ -272,7 +266,7 @@ class AsyncTcpBase:Event
 	protected DList!QueueBuffer _writebuffer;
 	protected byte[]	_readbuffer;
 	protected bool		_isreadclose = false;
-	protected Socket 	_socket;
+	protected SocketBase 	_socket;
 	protected Poll 		_poll;
 //	protected TimerFd 	_keepalive;
 	protected IOEventType 	_curEventType = IOEventType.IO_EVENT_NONE;

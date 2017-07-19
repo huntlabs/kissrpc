@@ -14,8 +14,8 @@ import KissRpc.Unit;
 
 import std.conv;
 
-static int testNum = 500000;
-static int atestNum = 100000;
+static int testNum = 300000;
+static int atestNum = 300000;
 
 class ClientSocket : ClientSocketEventInterface
 {

@@ -14,7 +14,6 @@ module kiss.event.Epoll;
 import kiss.event.Event;
 import kiss.event.Poll;
 import kiss.time.Timer;
-import kiss.time.Itimer;
 import KissRpc.Logs;
 
 import std.conv;
@@ -83,7 +82,7 @@ extern(C){
 
 final class Epoll :Thread , Poll 
 {
-	this(int timeout = 10)
+	this(int timeout = -1)
 	{
 		_efd = epoll_create1(0);
 		if(_efd == -1)

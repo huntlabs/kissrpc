@@ -29,7 +29,7 @@ final class AsyncTcpServer(T , A...): Event
 		_acceptor = new Acceptor();
 	}
 
-	bool open()(string ipaddr, ushort port ,int back_log = 1024 ,  bool breuse = true)
+	bool open(string ipaddr, ushort port, int back_log = 2048 ,  bool breuse = true)
 	{
 
 		if(!_acceptor.open(ipaddr , port , back_log , breuse))
@@ -65,6 +65,7 @@ final class AsyncTcpServer(T , A...): Event
 		Socket socket = _acceptor.accept();
 		socket.blocking(false);
 		t.setSocket(socket);
+
 		return t.open();
 	}
 

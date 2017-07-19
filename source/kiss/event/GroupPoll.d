@@ -29,7 +29,7 @@ else
 
 class GroupPoll(T = DefaultPoll) : Group
 {
-	this(int timeout = 10,  int work_numbers = totalCPUs )
+	this(int timeout = -1,  int work_numbers = totalCPUs )
 	{
 		while (work_numbers--)
 			_works_polls ~= new T(timeout);

@@ -55,7 +55,7 @@ class RpcBinaryPackage
 		return handerSize + this.getStartHanderLength();
 	}
 
-	ulong getPackgeSize()const
+	int getPackgeSize()const
 	{
 		return handerSize + bodySize + this.getStartHanderLength();
 	}
@@ -203,8 +203,6 @@ class RpcBinaryPackage
 				bodyPayload =cast(ubyte[]) Snappy.uncompress(cast(byte[])bodyPayload);
 				bodySize = cast(ushort)bodyPayload.length;
 			}
-
-
 					
 		}catch(Exception e)
 		{

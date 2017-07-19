@@ -13,7 +13,6 @@ module kiss.event.Select;
 import kiss.event.Poll;
 import kiss.event.Event;
 import kiss.time.Timer;
-import kiss.time.Itimer;
 import KissRpc.Logs;
 
 import std.socket;

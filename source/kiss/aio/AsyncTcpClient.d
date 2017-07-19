@@ -14,6 +14,8 @@ import kiss.aio.AsyncTcpBase;
 import kiss.time.Timer;
 import kiss.event.Poll;
 import kiss.event.Event;
+import kiss.socket.SocketBase;
+
 import KissRpc.Logs;
 
 import std.string;
@@ -42,19 +44,12 @@ class AsyncTcpClient:AsyncTcpBase,Timer
 
 	bool open(string host , ushort port)
 	{
-		string strPort = to!string(port);
-		AddressInfo[] arr = getAddressInfo(host , strPort , AddressInfoFlags.CANONNAME);
-		if(arr.length == 0)
+		_socket = new KissTcpSocket;
+
+		if(!_socket.connect(host, port))
 		{
-			logError(host ~ ":" ~ strPort);
 			return false;
 		}
-		
-		_host = host;
-		_port = port;
-		_socket = new Socket(arr[0].family , arr[0].type , arr[0].protocol);
-		_socket.blocking(false);
-		_socket.connect(arr[0].address);
 		
 		poll.addEvent(this , _socket.handle , _curEventType = IOEventType.IO_EVENT_WRITE);
 		_status = Connect_Status.CLIENT_CONNECTING;
