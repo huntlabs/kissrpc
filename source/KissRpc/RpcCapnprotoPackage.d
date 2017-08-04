@@ -53,14 +53,12 @@ class RpcCapnprotoPackage:RpcPackageBase
 	this(RpcSocketBaseInterface socket, ByteBuffer[] byteBuffer)
 	{
 		req = new RpcRequest(socket);
-
 		auto message = new MessageReader(byteBuffer, cast(ReaderOptions)ReaderOptions.DEFAULT_READER_OPTIONS);
 		auto capnprotoPayload = message.getRoot!(Payload);
 
 		req.bindFunc(capnprotoPayload.getCallInterface());
-
 		auto funcArgs = capnprotoPayload.getArgs();
-	
+
 		foreach(funcArg; funcArgs)
 		{
 			auto  tlp = this.fromCapnprotoTypeInstanceTemplate(funcArg.getType(),cast(ubyte[]) funcArg.getPayload());

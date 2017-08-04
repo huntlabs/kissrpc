@@ -67,7 +67,7 @@ class RpcServer:RpcEventInterface{
 		}else
 		{
 			RpcPackageBase packageBase;
-			
+
 			switch(pack.getSerializedType)
 			{
 				case RPC_PACKAGE_PROTOCOL.TPP_JSON:break;
@@ -79,7 +79,7 @@ class RpcServer:RpcEventInterface{
 				default:
 					logWarning("unpack serialized type is failed!, type:%d", pack.getSerializedType());
 			}
-			
+
 			auto rpcReq = packageBase.getRequestData();
 
 			rpcReq.setSequence(pack.getSequenceId());

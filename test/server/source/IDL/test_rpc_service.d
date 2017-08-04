@@ -4,6 +4,7 @@ import KissRpc.IDL.TestRpcInterface;
 import KissRpc.IDL.TestRpcMessage;
 
 import KissRpc.RpcServer;
+import KissRpc.Logs;
 
 class RpcTestService: RpcTestInterface{
 
@@ -15,7 +16,7 @@ class RpcTestService: RpcTestInterface{
 
 		UserInfo userInfoRet = info;
 
-
+		deWritefln("getName:%s, %s",info.i,info.name);
 		return userInfoRet;
 	}
 

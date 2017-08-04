@@ -12,7 +12,9 @@ class RpcAddressBookService: RpcAddressBookInterface{
 	this(RpcServer rpServer){
 		super(rpServer);
 	}
-
+	void test()
+	{
+	}
 	contacts getContactList(string accountName){
 		
 		contacts contactsRet;

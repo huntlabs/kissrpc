@@ -6,6 +6,7 @@ import KissRpc.RpcServerSocket;
 import KissRpc.RpcEventInterface;
 import KissRpc.RpcSocketBaseInterface;
 import KissRpc.Unit;
+import KissRpc.Logs;
 
 import std.parallelism;
 import std.stdio;
@@ -105,7 +106,7 @@ class RpcRecvPackageManage
 	{
 		 do{
 				auto pack = recvPackage.get(id, new CapnprotoRecvPackage);
-	
+			
 				bool parseOk = false;
 
 				recvPackage[id] = pack;
@@ -123,15 +124,18 @@ class RpcRecvPackageManage
 								rpcEventDelegate.rpcRecvPackageEvent(socket, capnprotoPack);
 								recvPackage.remove(id);
 								id++;
+							}else{
+								logError("parse package check hander is error, package data:%s", bytes);
 							}
-
 						}else
 						{
 							capnprotoPack.setStatusCode(RPC_PACKAGE_STATUS_CODE.RPSC_FAILED);
 							recvPackage.remove(id);
 							rpcEventDelegate.rpcRecvPackageEvent(socket, capnprotoPack);		
 						}
-				 }
+				}else{
+					logError("parse package is error, package data:%s", bytes);
+				}
 
 			}while(bytes.length > 0);
 	}

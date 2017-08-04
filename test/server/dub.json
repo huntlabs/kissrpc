@@ -9,7 +9,7 @@
         "putao.com dlang team."
     ],
 	
-
+    "versions":["RpcDebug"],
     "license": "Apache-2.0",
 	"dependencies":{
 		"KissRpc":{
