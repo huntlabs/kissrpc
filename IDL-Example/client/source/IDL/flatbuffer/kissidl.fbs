@@ -1,0 +1,21 @@
+namespace KissRpc.IDL.flatbuffer;
+
+table UserInfoFB{
+	name:string;
+	age:int;
+	widget:double;
+}
+
+
+table ContactsFB{
+	number:int;
+	userInfoList:[UserInfoFB];
+}
+
+
+table AccountNameFB{
+	name:string;
+	count:int;
+}
+
+

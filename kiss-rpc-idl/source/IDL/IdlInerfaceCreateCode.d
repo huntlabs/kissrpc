@@ -9,17 +9,17 @@ import IDL.IdlParseInterface;
 import IDL.IdlStructCreateCode;
 import IDL.IdlUnit;
 import IDL.IdlSymbol;
-
+import IDL.IdlParseStruct;
 
 class IdlFunctionArgCode
 {
-	static string createServerCode(FunctionArg functionInerface)
+	static string createServerCode(MemberAttr functionInerface)
 	{
 		auto strings = appender!string();
 		
 		auto dlangVarName = idlDlangVariable.get(functionInerface.typeName, null);
 		
-		if(dlangVarName == null)
+		if(dlangVarName is null)
 		{
 			auto dlangStructName = idlStructList.get(functionInerface.typeName, null);
 
@@ -29,13 +29,13 @@ class IdlFunctionArgCode
 			}
 		}
 
-		formattedWrite(strings, "\t\t%s %s;\n", functionInerface.typeName, functionInerface.varName);
+		formattedWrite(strings, "\t\t%s %s;\n", functionInerface.typeName, functionInerface.getVarName);
 
 		return strings.data;
 	}
 
 
-	static string createClientCode(FunctionArg functionInerface)
+	static string createClientCode(MemberAttr functionInerface)
 	{
 		auto strings = appender!string();
 		
@@ -51,7 +51,7 @@ class IdlFunctionArgCode
 			}
 		}
 		
-		formattedWrite(strings, "\t\t %s %s;\n", functionInerface.typeName, functionInerface.varName);
+		formattedWrite(strings, "\t\t %s %s;\n", functionInerface.typeName, functionInerface.getVarName);
 		
 		return strings.data;
 	}
@@ -64,51 +64,29 @@ class IdlFunctionAttrCode
 		auto strings = appender!string();
 
 		formattedWrite(strings, "\tvoid %sInterface(RpcRequest req){\n\n", FunctionAttrInterface.funcName);
-		formattedWrite(strings, "\t\tauto resp = new RpcResponse(req);\n\n");
 
-		foreach(k,v ;FunctionAttrInterface.funcArgMap)
-		{
-			formattedWrite(strings, IdlFunctionArgCode.createServerCode(v));
-		}
-		
-		formattedWrite(strings, "\n\n");
-		
-		auto funcArgsStrirngs = appender!string();
+		formattedWrite(strings, "\t\tubyte[] flatBufBytes;\n\n");
 
-		for(int i = 0; i < FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
-			
-			if(i == FunctionAttrInterface.funcArgMap.length-1)
-				formattedWrite(funcArgsStrirngs, "%s", v.getVarName);
-			else
-				formattedWrite(funcArgsStrirngs, "%s, ", v.getVarName);
-		}
-		
-		formattedWrite(strings, "\t\treq.pop(%s);\n\n", replaceAll(funcArgsStrirngs.data, regex(`\,\s*\,`), ", "));
-	
-		funcArgsStrirngs = appender!string();
+		formattedWrite(strings, "\t\tauto resp = new RpcResponse(req);\n");
+		formattedWrite(strings, "\t\treq.pop(flatBufBytes);\n\n");
+		formattedWrite(strings, "\t\tauto %sFB = %sFB.getRootAs%sFB(new ByteBuffer(flatBufBytes));\n", FunctionAttrInterface.funcArgMap.getVarName, FunctionAttrInterface.funcArgMap.getTypeName, FunctionAttrInterface.funcArgMap.getTypeName);
 
-		for(int i = 0; i< FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
-			
-			if(i == FunctionAttrInterface.funcArgMap.length -1 )
-				formattedWrite(funcArgsStrirngs, "%s", v.getVarName);
-			else
-				formattedWrite(funcArgsStrirngs, "%s, ", v.getVarName);
-		}
+		formattedWrite(strings, "\t\t%s %s;\n\n", FunctionAttrInterface.funcArgMap.getTypeName, FunctionAttrInterface.funcArgMap.getVarName);
+
+		formattedWrite(strings, "\t\t//input flatbuffer code for %sFB class\n\n\n\n", FunctionAttrInterface.funcArgMap.getTypeName);
+		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createDeserializeCodeForFlatbuffer(idlStructList[FunctionAttrInterface.funcArgMap.getTypeName], FunctionAttrInterface.funcArgMap.getVarName, FunctionAttrInterface.funcArgMap.getVarName~"FB"));
 
 
+		formattedWrite(strings, "\t\tauto %s = (cast(Rpc%sService)this).%s(%s);\n\n", FunctionAttrInterface.retValue.getVarName, inerfaceName, FunctionAttrInterface.getFuncName, FunctionAttrInterface.funcArgMap.getVarName);
 
-		formattedWrite(strings, "\t\t%s %s;\n\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.retValue.getVarName);
+		formattedWrite(strings, "\t\tauto builder = new FlatBufferBuilder(512);\n");
 
-		formattedWrite(strings, "\t\t%s = (cast(Rpc%sService)this).%s(%s);\n\n", FunctionAttrInterface.retValue.getVarName, inerfaceName, FunctionAttrInterface.getFuncName, funcArgsStrirngs.data);
+		formattedWrite(strings, "\t\t//input flatbuffer code for %sFB class\n\n", FunctionAttrInterface.retValue.getTypeName);
+		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createSerializeCodeForFlatbuffer(idlStructList[FunctionAttrInterface.retValue.getTypeName], FunctionAttrInterface.retValue.getVarName));
 
-		funcArgsStrirngs = appender!string();
-		formattedWrite(funcArgsStrirngs, "%s", FunctionAttrInterface.retValue.getVarName);
+		formattedWrite(strings, "\t\tbuilder.finish(%sPos);\n\n", FunctionAttrInterface.retValue.getVarName);
 
-		formattedWrite(strings, "\t\tresp.push(%s);\n\n", replaceAll(funcArgsStrirngs.data, regex(`\,\s*\,|\,\s$`), ""));
+		formattedWrite(strings, "\t\tresp.push(builder.sizedByteArray);\n\n");
 		formattedWrite(strings, "\t\trpImpl.response(resp);\n");
 
 		formattedWrite(strings, "\t}\n\n\n\n");
@@ -121,54 +99,37 @@ class IdlFunctionAttrCode
 		auto strings = appender!string();
 		
 		auto funcArgsStrirngs = appender!string();
-		
-		for(int i = 0; i< FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
-			
-			if(i == FunctionAttrInterface.funcArgMap.length -1 )
-				formattedWrite(funcArgsStrirngs, "%s %s", v.getTypeName, v.getVarName);
-			else
-				formattedWrite(funcArgsStrirngs, "%s %s, ", v.getTypeName, v.getVarName);
-		}
+
+		auto v = FunctionAttrInterface.funcArgMap;
+
+		formattedWrite(funcArgsStrirngs, "%s %s", v.getTypeName, v.getVarName);
 
 		formattedWrite(strings, "\t%s %s(%s){\n\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data);
-		formattedWrite(strings, "\t\t%s %sRet;\n\n\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.retValue.getTypeName);
-		formattedWrite(strings, "\t\treturn %sRet;\n\t}\n\n\n\n", FunctionAttrInterface.retValue.getTypeName);
+		formattedWrite(strings, "\t\t%s %sRet;\n", FunctionAttrInterface.retValue.getTypeName, stringToLower(FunctionAttrInterface.retValue.getTypeName, 0));
+		formattedWrite(strings, "\t\t//input service code for %s class\n\n\n\n", FunctionAttrInterface.retValue.getTypeName);
+
+		formattedWrite(strings, "\t\treturn %sRet;\n\t}\n\n\n\n", stringToLower(FunctionAttrInterface.retValue.getTypeName, 0));
 
 		return strings.data;
 	}
 
 
-
 	static string createClientServiceCode(FunctionAttr FunctionAttrInterface)
 	{
-		auto strings = appender!string();
-		
-		auto funcArgsStrirngs = appender!string();
-		
-		for(int i = 0; i< FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
+			auto strings = appender!string();
 			
-			if(i == FunctionAttrInterface.funcArgMap.length -1 )
-				formattedWrite(funcArgsStrirngs, "%s %s", v.getTypeName, v.getVarName);
-			else
-				formattedWrite(funcArgsStrirngs, "%s %s, ", v.getTypeName, v.getVarName);
-		}
+			auto funcArgsStrirngs = appender!string();
 
-		auto funcValuesArgsStrirngs = appender!string();
-
-		for(int i = 0; i< FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
+			auto v = FunctionAttrInterface.funcArgMap;
+			formattedWrite(funcArgsStrirngs, "%s %s", v.getTypeName, v.getVarName);
 			
-			if(i == FunctionAttrInterface.funcArgMap.length -1 )
-				formattedWrite(funcValuesArgsStrirngs, "%s", v.getVarName);
-			else
-				formattedWrite(funcValuesArgsStrirngs, "%s, ", v.getVarName);
-		}
 
+			auto funcValuesArgsStrirngs = appender!string();
+
+			v = FunctionAttrInterface.funcArgMap;
+
+			formattedWrite(funcValuesArgsStrirngs, "%s", v.getVarName);
+	
 
 			formattedWrite(strings, "\t%s %s(%s, const RPC_PACKAGE_COMPRESS_TYPE compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, const int secondsTimeOut = RPC_REQUEST_TIMEOUT_SECONDS){\n\n", 
 							FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data);
@@ -195,56 +156,63 @@ class IdlFunctionAttrCode
 		auto strings = appender!string();
 
 		auto funcArgsStrirngs = appender!string();
-		
-		for(int i = 0; i< FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
-			
-			if(i == FunctionAttrInterface.funcArgMap.length -1 )
-				formattedWrite(funcArgsStrirngs, "%s %s", v.getTypeName, v.getVarName);
-			else
-				formattedWrite(funcArgsStrirngs, "%s %s, ", v.getTypeName, v.getVarName);
-		}
+
+		auto v = FunctionAttrInterface.funcArgMap;
+		formattedWrite(funcArgsStrirngs, "%s %s", v.getTypeName, v.getVarName);
 
 		auto funcArgsStructStrirngs = appender!string();
-		
-		for(int i = 0; i < FunctionAttrInterface.funcArgMap.length; i++)
-		{
-			auto v = FunctionAttrInterface.funcArgMap[i];
-			
-			if(i == FunctionAttrInterface.funcArgMap.length-1)
-				formattedWrite(funcArgsStructStrirngs, "%s", v.getVarName);
-			else
-				formattedWrite(funcArgsStructStrirngs, "%s, ", v.getVarName);
-		}
+		v = FunctionAttrInterface.funcArgMap;
+		formattedWrite(funcArgsStructStrirngs, "%s", v.getVarName);
+
+		formattedWrite(strings, "\t%s %sInterface(const %s, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, const size_t funcId = %s){\n\n", 
+								FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data, FunctionAttrInterface.funcHash);
+
+		formattedWrite(strings, "\t\tauto builder = new FlatBufferBuilder(512);\n\n");
+		formattedWrite(strings, "\t\t//input flatbuffer code for %sFB class\n\n\n\n\n", v.typeName);
+		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createSerializeCodeForFlatbuffer(idlStructList[v.typeName], v.varName));
+		formattedWrite(strings, "\t\tbuilder.finish(%sPos);\n\n", v.varName);
 
 
-
-		formattedWrite(strings, "\t%s %sInterface(%s, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, string bindFunc = __FUNCTION__){\n\n", 
-								FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.funcName, funcArgsStrirngs.data);
 		formattedWrite(strings, "\t\tauto req = new RpcRequest(compressType, secondsTimeOut);\n\n");
-		formattedWrite(strings, "\t\treq.push(%s);\n\n", replaceAll(funcArgsStructStrirngs.data, regex(`\,\s*\,`), ", "));
-		formattedWrite(strings, "\t\tRpcResponse resp = rpImpl.syncCall(req, bindFunc);\n\n");
-		formattedWrite(strings, "\t\tif(resp.getStatus == RESPONSE_STATUS.RS_OK){\n");
+		formattedWrite(strings, "\t\treq.push(builder.sizedByteArray);\n\n");
+		formattedWrite(strings, "\t\tRpcResponse resp = rpImpl.syncCall(req, RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF, funcId);\n\n");
+		formattedWrite(strings, "\t\tif(resp.getStatus == RESPONSE_STATUS.RS_OK){\n\n");
+		formattedWrite(strings, "\t\t\tubyte[] flatBufBytes;\n");
+		formattedWrite(strings, "\t\t\tresp.pop(flatBufBytes);\n\n");
+		formattedWrite(strings, "\t\t\tauto %sFB = %sFB.getRootAs%sFB(new ByteBuffer(flatBufBytes));\n", FunctionAttrInterface.retValue.getVarName, FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.retValue.getTypeName);
+
 		formattedWrite(strings, "\t\t\t%s %s;\n\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.retValue.getVarName);
-		formattedWrite(strings, "\t\t\tresp.pop(%s);\n\n", FunctionAttrInterface.retValue.getVarName);
+		formattedWrite(strings, "\t\t\t//input flatbuffer code for %sFB class\n\n\n\n\n", FunctionAttrInterface.retValue.getTypeName);
+		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createDeserializeCodeForFlatbuffer(idlStructList[FunctionAttrInterface.retValue.getTypeName], FunctionAttrInterface.retValue.getVarName, FunctionAttrInterface.retValue.getVarName~"FB"));
 		formattedWrite(strings, "\t\t\treturn %s;\n\t\t}else{\n", FunctionAttrInterface.retValue.getVarName);
-		formattedWrite(strings, "\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ bindFunc);\n\t\t}\n");
+		formattedWrite(strings, "\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ RpcBindFunctionMap[funcId]);\n\t\t}\n");
 		formattedWrite(strings, "\t}\n\n\n");
 
 
 
 		formattedWrite(strings, "\talias Rpc%sCallback = void delegate(%s);\n\n", FunctionAttrInterface.funcName, FunctionAttrInterface.retValue.getTypeName);
-		formattedWrite(strings, "\tvoid %sInterface(%s, Rpc%sCallback rpcCallback, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, string bindFunc = __FUNCTION__){\n\n", 
-								FunctionAttrInterface.funcName, funcArgsStrirngs.data, FunctionAttrInterface.funcName);
+		formattedWrite(strings, "\tvoid %sInterface(const %s, Rpc%sCallback rpcCallback, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, const size_t funcId = %s){\n\n", 
+								FunctionAttrInterface.funcName, funcArgsStrirngs.data, FunctionAttrInterface.funcName, FunctionAttrInterface.funcHash);
+
+		formattedWrite(strings, "\t\tauto builder = new FlatBufferBuilder(512);\n");
+		formattedWrite(strings, "\t\t//input flatbuffer code for %sFB class\n\n\n\n\n", v.typeName);
+		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createSerializeCodeForFlatbuffer(idlStructList[v.typeName], v.varName));
+		formattedWrite(strings, "\t\tbuilder.finish(%sPos);\n", v.varName);
+
+
 		formattedWrite(strings, "\t\tauto req = new RpcRequest(compressType, secondsTimeOut);\n\n");
-		formattedWrite(strings, "\t\treq.push(%s);\n\n", replaceAll(funcArgsStructStrirngs.data, regex(`\,\s*\,`), ", "));
+		formattedWrite(strings, "\t\treq.push(builder.sizedByteArray);\n\n");
 		formattedWrite(strings, "\t\trpImpl.asyncCall(req, delegate(RpcResponse resp){\n\n");
 		formattedWrite(strings, "\t\t\tif(resp.getStatus == RESPONSE_STATUS.RS_OK){\n\n");
+		formattedWrite(strings, "\t\t\t\tubyte[] flatBufBytes;\n");
 		formattedWrite(strings, "\t\t\t\t%s %s;\n\n", FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.retValue.getVarName);
-		formattedWrite(strings, "\t\t\t\tresp.pop(%s);\n\n", FunctionAttrInterface.retValue.getVarName);
+		formattedWrite(strings, "\t\t\t\tresp.pop(flatBufBytes);\n\n");
+		formattedWrite(strings, "\t\t\t\tauto %sFB = %sFB.getRootAs%sFB(new ByteBuffer(flatBufBytes));\n", FunctionAttrInterface.retValue.getVarName, FunctionAttrInterface.retValue.getTypeName, FunctionAttrInterface.retValue.getTypeName);
+
+		formattedWrite(strings, "\t\t\t\t//input flatbuffer code for %sFB class\n\n\n\n\n", FunctionAttrInterface.retValue.getTypeName);
+		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createDeserializeCodeForFlatbuffer(idlStructList[FunctionAttrInterface.retValue.getTypeName], FunctionAttrInterface.retValue.getVarName, FunctionAttrInterface.retValue.getVarName~"FB"));
 		formattedWrite(strings, "\t\t\t\trpcCallback(%s);\n", FunctionAttrInterface.retValue.getVarName);
-		formattedWrite(strings, "\t\t\t}else{\n\t\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ bindFunc);\n\t\t\t}}, bindFunc);\n");
+		formattedWrite(strings, "\t\t\t}else{\n\t\t\t\tthrow new Exception(\"rpc sync call error, function:\" ~ RpcBindFunctionMap[funcId]);\n\t\t\t}}, RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF, funcId);\n", inerfaceName);
 		formattedWrite(strings, "\t}\n\n\n");
 		
 		return strings.data;
@@ -264,7 +232,7 @@ class idl_inerface_dlang_code
 		
 		foreach(k,v; idlInterface.functionList)
 		{
-			formattedWrite(strings, "\t\trpImpl.bindRequestCallback(\"%s\", &this.%sInterface); \n\n", v.getFuncName, v.getFuncName);
+			formattedWrite(strings, "\t\trpImpl.bindRequestCallback(%s, &this.%sInterface); \n\n", v.funcHash, v.getFuncName);
 		}
 		
 		formattedWrite(strings, "\t}\n\n");
@@ -284,17 +252,23 @@ class idl_inerface_dlang_code
 	{
 		auto strings = appender!string();
 
-		formattedWrite(strings, "class Rpc%sService: Rpc%sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
+
+		formattedWrite(strings, "\nclass Rpc%sService: Rpc%sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
 		formattedWrite(strings, "\tthis(RpcServer rpServer){\n");
+
+		foreach(k,v; idlInterface.functionList)
+		{
+			formattedWrite(strings, "\t\tRpcBindFunctionMap[%s] = typeid(&Rpc%sService.%s).toString();\n", v.funcHash, idlInterface.interfaceName, v.funcName);
+		}
+
 		formattedWrite(strings, "\t\tsuper(rpServer);\n");
 		formattedWrite(strings, "\t}\n\n");
-		
-		
+
 		foreach(k,v; idlInterface.functionList)
 		{
 			formattedWrite(strings, IdlFunctionAttrCode.createServerServiceCode(v));
 		}
-		
+
 		formattedWrite(strings,"}\n\n\n\n");
 
 		return strings.data;
@@ -326,8 +300,15 @@ class idl_inerface_dlang_code
 	{
 		auto strings = appender!string();
 
-		formattedWrite(strings, "class Rpc%sService: Rpc%sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
+		formattedWrite(strings, "\nclass Rpc%sService: Rpc%sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
 		formattedWrite(strings, "\tthis(RpcClient rpClient){\n");
+
+		foreach(k,v; idlInterface.functionList)
+		{
+			formattedWrite(strings, "\t\tRpcBindFunctionMap[%s] = typeid(&Rpc%sService.%s).toString();\n", v.funcHash, idlInterface.interfaceName, v.funcName);
+		}
+
+
 		formattedWrite(strings, "\t\tsuper(rpClient);\n");
 		formattedWrite(strings, "\t}\n\n");
 		
@@ -336,7 +317,8 @@ class idl_inerface_dlang_code
 		{
 			formattedWrite(strings, IdlFunctionAttrCode.createClientServiceCode(v));
 		}
-		
+	
+
 		formattedWrite(strings, "}\n\n\n\n");
 
 		return strings.data;

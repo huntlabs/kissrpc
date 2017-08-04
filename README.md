@@ -1,9 +1,9 @@
-# kiss-rpc features:
+# kiss-rpc-flatbuffer features:
 1. Lightweight and easy to use. There are two ways to support IDL and manually write protocols. Analog function call, more in line with the RPC remote call logic, simple, transparent.
 
 2. Easy to change, easy to use, existing code can be used directly
 
-3. Data formats support backward compatibility
+3. The data format supports downward compatibility and uses the flatbuffer protocol, with better compatibility and faster speed.
 
 4. Support multi valued return feature, support timeout mechanism, analog grpc, thrift, Dubbo fast several times or even dozens of times.
 
@@ -11,11 +11,12 @@
 
 6. Support pipeline data compression, dynamic data compression, request data compression, flexible use of a wide range of scenarios.
 
+![](http://e222f542.wiz03.com/share/resources/c2937bf1-2e53-4f21-902b-65aa23346dd8/index_files/55508328.png)
 
 ######  development environment 
 
 * environment: Linux, UNIX, windows, macOS
-* transport protocol: capnproto(Install dependency Libraries:https://github.com/capnproto/capnproto)
+* transport protocol: flatbuffer for dlang (https://github.com/huntlabs/google-flatbuffers)
 * Compression protocol: snappy(Install dependency Libraries:https://github.com/google/snappy)
 * development language: dlang
 * compiler: dub
@@ -29,7 +30,7 @@
 
 #### Setup:
 
-1. install capnproto (https://capnproto.org/install.html)
+1. install flatbuffer for dlang (https://github.com/huntlabs/google-flatbuffers)
 2. install google snappy
 3. dub Compiler
 
@@ -45,20 +46,6 @@
 * pipeline compression: packet compression can be performed on the specified pipeline.
 
 
-#### Example:
-
-1. Asynchronous test:
-
-	single connection: "example/app-async-single.d"
-
-	mutil connection: "example/app-async-mutil.d"
-
-2. Synchronous test:
-	
-	single connection: "example/app-sync-block-single.d"
-	
-	mutil connection: "example/app-sync-block-mutil.d"
-
 
 #### IDL Example
 
@@ -70,22 +57,21 @@
 
 
 #### Performance test code
-1. 50W QPS synchronous testing takes time: 15 seconds, average 3.3w QPS per second
+1. 100W QPS synchronous testing takes time: 20 seconds, average 5w QPS per second
 
-2. 50W QPS asynchronous testing takes 9 seconds, with an average of 5.5W QPS per second
+2. 100W QPS asynchronous testing takes 5 seconds, with an average of 20W QPS per second
 
-3. 1000 concurrent, 100wQPS asynchronous testing takes time: 25 seconds, average QPS:4W per second
+3. 1000 concurrent, 100wQPS asynchronous testing takes time: 5 seconds, average QPS:20W per second
 
 * server test code:"test/server"
 
 * client test code: "test/client"
 
-![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/69039892.png)
-![](http://e222f542.wiz03.com/share/resources/e1299376-372b-4994-9239-adefb8c42137/index_files/59007921.png)
+![](http://e222f542.wiz03.com/share/resources/c2937bf1-2e53-4f21-902b-65aa23346dd8/index_files/54551730.png)
+![](http://e222f542.wiz03.com/share/resources/c2937bf1-2e53-4f21-902b-65aa23346dd8/index_files/54709793.png)
 
 # What is IDL?
     1. IDL is the kiss RPC interface code generation protocol, the preparation of IDL protocol, you can generate the corresponding server and client common RPC code call interface.
-
     2. Standardize the unity, interface unification, simple to use.
 
 
@@ -93,26 +79,29 @@
     1. [idl file path]    [output file name]    [output file path，default current dir]  E."/root/home/kiss-rpc.idl"	kiss-rpc	"/root/home/rpc/"
     2. module name output, module path is ".": E."/root/home/kiss-rpc.idl"	module.test.kiss-rpc	 "/root/home/rpc/"	
     3. At the same time output client and server file code, only need to copy to the corresponding client and server directory.
+    4. Message type names must be uppercase first, type members must be marked with serial numbers, otherwise they cannot be compiled 	
+    5. The function parameter list can only be one, or else it cannot be compiled
 
 
 # IDL Supported type
 
-IDL                 |            D lang
-----------------|----------------
-bool                |            bool
-byte                |            byte
-ubyte              |            ubyte
-short               |            short
-int                   |            int
-uint                 |            uint
-long                |	    long    
-ulong              |            ulong
-float                |            float
-double            |            double
-char                |            char
-wchar             |	   wchar
-string              |            string
-@message      |	    struct
+IDL                 |           D lang
+--------------------|---------------------
+bool                |           bool
+byte                |           byte
+ubyte               |           ubyte
+short               |           short
+ushort		    |		ushort
+int                 |           int
+uint                |           uint
+long                |	    	long    
+ulong               |           ulong
+float               |           float
+double              |           double
+char                |           char
+string              |           string
+[]                  |           DynamicArrayList
+@message      	    |	    	struct
 
 
 
@@ -135,16 +124,21 @@ string              |            string
 		string[] addressList:5;
 	}
 
-	@message:contacts
+	@message:Contacts
 	{
 		int number:1;
 		UserInfo[] userInfoList:2;		
 	}
 
+	@message:User
+	{
+		string name:1;
+	}
+
 
 	@service:AddressBook	//class interface
 	{
-		contacts getContactList(string accountName);
+		Contacts getContactList(User userName);
 	}
 
 
@@ -158,8 +152,8 @@ string              |            string
 * import hander files
 
 ```
-import KissRpc.IDL.KissIdlService;
-import KissRpc.IDL.KissIdlMessage;
+import KissRpc.IDL.kissidlService;
+import KissRpc.IDL.kissidlMessage;
 import KissRpc.Unit;
 ```
 
@@ -167,11 +161,10 @@ import KissRpc.Unit;
 * Client synchronous invocation
 ```
 			try{
-
-				auto c = addressBookService.getContactList("jasonalex");
+				auto c = addressBookService.getContactList(name);
 				foreach(v; c.userInfoList)
 				{
-					writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+					writefln("sync number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 					
 				}
 
@@ -184,16 +177,16 @@ import KissRpc.Unit;
 * Client asynchronous call
 
 ```
- 			try{
+			try{
 
-				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+				addressBookService.getContactList(name, delegate(Contacts c){
 						
 						foreach(v; c.userInfoList)
 						{
-							writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+							writefln("async number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 						}
 					}
-					);
+				);
 			}catch(Exception e)
 			{
 				writeln(e.msg);
@@ -216,12 +209,11 @@ RpcClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS); //forced c
 ```
 			//use compress demo
 			try{
-				writeln("-------------------------user request compress---------------------------------------------");
-				auto c = addressBookService.getContactList("jasonalex", RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+				auto c = addressBookService.getContactList(name, RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+
 				foreach(v; c.userInfoList)
 				{
-					writefln("compress test: sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
-					
+					writefln("compress test: sync number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 				}
 				
 			}catch(Exception e)
@@ -234,17 +226,21 @@ RpcClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS); //forced c
 
 ```
 			//use dynamic compress and set request timeout
+
+
 			try{
 				RPC_PACKAGE_COMPRESS_DYNAMIC_VALUE = 100; //reset compress dynamaic value 100 byte, default:200 byte
 
-				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+				addressBookService.getContactList(name, delegate(Contacts c){
 						
 						foreach(v; c.userInfoList)
 						{
-							writefln("dynamic compress test: async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+							writefln("dynamic compress test: sync number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 						}
+
 					}, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC, 30
-					);
+				);
+
 			}catch(Exception e)
 			{
 				writeln(e.msg);
@@ -253,32 +249,27 @@ RpcClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS); //forced c
 ```
 
 
-# Server service file code rpc_address_book_service(file path:IDL-Example/server/source/app.d):
+# Server service file code rpc_address_book_service(file path:IDL-Example/server/source/IDL/kissidlInterface.d):
 
 ######  The server interface can handle asynchronous events.
 
 *  RpcAddressBookService.getContactList
 
 ```
-	contacts getContactList(string accountName){
-		
-		contacts contactsRet;
-		
-		contactsRet.number = 100;
-		contactsRet.userInfoList = new UserInfo[10];
-		
-		
-		foreach(i,ref v; contactsRet.userInfoList)
-		{
-			v.phone ~= "135167321"~to!string(i);
-			v.age = cast(int)i;
-			v.userName = accountName~to!string(i);
-			v.addressList = new string[2];
-			v.addressList[0] =  accountName ~ "address1 :" ~ to!string(i);
-			v.addressList[1] =  accountName ~ "address2 :" ~ to!string(i);
-			
-		}
+	Contacts getContactList(AccountName accountName){
 
+		Contacts contactsRet;
+		//input service code for Contacts class
+		contactsRet.number = accountName.count;
+
+		for(int i = 0; i < 10; i++)
+		{
+			UserInfo userInfo;
+			userInfo.age = 18+i;
+			userInfo.name = accountName.name ~ to!string(i);
+			userInfo.widget = 120+i;
+			contactsRet.userInfoList ~= userInfo;
+		}
 
 		return contactsRet;
 	}

@@ -5,7 +5,7 @@ import IDL.IdlParseStruct;
 
 interface IdlBaseInterface
 {
-	bool parse(string name, string structBodys);
+	bool parse(string filePath, string name, string structBodys);
 	string getName();
 	string createServerCodeForInterface(CODE_LANGUAGE language);
 	string createServerCodeForService(CODE_LANGUAGE language);

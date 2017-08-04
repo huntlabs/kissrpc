@@ -14,8 +14,8 @@ import KissRpc.Unit;
 
 import std.conv;
 
-static int testNum = 300000;
-static int atestNum = 300000;
+static int testNum = 1000000;
+static int atestNum = 1000000;
 
 class ClientSocket : ClientSocketEventInterface
 {
@@ -44,7 +44,7 @@ class ClientSocket : ClientSocketEventInterface
 		for(int i= 1; i <= testNum; ++i)
 		{
 			UserInfo user;
-			user.name = "jasonsalex";
+			user.name = "helloworld";
 			user.i = i;
 
 			try{

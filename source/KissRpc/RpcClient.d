@@ -4,7 +4,6 @@ import KissRpc.RpcRequest;
 import KissRpc.Unit;
 import KissRpc.RpcResponse;
 import KissRpc.RpcBinaryPackage;
-import KissRpc.RpcCapnprotoPackage;
 import KissRpc.RpcClientSocket;
 import KissRpc.RpcEventInterface;
 import KissRpc.RpcPackageBase;
@@ -39,13 +38,13 @@ class RpcClient:RpcEventInterface{
 		deWritefln("rpc client bind:%s", key);
 	}
 
-	void bindCallback(string funcName, ReponsCallback callback)
+	void bindCallback(size_t funcId, ReponsCallback callback)
 	{
-		rpcCallbackMap[funcName] = callback;
+		rpcCallbackMap[funcId] = callback;
 	}
 
 	
-	bool requestRemoteCall(RpcRequest req)
+	bool requestRemoteCall(RpcRequest req, RPC_PACKAGE_PROTOCOL protocol)
 	{	
 		packMessageCount++;
 		req.setSequence(packMessageCount);
@@ -56,7 +55,7 @@ class RpcClient:RpcEventInterface{
 			req.setCompressType(this.compressType);
 		}
 
-		deWritefln("rpc client request remote call:%s", req.getCallFuncName());
+		deWritefln("rpc client request remote call:%s, id:%s", req.getCallFuncName(), req.getCallFuncId);
 		return sendPackManage.add(req);
 	}
 
@@ -65,8 +64,8 @@ class RpcClient:RpcEventInterface{
 
 		if(sendPackManage.remove(pack.getSequenceId))
 		{
-			deWritefln("client recv package event, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s, compress:%s", 
-				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
+			deWritefln("client recv package event, hander len:%s, package size:%s, ver:%s, func id:%s, sequence id:%s, body size:%s, compress:%s", 
+				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getFuncId, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
 
 			RpcPackageBase packageBase;
 			
@@ -76,17 +75,19 @@ class RpcClient:RpcEventInterface{
 				case RPC_PACKAGE_PROTOCOL.TPP_XML: break;
 				case RPC_PACKAGE_PROTOCOL.TPP_PROTO_BUF: break;
 				case RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF:  break;
-				case RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF: packageBase = new RpcCapnprotoPackage(socket, pack.getPayload()); break;
+				case RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF: break;
 					
 				default:
 					logWarning("unpack serialized type is failed!, type:%d", pack.getSerializedType());
 			}
 
-			auto rpcResp = packageBase.getResponseData();
+			auto rpcResp = new RpcRequest(socket);
 
 			rpcResp.setSequence(pack.getSequenceId());
 			rpcResp.setNonblock(pack.getNonblock());
 			rpcResp.setCompressType(pack.getCompressType);
+			rpcResp.bindFunc(pack.getFuncId());
+			rpcResp.push(pack.getPayload());
 
 			if(pack.getStatusCode != RPC_PACKAGE_STATUS_CODE.RPSC_OK)
 			{
@@ -103,13 +104,13 @@ class RpcClient:RpcEventInterface{
 			
 			if(pack.getNonblock)
 			{
-				deWritefln("async call form rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
+				deWritefln("async call from rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
 			}else
 			{
-				deWritefln("sync call form rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
+				deWritefln("sync call from rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
 			}
 
-			auto callback = rpcCallbackMap.get(rpcResp.getCallFuncName, null);
+			auto callback = rpcCallbackMap.get(rpcResp.getCallFuncId, null);
 			
 			if(callback !is null)
 			{
@@ -142,7 +143,7 @@ class RpcClient:RpcEventInterface{
 				logWarning("rpc send package event is fatal!!, event type error!");
 		}
 
-			auto callback = rpcCallbackMap.get(rpcResp.getCallFuncName, null);
+			auto callback = rpcCallbackMap.get(rpcResp.getCallFuncId, null);
 
 			if(callback !is null)
 			{
@@ -205,7 +206,7 @@ private:
 	RpcSendPackageManage sendPackManage;
 	RPC_PACKAGE_COMPRESS_TYPE compressType;
 
-	ReponsCallback[string] rpcCallbackMap;
+	ReponsCallback[size_t] rpcCallbackMap;
 
 	ulong packMessageCount;
 

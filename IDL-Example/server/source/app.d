@@ -48,10 +48,11 @@ class ServerSocket : ServerSocketEventInterface
 void main(string[] args)
 {
 
-	import KissRpc.IDL.KissIdlService;
+	import KissRpc.IDL.kissidlService;
 
 	auto rpServer = new RpcServer(new ServerSocket);
 	auto address_book_service = new RpcAddressBookService(rpServer);
+
 
 	auto poll = new GroupPoll!();
 

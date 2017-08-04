@@ -6,6 +6,7 @@ import std.conv;
 import std.stdio;
 import std.array : appender;
 import std.format;
+import core.internal.hash;
 
 import IDL.IdlBaseInterface;
 import IDL.IdlUnit;
@@ -18,33 +19,34 @@ class FunctionArg
 	{
 		typeName = type;
 		varName = var;
-
-		if(idlDlangVariable.get(typeName, null) is null && idlStructList.get(typeName, null) is null)
+		
+		if(idlStructList.get(typeName, null) is null)
 		{
-			throw new Exception("parse type error, is not exist, type:" ~ typeName);
+			throw new Exception("parse type error, is not exist type:" ~ typeName);
 		}
-
+		
 		writefln("function argument: %s:%s", varName, typeName);
 	}
-
+	
 	string getVarName()
 	{
 		return varName;
 	}
-
+	
 	string getTypeName()
 	{
 		return typeName;
 	}
-
+	
 public:
 	string typeName;
 	string varName;
 }
 
+
 class FunctionAttr
 {
-	this(string funcTlp)
+	this(string fileRoutePath,string funcTlp)
 	{
 		auto formatFuncTlp = replaceAll(funcTlp, regex(`\(|\)`), " ");
 
@@ -64,13 +66,15 @@ class FunctionAttr
 		retValue = new FunctionArg(funcTlpList[0], "ret_" ~ funcTlpList[0]);
 
 		funcName = funcTlpList[1];
+		funcHash = bytesHash((fileRoutePath~this.funcName).ptr, (fileRoutePath~this.funcName).length, 0);
 
 		int funcArgIndex = 0;
 		writefln("function name:%s, return value:%s", funcName, retValue.getTypeName);
 
 		for(int i = 2; i<funcTlpList.length; i+=2)
 		{
-			funcArgMap[funcArgIndex++] = new FunctionArg(funcTlpList[i], funcTlpList[i+1]);
+			funcArgMap = new FunctionArg(funcTlpList[i], funcTlpList[i+1]);
+			break;
 		}
 
 		writeln("********************************\n");
@@ -85,14 +89,16 @@ class FunctionAttr
 public:
 	FunctionArg retValue;
 	string funcName;
-	FunctionArg[int] funcArgMap;
+	size_t funcHash;
+	FunctionArg funcArgMap;
 }
 
 class IdlParseInterface : IdlBaseInterface
 {
-	bool parse(string name, string structBodys)
+	bool parse(string filePath, string name, string structBodys)
 	{
 		this.interfaceName = name;
+		this.filePath = filePath;
 
 		auto  MemberAttrList  = split(structBodys, ";");
 
@@ -108,7 +114,7 @@ class IdlParseInterface : IdlBaseInterface
 		{
 			if(attr.length > 1)
 			{
-				auto funcAttr = new FunctionAttr(attr);
+				auto funcAttr = new FunctionAttr(this.filePath ~ this.interfaceName, attr);
 				functionList[funcIndex++] = funcAttr;
 			}
 		}
@@ -200,5 +206,6 @@ class IdlParseInterface : IdlBaseInterface
 public:
 	int funcIndex;
 	string interfaceName;
+	string filePath;
 	FunctionAttr[int] functionList;
 }

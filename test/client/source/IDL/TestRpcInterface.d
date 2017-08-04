@@ -7,57 +7,106 @@ import KissRpc.RpcRequest;
 import KissRpc.RpcClientImpl;
 import KissRpc.RpcClient;
 import KissRpc.RpcResponse;
+import KissRpc.Unit;
+import flatbuffers;
+import KissRpc.IDL.flatbuffer.TestRpc;
+import std.conv;
 
-abstract class rpc_test_interface{ 
+abstract class RpcTestInterface{ 
 
 	this(RpcClient rpClient){ 
-		rp_impl = new RpcClientImpl!(RpcTestService)(rpClient); 
+		rpImpl = new RpcClientImpl!(RpcTestService)(rpClient); 
 	}
 
-	UserInfo getNameInterface(UserInfo info, string bindFunc = __FUNCTION__){
+	UserInfo getNameInterface(const UserInfo userInfo, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, const size_t funcId = 2791659981){
 
-		auto req = new RpcRequest;
+		auto builder = new FlatBufferBuilder(512);
 
-		req.push(info);
+		//input flatbuffer code for UserInfoFB class
 
-		RpcResponse resp = rp_impl.syncCall(req, bindFunc);
+
+
+
+				auto userInfoPos = UserInfoFB.createUserInfoFB(builder, userInfo.i, builder.createString(userInfo.name), );
+
+
+		builder.finish(userInfoPos);
+
+		auto req = new RpcRequest(compressType, secondsTimeOut);
+
+		req.push(builder.sizedByteArray);
+
+		RpcResponse resp = rpImpl.syncCall(req, RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF, funcId);
 
 		if(resp.getStatus == RESPONSE_STATUS.RS_OK){
-			UserInfo retUserInfo;
 
-			resp.pop(retUserInfo);
+			ubyte[] flatBufBytes;
+			resp.pop(flatBufBytes);
 
-			return retUserInfo;
+			auto ret_UserInfoFB = UserInfoFB.getRootAsUserInfoFB(new ByteBuffer(flatBufBytes));
+			UserInfo ret_UserInfo;
+
+			//input flatbuffer code for UserInfoFB class
+
+
+
+
+				ret_UserInfo.i = ret_UserInfoFB.i;
+		ret_UserInfo.name = ret_UserInfoFB.name;
+
+
+			return ret_UserInfo;
 		}else{
-			throw new Exception("rpc sync call error, function:" ~ bindFunc);
+			throw new Exception("rpc sync call error, function:" ~ RpcBindFunctionMap[funcId]);
 		}
 	}
 
 
-	alias RpcGetNameCallback = void delegate(UserInfo);
+	alias RpcgetNameCallback = void delegate(UserInfo);
 
-	void getNameInterface(UserInfo info, RpcGetNameCallback rpcCallback, string bindFunc = __FUNCTION__){
+	void getNameInterface(const UserInfo userInfo, RpcgetNameCallback rpcCallback, const RPC_PACKAGE_COMPRESS_TYPE compressType, const int secondsTimeOut, const size_t funcId = 2791659981){
 
-		auto req = new RpcRequest;
+		auto builder = new FlatBufferBuilder(512);
+		//input flatbuffer code for UserInfoFB class
 
-		req.push(info);
 
-		rp_impl.asyncCall(req, delegate(RpcResponse resp){
+
+
+				auto userInfoPos = UserInfoFB.createUserInfoFB(builder, userInfo.i, builder.createString(userInfo.name), );
+
+
+		builder.finish(userInfoPos);
+		auto req = new RpcRequest(compressType, secondsTimeOut);
+
+		req.push(builder.sizedByteArray);
+
+		rpImpl.asyncCall(req, delegate(RpcResponse resp){
 
 			if(resp.getStatus == RESPONSE_STATUS.RS_OK){
 
-				UserInfo retUserInfo;
+				ubyte[] flatBufBytes;
+				UserInfo ret_UserInfo;
 
-				resp.pop(retUserInfo);
+				resp.pop(flatBufBytes);
 
-				rpcCallback(retUserInfo);
+				auto ret_UserInfoFB = UserInfoFB.getRootAsUserInfoFB(new ByteBuffer(flatBufBytes));
+				//input flatbuffer code for UserInfoFB class
+
+
+
+
+				ret_UserInfo.i = ret_UserInfoFB.i;
+		ret_UserInfo.name = ret_UserInfoFB.name;
+
+
+				rpcCallback(ret_UserInfo);
 			}else{
-				throw new Exception("rpc sync call error, function:" ~ bindFunc);
-			}}, bindFunc);
+				throw new Exception("rpc sync call error, function:" ~ RpcBindFunctionMap[funcId]);
+			}}, RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF, funcId);
 	}
 
 
-	RpcClientImpl!(RpcTestService) rp_impl;
+	RpcClientImpl!(RpcTestService) rpImpl;
 }
 
 

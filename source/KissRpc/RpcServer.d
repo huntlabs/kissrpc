@@ -4,7 +4,6 @@ import KissRpc.RpcRequest;
 import KissRpc.Unit;
 import KissRpc.RpcResponse;
 import KissRpc.RpcBinaryPackage;
-import KissRpc.RpcCapnprotoPackage;
 import KissRpc.RpcServerSocket;
 import KissRpc.RpcEventInterface;
 import KissRpc.RpcPackageBase;
@@ -31,33 +30,31 @@ class RpcServer:RpcEventInterface{
 	void bind(string className, string funcName)
 	{
 		string key = className ~ "." ~ funcName;
-		rpcCallbackMap[key] = (RpcRequest){};
-		
 		deWritefln("rpc server bind:%s", key);
 	}
 	
-	void bindCallback(string funcName, RequestCallback callback)
+	void bindCallback(const size_t funcId, RequestCallback callback)
 	{
-		rpcCallbackMap[funcName] = callback;
-		deWritefln("rpc server bind callback:%s, addr:%s",funcName, callback);
+		rpcCallbackMap[funcId] = callback;
+		deWritefln("rpc server bind callback:%s, %s, addr:%s",funcId, RpcBindFunctionMap[funcId], callback);
 	}
 
-	bool RpcResponseRemoteCall(RpcResponse resp)
+	bool RpcResponseRemoteCall(RpcResponse resp, RPC_PACKAGE_PROTOCOL protocol)
 	{
 		if(resp.getCompressType == RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO)
 		{
 			resp.setCompressType(this.compressType);
 		}
 
-		deWritefln("rpc response remote call, func:%s", resp.getCallFuncName);
+		deWritefln("rpc response remote call:%s, id:%s", resp.getCallFuncName, resp.getCallFuncId);
 		return 	sendPackManage.add(resp, false);
 	}
 
 
 	void rpcRecvPackageEvent(RpcSocketBaseInterface socket, RpcBinaryPackage pack)
 	{
-		deWritefln("server recv package event, hander len:%s, package size:%s, ver:%s, sequence id:%s, body size:%s, compress:%s", 
-					pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
+		deWritefln("server recv package event, hander len:%s, package size:%s, ver:%s, func id:%s, sequence id:%s, body size:%s, compress:%s", 
+					pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getFuncId, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
 
 		if(pack.getStatusCode != RPC_PACKAGE_STATUS_CODE.RPSC_OK)
 		{
@@ -67,28 +64,30 @@ class RpcServer:RpcEventInterface{
 		}else
 		{
 			RpcPackageBase packageBase;
-			
+
 			switch(pack.getSerializedType)
 			{
 				case RPC_PACKAGE_PROTOCOL.TPP_JSON:break;
 				case RPC_PACKAGE_PROTOCOL.TPP_XML: break;
 				case RPC_PACKAGE_PROTOCOL.TPP_PROTO_BUF: break;
 				case RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF:  break;
-				case RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF: packageBase = new RpcCapnprotoPackage(socket, pack.getPayload()); break;
+				case RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF: break;
 					
 				default:
 					logWarning("unpack serialized type is failed!, type:%d", pack.getSerializedType());
 			}
-			
-			auto rpcReq = packageBase.getRequestData();
+
+			auto rpcReq = new RpcRequest(socket);
 
 			rpcReq.setSequence(pack.getSequenceId());
 			rpcReq.setNonblock(pack.getNonblock());
 			rpcReq.setCompressType(pack.getCompressType());
+			rpcReq.bindFunc(pack.getFuncId());
+			rpcReq.push(pack.getPayload());
 
 			deWritefln("rpc client request call, func:%s, arg num:%s", rpcReq.getCallFuncName(), rpcReq.getArgsNum());
 
-			auto callback = rpcCallbackMap.get(rpcReq.getCallFuncName, null);
+			auto callback = rpcCallbackMap.get(rpcReq.getCallFuncId, null);
 
 			if(callback !is null)
 			{
@@ -151,5 +150,5 @@ private:
 	RPC_PACKAGE_COMPRESS_TYPE compressType;
 
 	ServerSocketEventInterface serverSocketEvent;
-	RequestCallback[string] rpcCallbackMap;
+	RequestCallback[size_t] rpcCallbackMap;
 }

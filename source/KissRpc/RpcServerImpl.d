@@ -21,14 +21,14 @@ class RpcServerImpl(T)
 		}
 	}
 
-	void bindRequestCallback(string funcName, RequestCallback callback)
+	void bindRequestCallback(const size_t funcId, RequestCallback callback)
 	{
-		server.bindCallback(typeid(T).toString()~"."~funcName, callback);
+		server.bindCallback(funcId, callback);
 	}
-	
-	void response(RpcResponse resp)
+
+	void response(RpcResponse resp, RPC_PACKAGE_PROTOCOL protocol = RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF)
 	{
-		server.RpcResponseRemoteCall(resp);
+		server.RpcResponseRemoteCall(resp, protocol);
 	}
 	
 private:

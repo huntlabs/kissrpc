@@ -6,15 +6,17 @@ import KissRpc.RpcClient;
 import KissRpc.RpcSocketBaseInterface;
 import KissRpc.Logs;
 
-import KissRpc.IDL.KissIdlService;
-import KissRpc.IDL.KissIdlMessage;
+import KissRpc.IDL.kissidlService;
+import KissRpc.IDL.kissidlMessage;
 
 import kiss.event.GroupPoll;
 import KissRpc.Unit;
 
+import std.conv;
+
 static ulong startClock;
 
-static int testNum = 1;
+static int testNum = 1000;
 
 
 class ClientSocket : ClientSocketEventInterface
@@ -41,13 +43,16 @@ class ClientSocket : ClientSocketEventInterface
 
 		for(int i= 0; i < testNum; ++i)
 		{
+			AccountName name;
+			name.name = "jasonsalex";
+			name.count = i;
 
 			try{
 				writeln("----------------------------------------------------------------------");
-				auto c = addressBookService.getContactList("jasonalex");
+				auto c = addressBookService.getContactList(name);
 				foreach(v; c.userInfoList)
 				{
-					writefln("sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+					writefln("sync number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 					
 				}
 
@@ -59,14 +64,14 @@ class ClientSocket : ClientSocketEventInterface
 
 			try{
 
-				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+				addressBookService.getContactList(name, delegate(Contacts c){
 						
 						foreach(v; c.userInfoList)
 						{
-							writefln("async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+							writefln("async number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 						}
 					}
-					);
+				);
 			}catch(Exception e)
 			{
 				writeln(e.msg);
@@ -75,11 +80,11 @@ class ClientSocket : ClientSocketEventInterface
 			//use compress demo
 			try{
 				writeln("-------------------------user request compress---------------------------------------------");
-				auto c = addressBookService.getContactList("jasonalex", RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+				auto c = addressBookService.getContactList(name, RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
+
 				foreach(v; c.userInfoList)
 				{
-					writefln("compress test: sync number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
-					
+					writefln("compress test: sync number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 				}
 				
 			}catch(Exception e)
@@ -93,21 +98,20 @@ class ClientSocket : ClientSocketEventInterface
 			try{
 				RPC_PACKAGE_COMPRESS_DYNAMIC_VALUE = 100; //reset compress dynamaic value 100 byte, default:200 byte
 
-				addressBookService.getContactList("jasonsalex", delegate(contacts c){
+				addressBookService.getContactList(name, delegate(Contacts c){
 						
 						foreach(v; c.userInfoList)
 						{
-							writefln("dynamic compress test: async number:%s, name:%s, phone:%s, address list:%s", c.number, v.userName, v.phone, v.addressList);
+							writefln("dynamic compress test: sync number:%s, name:%s, phone:%s, age:%s", c.number, v.name, v.widget, v.age);
 						}
+
 					}, RPC_PACKAGE_COMPRESS_TYPE.RPCT_DYNAMIC, 30
-					);
+				);
+
 			}catch(Exception e)
 			{
 				writeln(e.msg);
 			}
-
-
-
 		}
 	}
 

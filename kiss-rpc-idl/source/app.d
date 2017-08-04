@@ -10,7 +10,7 @@ void main(string[] args)
 		writefln("input parse idl path! or output file name");
 	}else
 	{
-		writeln("conmand: " ~args);
+		writeln("conmand: " ~ args);
 	
 		auto idl = new idl_parse;
 		

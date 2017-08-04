@@ -23,21 +23,21 @@ class RpcClientImpl(T)
 		}
 	}
 
-	void asyncCall(RpcRequest req, ReponsCallback callback, string func = __FUNCTION__)
+	void asyncCall(RpcRequest req, ReponsCallback callback, RPC_PACKAGE_PROTOCOL protocol = RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF, const size_t funcId = 0)
 	{
-		deWritefln("rpc client imlp call:%s", func);
+		deWritefln("rpc client imlp async call:%s, %s", funcId, RpcBindFunctionMap[funcId]);
 
-		req.bindFunc(func);
-		client.requestRemoteCall(req);
-		client.bindCallback(func, callback);
+		req.bindFunc(funcId);
+		client.requestRemoteCall(req, protocol);
+		client.bindCallback(funcId, callback);
 	}
 
 
-	RpcResponse syncCall(RpcRequest req, string func = __FUNCTION__)
+	RpcResponse syncCall(RpcRequest req, RPC_PACKAGE_PROTOCOL protocol = RPC_PACKAGE_PROTOCOL.TPP_FLAT_BUF, const size_t funcId = 0)
 	{
-			deWritefln("rpc client imlp sync call:%s", func);
+			deWritefln("rpc client imlp sync call:%s, %s", funcId, RpcBindFunctionMap[funcId]);
 			
-			req.bindFunc(func);
+			req.bindFunc(funcId);
 			req.setNonblock(false);
 			
 			RpcResponse retResp;
@@ -48,8 +48,8 @@ class RpcClientImpl(T)
 				req.semaphoreRelease();
 			}
 
-			client.bindCallback(func,  &callback);
-			client.requestRemoteCall(req);
+			client.bindCallback(funcId,  &callback);
+			client.requestRemoteCall(req, protocol);
 
 			req.semaphoreWait();
 

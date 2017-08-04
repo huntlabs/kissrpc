@@ -8,11 +8,13 @@ import std.stdio;
 import std.conv;
 import std.file;
 import std.format;
+import std.process;
 
 import IDL.IdlSymbol;
 import IDL.IdlParseStruct;
 import IDL.IdlParseInterface;
 import IDL.IdlBaseInterface;
+import IDL.IdlFlatbufferCreateCode;
 import IDL.IdlUnit;
 
 
@@ -25,6 +27,7 @@ class idl_parse
 		idlDlangVariable["byte"] = "byte";
 		idlDlangVariable["ubyte"] = "ubyte";
 		idlDlangVariable["short"] = "short";
+		idlDlangVariable["ushort"] = "ushort";
 		idlDlangVariable["int"] = "int";
 		idlDlangVariable["uint"] = "uint";
 		idlDlangVariable["long"] = "long";
@@ -32,8 +35,6 @@ class idl_parse
 		idlDlangVariable["float"] = "float";
 		idlDlangVariable["double"] = "double";
 		idlDlangVariable["char"] = "char";
-		idlDlangVariable["wchar"] = "dchar";
-		idlDlangVariable["dchar"] = "dchar";
 		idlDlangVariable["string"] = "string";
 	}
 
@@ -109,7 +110,7 @@ class idl_parse
 							throw new Exception("parse symbol attr is error,  symbol: " ~ symbolAttr[0]);
 					}
 					
-					if(idlInterface.parse(symbolAttr[1], symbolFlag[1]))
+				if(idlInterface.parse(fileName, symbolAttr[1], symbolFlag[1]))
 					{
 						switch(symbolAttr[0])
 						{
@@ -138,23 +139,27 @@ class idl_parse
 		string serverCodeInterface, serverCodeService;
 		string clientCodeInterface, clientCodeService;
 		string structCode;
+		string flatbufferIdlCode;
 
 		auto serverInterfaceStrings = appender!string();
 		formattedWrite(serverInterfaceStrings, "module KissRpc.IDL.%sInterface;\n\n", fileName);
 		formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.%sMessage;\n", fileName);
 		formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.%sService;\n\n", fileName);
 
+
+
 		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcServer;\n");
 		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcServerImpl;\n");
 		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcResponse;\n");
 		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcRequest;\n");
+		formattedWrite(serverInterfaceStrings, "import flatbuffers;\n");
 
 		auto server_service_strings = appender!string();
 		formattedWrite(server_service_strings, "module KissRpc.IDL.%sService;\n\n", fileName);
 		formattedWrite(server_service_strings, "import KissRpc.IDL.%sInterface;\n", fileName);
 		formattedWrite(server_service_strings, "import KissRpc.IDL.%sMessage;\n\n", fileName);
-		formattedWrite(server_service_strings, "import KissRpc.RpcServer;\n\n");
-
+		formattedWrite(server_service_strings, "import KissRpc.RpcServer;\n");
+		formattedWrite(server_service_strings, "import KissRpc.Unit;\n\n");
 
 		auto client_interface_strings = appender!string();
 		formattedWrite(client_interface_strings, "module KissRpc.IDL.%sInterface;\n\n", fileName);
@@ -165,7 +170,8 @@ class idl_parse
 		formattedWrite(client_interface_strings, "import KissRpc.RpcClientImpl;\n");
 		formattedWrite(client_interface_strings, "import KissRpc.RpcClient;\n");
 		formattedWrite(client_interface_strings, "import KissRpc.RpcResponse;\n");
-		formattedWrite(client_interface_strings, "import KissRpc.Unit;\n\n");
+		formattedWrite(client_interface_strings, "import KissRpc.Unit;\n");
+		formattedWrite(client_interface_strings, "import flatbuffers;\n");
 
 
 		auto client_service_strings = appender!string();
@@ -180,6 +186,7 @@ class idl_parse
 		auto struct_strings = appender!string();
 		formattedWrite(struct_strings, "module KissRpc.IDL.%sMessage;\n", fileName);
 		formattedWrite(struct_strings, "import std.typetuple;\n\n\n");
+	
 
 
 		foreach(k, v; idlInerfaceList)
@@ -196,6 +203,15 @@ class idl_parse
 			structCode ~= v.createCodeForLanguage(CODE_LANGUAGE.CL_DLANG);
 		}
 
+		foreach(k,v; idlStructList)
+		{
+			flatbufferIdlCode ~= IdlFlatbufferCode.createFlatbufferCode(v);
+		}
+
+
+		auto flatbuffer_strings = appender!string();
+
+
 		auto modulePath = split(fileName, ".");
 		
 		if(modulePath.length > 1)
@@ -205,14 +221,29 @@ class idl_parse
 				outFilePath ~= ("/" ~ modulePath[i]);
 				if(!exists(outFilePath))
 					mkdir(outFilePath);
+
+				moduleFilePath ~= (modulePath[i] ~ ".");
 			}
 			
 			fileName = modulePath[modulePath.length-1];
+		
+			formattedWrite(flatbuffer_strings, "namespace KissRpc.IDL.%sflatbuffer;\n\n", moduleFilePath);
+			formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.%sflatbuffer.%s;\n\n", moduleFilePath, fileName);
+			formattedWrite(client_interface_strings, "import KissRpc.IDL.%sflatbuffer.%s;\n\n", moduleFilePath, fileName);
+		}else
+		{
+			formattedWrite(flatbuffer_strings, "namespace KissRpc.IDL.flatbuffer;\n\n");
+			formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.flatbuffer.%s;\n\n",fileName);
+			formattedWrite(client_interface_strings, "import KissRpc.IDL.flatbuffer.%s;\n\n", fileName);
 		}
 
 
 		if(!exists(outFilePath ~ "/server/"))
-				mkdir(outFilePath ~ "/server/");
+		{
+			mkdir(outFilePath ~ "/server/");
+			mkdir(outFilePath ~ "/server/flatbuffer/");
+		}
+
 
 		auto file = File(outFilePath ~ "/server/" ~ fileName ~ "Interface.d", "w+");
 		file.write(serverInterfaceStrings.data ~ serverCodeInterface);
@@ -223,8 +254,18 @@ class idl_parse
 		file = File(outFilePath ~ "/server/" ~ fileName ~ "Message.d", "w+");
 		file.write(struct_strings.data ~ structCode);
 
+		file = File(outFilePath ~ "/server/flatbuffer/" ~ fileName ~ ".fbs", "w+");
+		file.write(flatbuffer_strings.data ~ flatbufferIdlCode);
+
+		spawnProcess(["flatc", "-d", "-b", outFilePath ~ "/server/flatbuffer/" ~ fileName ~ ".fbs", "--gen-onefile"],
+			std.stdio.stdin, std.stdio.stdout, std.stdio.stderr, null, Config.none, outFilePath ~ "/server/flatbuffer/");
+
+
 		if(!exists(outFilePath ~ "/client/"))
-				mkdir(outFilePath ~ "/client/");
+		{
+			mkdir(outFilePath ~ "/client/");
+			mkdir(outFilePath ~ "/client/flatbuffer/");
+		}
 
 		file = File(outFilePath ~ "/client/" ~ fileName ~ "Interface.d", "w+");
 		file.write(client_interface_strings.data ~ clientCodeInterface);
@@ -234,6 +275,12 @@ class idl_parse
 
 		file = File(outFilePath ~ "/client/" ~ fileName ~ "Message.d", "w+");
 		file.write(struct_strings.data ~ structCode);
+
+		file = File(outFilePath ~ "/client/flatbuffer/" ~ fileName ~ ".fbs", "w+");
+		file.write(flatbuffer_strings.data ~ flatbufferIdlCode);
+
+		spawnProcess(["flatc", "-d", "-b", outFilePath ~ "/client/flatbuffer/" ~ fileName ~ ".fbs", "--gen-onefile"],
+			std.stdio.stdin, std.stdio.stdout, std.stdio.stderr, null, Config.none, outFilePath ~ "/client/flatbuffer/");
 	}
 
 private:
@@ -242,5 +289,6 @@ private:
 	string inFilePath = ".";
 	string outFilePath = ".";
 	string fileName;
+	string moduleFilePath;
 }
 

@@ -16,7 +16,7 @@ import kiss.event.GroupPoll;
 
 import std.conv;
 
-shared static int testNum = 500;
+shared static int testNum = 1000;
 shared static int clientNum = 1000;
 
 shared static long startAllTime;
@@ -67,7 +67,7 @@ class ClientSocket : ClientSocketEventInterface
 		for(int i= 1; i <= testNum; ++i)
 		{
 			UserInfo user;
-			user.name = "jasonsalex:" ~ to!string(clientId);
+			user.name = "helloworld:" ~ to!string(clientId);
 			user.i = i;
 
 			try{
@@ -82,7 +82,7 @@ class ClientSocket : ClientSocketEventInterface
 						
 						
 						
-						if(s.i == testNum && s.name == "jasonsalex:" ~ to!string(clientNum))
+						if(s.i == testNum && s.name == "helloworld:" ~ to!string(clientNum))
 						{
 							auto time = (Clock.currStdTime()/10000 - startAllTime)/1000;
 							writefln("total async test, total client:%s, total request:%s, time:%s, QPS:%s", s.name, s.i*clientNum, time, testNum*clientNum/time);

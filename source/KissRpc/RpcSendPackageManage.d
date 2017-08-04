@@ -6,7 +6,6 @@ import KissRpc.RpcResponse;
 import KissRpc.RpcRequest;
 import KissRpc.RpcEventInterface;
 import KissRpc.RpcSocketBaseInterface;
-import KissRpc.RpcCapnprotoPackage;
 import KissRpc.Unit;
 import KissRpc.Logs;
 
@@ -34,13 +33,9 @@ import std.stdio;
 	{
 		synchronized(this)
 		{
+			auto streamBinaryPackge = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, req.getSequence, req.getCompressType, req.getNonblock, req.getCallFuncId);
 
-			auto streamBinaryPackge = new RpcBinaryPackage(RPC_PACKAGE_PROTOCOL.TPP_CAPNP_BUF, req.getSequence, req.getCompressType, req.getNonblock);
-			auto capnprotoPack = new RpcCapnprotoPackage(req);
-
-			auto binaryStream = capnprotoPack.toBinaryStream();
-
-			auto sendStream = streamBinaryPackge.toStream(binaryStream);
+			auto sendStream = streamBinaryPackge.toStream(req.getFunArgList());
 
 			bool isOk = req.getSocket.doWrite(cast(byte[]) sendStream);
 
@@ -48,10 +43,10 @@ import std.stdio;
 			{
 				if(checkble)
 				{
-					sendPack[req.getSequence()] = capnprotoPack;
+					sendPack[req.getSequence()] = req;
 				}
 
-				deWritefln("send binary stream, length:%s", sendStream.length);
+				deWritefln("send binary stream, sequece:%s, funcId:%s, funcName:%s, length:%s",req.getSequence, req.getCallFuncId, req.getCallFuncName, sendStream.length);
 				
 			}else
 			{
@@ -88,10 +83,8 @@ protected:
 						RPC_SYSTEM_TIMESTAMP = Clock.currStdTime().stdTimeToUnixTime!(long)();
 						RPC_SYSTEM_TIMESTAMP_STR = SysTime.fromUnixTime(RPC_SYSTEM_TIMESTAMP).toISOExtString();
 						
-						foreach(k, v; sendPack)
-						{
-							auto req = v.getRequestData();
-							
+						foreach(k, ref req; sendPack)
+						{							
 							if(req.getTimestamp() + req.getTimeout() < RPC_SYSTEM_TIMESTAMP)
 							{
 								req.setStatus(RESPONSE_STATUS.RS_TIMEOUT);
@@ -105,6 +98,6 @@ protected:
 	}
 
 private:
-    RpcPackageBase[ulong] sendPack;
+	RpcRequest[ulong] sendPack;
 	RpcEventInterface clientEventInterface;
 }

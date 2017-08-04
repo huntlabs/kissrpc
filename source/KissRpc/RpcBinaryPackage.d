@@ -5,19 +5,7 @@ import KissRpc.Unit;
 import KissRpc.Logs;
 
 import util.snappy;
-
 import std.stdio;
-
-
-enum RPC_PACKAGE_PROTOCOL
-{
-	TPP_JSON,
-	TPP_XML,
-	TPP_PROTO_BUF,
-	TPP_FLAT_BUF,
-	TPP_CAPNP_BUF,
-}
-
 
 enum RPC_PACKAGE_STATUS_CODE
 {
@@ -28,11 +16,12 @@ enum RPC_PACKAGE_STATUS_CODE
 
 class RpcBinaryPackage
 {
-	this(RPC_PACKAGE_PROTOCOL tpp, ulong msgId = 0, RPC_PACKAGE_COMPRESS_TYPE compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, bool isNonblock = true)
+	this(RPC_PACKAGE_PROTOCOL tpp, ulong msgId = 0, RPC_PACKAGE_COMPRESS_TYPE compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO, bool isNonblock = true, size_t funcId = 0)
 	{
 		magic = RPC_HANDER_MAGIC;
 		ver = RPC_HANDER_VERSION;
 		sequenceId = cast(uint)msgId;
+		this.funcId  = funcId;
 
 		statusInfo |= (isNonblock ? RPC_HANDER_NONBLOCK_FLAG : 0);
 
@@ -42,7 +31,7 @@ class RpcBinaryPackage
 
 		statusInfo |= (RPC_PACKAGE_STATUS_CODE.RPSC_OK & RPC_HANDER_STATUS_CODE_FLAG);
 
-		handerSize = ver.sizeof + st.sizeof + statusInfo.sizeof + reserved.sizeof + sequenceId.sizeof + bodySize.sizeof;					
+		handerSize = ver.sizeof + st.sizeof + statusInfo.sizeof + reserved.sizeof + funcId.sizeof + sequenceId.sizeof + bodySize.sizeof;					
 	}
 
 	int getStartHanderLength()const
@@ -60,6 +49,15 @@ class RpcBinaryPackage
 		return handerSize + bodySize + this.getStartHanderLength();
 	}
 
+	size_t getFuncId()const
+	{
+		return funcId;
+	}
+
+	void setFuncId(const size_t id)
+	{
+		funcId = id;
+	}
 
 	ubyte[] getPayload()
 	{
@@ -171,6 +169,7 @@ class RpcBinaryPackage
 		pos = writeBytePos(stream, statusInfo, pos);
 		pos = writeBytesPos(stream, reserved, pos);
 
+		pos = writeBinaryPos(stream, funcId, pos);
 		pos = writeBinaryPos(stream, sequenceId, pos);
 		pos = writeBinaryPos(stream, bodySize, pos);
 
@@ -193,6 +192,7 @@ class RpcBinaryPackage
 			pos = readBytePos(data, statusInfo, pos);
 			pos = readBytesPos(data, reserved, pos);
 
+			pos = readBinaryPos(data, funcId, pos);
 			pos = readBinaryPos(data, sequenceId, pos);
 			pos = readBinaryPos(data, bodySize, pos);
 			
@@ -227,7 +227,8 @@ class RpcBinaryPackage
 			
 			pos = readBytePos(data, statusInfo, pos);
 			pos = readBytesPos(data, reserved, pos);
-			
+
+			pos = readBinaryPos(data, funcId, pos);
 			pos = readBinaryPos(data, sequenceId, pos);
 			pos = readBinaryPos(data, bodySize, pos);
 
@@ -333,6 +334,7 @@ private:
 
 	ubyte[2] reserved;
 	uint sequenceId;
+	size_t funcId;
 	ushort bodySize;
 
 	ubyte[] bodyPayload;
