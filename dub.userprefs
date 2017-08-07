@@ -1,6 +1,6 @@
 ﻿<Properties StartupItem="dub.json">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" PreferredExecutionTarget="cov" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/RpcRecvPackageManage.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="source/KissRpc/RpcClient.d">
     <Files>
       <File FileName="source/kiss/aio/AsyncTcpServer.d" Line="1" Column="1" />
       <File FileName="source/kiss/aio/AsyncGroupTcpServer.d" Line="1" Column="1" />
@@ -30,7 +30,7 @@
       <File FileName="source/kiss/socket/SocketBase.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="../../../../../usr/include/dmd/phobos/std/socket.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="source/kiss/event/GroupPoll.d" Line="1" Column="1" NotebookId="1" />
-      <File FileName="source/KissRpc/Unit.d" Line="6" Column="39" NotebookId="1" />
+      <File FileName="source/KissRpc/Unit.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="source/KissRpc/RpcClient.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="source/flatbuffers/package.d" Line="1" Column="1" NotebookId="1" />
       <File FileName="dub.json" Line="1" Column="1" NotebookId="1" />

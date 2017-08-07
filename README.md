@@ -45,6 +45,13 @@
 
 * pipeline compression: packet compression can be performed on the specified pipeline.
 
+#### enable RPC debug logs
+
+1. show debug logs info(add dub config, versions:["RpcDebug"])
+
+2. close all logs info(add dub config, versions:["UltraHigh"])
+
+3. write logs to file, call tunction:setOutputLogPath("./info.log")
 
 
 #### IDL Example
@@ -69,6 +76,8 @@
 
 ![](http://e222f542.wiz03.com/share/resources/c2937bf1-2e53-4f21-902b-65aa23346dd8/index_files/54551730.png)
 ![](http://e222f542.wiz03.com/share/resources/c2937bf1-2e53-4f21-902b-65aa23346dd8/index_files/54709793.png)
+
+
 
 # What is IDL?
     1. IDL is the kiss RPC interface code generation protocol, the preparation of IDL protocol, you can generate the corresponding server and client common RPC code call interface.
