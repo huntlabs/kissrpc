@@ -8,8 +8,6 @@ import KissRpc.Logs;
 import KissRpc.RpcServer;
 import KissRpc.RpcSocketBaseInterface;
 
-import KissRpc.RpcRequest;
-
 import kiss.event.GroupPoll;
 import std.traits;
 
