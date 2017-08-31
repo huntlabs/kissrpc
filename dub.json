@@ -6,6 +6,11 @@
 		"HuntLabs.cn"
 	    ],
 
+	    "dependencies": {
+			"kiss":{
+				"path" :"../kiss/"
+			}
+		},
 
 	    "license": "Apache-2.0",
 	    "lflags":["-L/usr/local/lib"],

@@ -37,7 +37,7 @@ import std.stdio;
 
 			auto sendStream = streamBinaryPackge.toStream(req.getFunArgList());
 
-			bool isOk = req.getSocket.doWrite(cast(byte[]) sendStream);
+			bool isOk = req.getSocket.write(cast(byte[]) sendStream);
 
 			if(isOk)
 			{

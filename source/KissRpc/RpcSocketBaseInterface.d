@@ -4,7 +4,7 @@ import std.socket;
 
 interface RpcSocketBaseInterface
 {
-	bool doWrite(byte[] data);
+	bool write(byte[] data);
 
 	int getFd();
 

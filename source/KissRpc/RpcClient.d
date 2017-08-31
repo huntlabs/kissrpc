@@ -12,11 +12,12 @@ import KissRpc.RpcEventInterface;
 import KissRpc.RpcSendPackageManage;
 import KissRpc.Logs;
 
-import kiss.event.GroupPoll;
-import kiss.aio.AsyncTcpServer;
+import kiss.aio.AsynchronousChannelSelector;
+import kiss.aio.ByteBuffer;
 
 import std.parallelism;
 import std.stdio;
+import std.experimental.logger.core;
 
 
 alias  ReponsCallback =  void delegate(RpcResponse);
@@ -157,7 +158,7 @@ class RpcClient:RpcEventInterface{
 
 	void socketEvent(RpcSocketBaseInterface socket, const SOCKET_STATUS status,const string statusStr)
 	{
-		logInfo("client socket status info:%s", statusStr);
+		// logInfo("client socket status info:%s", statusStr);
 		switch(status)
 		{
 			case SOCKET_STATUS.SE_CONNECTD:
@@ -176,6 +177,7 @@ class RpcClient:RpcEventInterface{
 				 break;
 
 			case SOCKET_STATUS.SE_WRITE_FAILED: 
+				// writeln("heressss");
 				auto t = task(&clientSocketEvent.writeFailed, socket); 
 				taskPool.put(t);
 				break;
@@ -187,9 +189,9 @@ class RpcClient:RpcEventInterface{
 
 	}
 
-	void connect(string ip, ushort port, GroupPoll!() poll)
+	void connect(string ip, ushort port, AsynchronousChannelSelector sel)
 	{
-		clientSocket = new RpcClientSocket(ip, port, poll, this);
+		clientSocket = new RpcClientSocket(ip, port, sel, this);
 	}
 
 	ulong getWaitResponseNum()

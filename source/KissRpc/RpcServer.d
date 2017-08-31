@@ -11,20 +11,34 @@ import KissRpc.RpcSocketBaseInterface;
 import KissRpc.RpcSendPackageManage;
 import KissRpc.Logs;
 
-import kiss.event.GroupPoll;
-import kiss.aio.AsyncGroupTcpServer;
+// import kiss.event.GroupPoll;
+// import kiss.aio.AsyncGroupTcpServer;
+
+import kiss.aio.AsynchronousChannelThreadGroup;
+import kiss.aio.AsynchronousSocketChannel;
+import kiss.net.TcpAcceptor;
+
+
 import std.stdio;
 
 alias RequestCallback = void delegate(RpcRequest);
 
-class RpcServer:RpcEventInterface{
+class RpcServer:TcpAcceptor, RpcEventInterface{
 
-	this(ServerSocketEventInterface socketEvent)
+	this(string ip, ushort port, AsynchronousChannelThreadGroup group, ServerSocketEventInterface socketEvent)
 	{
 		serverSocketEvent = socketEvent;
 		sendPackManage = new RpcSendPackageManage(this);
 		compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO;
 
+		super(ip, port, group.getWorkSelector());
+	}
+
+	override void onAcceptCompleted(void* attachment, AsynchronousSocketChannel result) {
+		RpcServerSocket server = new RpcServerSocket(result, this);
+	}
+    override void onAcceptFailed(void* attachment) {
+		deWritefln("rpc acceptFailed");
 	}
 
 	void bind(string className, string funcName)
@@ -134,11 +148,6 @@ class RpcServer:RpcEventInterface{
 		}
 	}
 
-	bool listen(string ip, ushort port, GroupPoll!() poll)
-	{
-		auto server_poll = new AsyncGroupTcpServer!(RpcServerSocket, RpcEventInterface)(poll, this);
-		return server_poll.open(ip , port);
-	}
 
 	void setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE type)
 	{

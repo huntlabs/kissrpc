@@ -10,9 +10,11 @@ import KissRpc.RpcSocketBaseInterface;
 
 import KissRpc.RpcRequest;
 
-import kiss.event.GroupPoll;
-import std.traits;
+import kiss.aio.AsynchronousChannelSelector;
+import kiss.aio.AsynchronousChannelThreadGroup;
 
+import std.traits;
+import std.parallelism;
 
 class ServerSocket : ServerSocketEventInterface
 {
@@ -50,16 +52,16 @@ void main(string[] args)
 
 	import KissRpc.IDL.TestRpcService;
 
-	auto rpServer = new RpcServer(new ServerSocket);
-	auto addressBookService = new RpcTestService(rpServer);
+	int threadNum = totalCPUs;
+	// int threadNum = 1;
+	AsynchronousChannelThreadGroup group = AsynchronousChannelThreadGroup.open(5,threadNum);
 
-	auto poll = new GroupPoll!();
+	for(int i = 0; i < threadNum; i++)
+    {
+		auto rpServer = new RpcServer("0.0.0.0", 4444, group,new ServerSocket);
+		auto addressBookService = new RpcTestService(rpServer);
 
-	if(rpServer.listen("0.0.0.0", 4444, poll))
-	{
-		logInfo("start server is ok");
-	}
-
-	poll.start();
-	poll.wait();
+    }
+	group.start();
+	group.wait();
 }

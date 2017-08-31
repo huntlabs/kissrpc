@@ -9,8 +9,12 @@ import KissRpc.Logs;
 import KissRpc.IDL.TestRpcService;
 import KissRpc.IDL.TestRpcMessage;
 
-import kiss.event.GroupPoll;
 import KissRpc.Unit;
+
+
+
+import kiss.aio.AsynchronousChannelThreadGroup;
+import kiss.aio.AsynchronousChannelSelector;
 
 import std.conv;
 
@@ -26,9 +30,9 @@ class ClientSocket : ClientSocketEventInterface
 		//rpClient.setSocketCompress(RPC_PACKAGE_COMPRESS_TYPE.RPCT_COMPRESS);
 	}
 	
-	void connectToServer(GroupPoll!() poll)
+	void connectToServer(AsynchronousChannelSelector sel)
 	{
-		rpClient.connect("0.0.0.0", 4444, poll);
+		rpClient.connect("0.0.0.0", 4444, sel);
 	}
 	
 	void connectd(RpcSocketBaseInterface socket)
@@ -70,7 +74,7 @@ class ClientSocket : ClientSocketEventInterface
 
 
 		startTime  = Clock.currStdTime().stdTimeToUnixTime!(long)();
-
+	
 		writefln("start async test.......................");
 
 		for(int i= 1; i <= atestNum; ++i)
@@ -92,7 +96,7 @@ class ClientSocket : ClientSocketEventInterface
 							time = Clock.currStdTime().stdTimeToUnixTime!(long)() - startTime;
 							writefln("async test, total request:%s, time:%s, QPS:%s", s.i, time, atestNum/time);
 						}
-						
+
 					});
 			}catch(Exception e)
 			{
@@ -126,13 +130,20 @@ private:
 }
 
 
+
+import kiss.aio.AsynchronousChannelThreadGroup;
+
 void main()
 {
 
-	auto poll = new GroupPoll!();
-	auto client = new ClientSocket;
-	client.connectToServer(poll);
+	AsynchronousChannelSelector selector = new AsynchronousChannelSelector(10);
+    
+	ClientSocket client = new ClientSocket;
+	client.connectToServer(selector);
 	
-	poll.start;
-	poll.wait;
+    selector.start();
+    selector.wait();
+
+
+
 }

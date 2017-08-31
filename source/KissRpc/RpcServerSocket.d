@@ -10,157 +10,54 @@ import std.stdio;
 import std.conv;
 import core.thread;
 
-import kiss.aio.AsyncTcpBase;
-import kiss.event.Poll;
 
-class RpcServerSocket:AsyncTcpBase, RpcSocketBaseInterface{
+import kiss.net.TcpServer;
+import kiss.aio.AsynchronousSocketChannel;
+import kiss.aio.ByteBuffer;
+
+class RpcServerSocket:TcpServer, RpcSocketBaseInterface{
 
 public:
-	this(Poll poll, RpcEventInterface rpcEventDalegate)
+	this(AsynchronousSocketChannel client, RpcEventInterface rpcEventDalegate)
 	{
-		readBuff = new byte[RPC_PACKAGE_MAX];
-
 		_socketEventDelegate = rpcEventDalegate;
 		_packageManage = new RpcRecvPackageManage(this, rpcEventDalegate);
-
-		super(poll);
+		super(client, RPC_PACKAGE_MAX);
+		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "client inconming....");
 	}
+	override void onWriteCompleted(void* attachment, size_t count , ByteBuffer buffer) {
 
-	~this()
-	{
+	}
+	override void onWriteFailed(void* attachment) {
 		
+		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to client is failed");
+	}
+    override void onReadCompleted(void* attachment, size_t count , ByteBuffer buffer) {
+		_packageManage.add(cast(ubyte[])(buffer.getCurBuffer()));
+		_readBuffer.clear();
+	}
+	override void onReadFailed(void* attachment) {
+
+	}
+    override void onClose() {
+		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_DISCONNECTD, "disconnect from client!");
 	}
 
-	override  bool doRead(byte[] buffer , int len)
+	void disconnect()
 	{
-		_packageManage.add(cast(ubyte[])buffer[0 .. len]);
+		close();	
+	}
+	bool write(byte[] buf) {
+		super.doWrite(buf);
 		return true;
 	}
 
-	 bool doWrite(byte[] buf)
-	{
-		auto ok = super.doWrite(buf, null, null) >= 0;
-		
-		if (ok == false)
-		{
-			_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to client is failed");
-		}
-		
-		return ok;
-	}
-
-	override  bool onEstablished()
-	{
-		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "client inconming....");
-		return super.onEstablished();
-	}
-
-	override  bool onClose()
-	{
-		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_DISCONNECTD, "disconnect from client!");
-		return super.onClose();
-	}
-
-
-	override int getFd()
-	{
-		return super.getFd();
-	}
-	
-	string getIp()
-	{
-		return _socket.remoteAddress.toAddrString;
-	}
-	
-	string getPort()
-	{
-		return _socket.remoteAddress.toPortString;
-	}
-	
-	void disconnect()
-	{
-		this.close();	
-	}
+	int getFd() { return cast(int)(fd()); }
+	string getIp() { return ip(); }
+	string getPort() { return port(); }
 
 private:
 	RpcEventInterface _socketEventDelegate;
 	RpcRecvPackageManage _packageManage;
 }
-
-
-//
-//class RpcServerSslSocket:AsyncTcpBase, RpcSocketBaseInterface{
-//	
-//public:
-//	this(Poll poll, RpcEventInterface rpcEventDalegate)
-//	{
-//		readBuff = new byte[RPC_PACKAGE_MAX];
-//		
-//		_socketEventDelegate = rpcEventDalegate;
-//		_packageManage = new RpcRecvPackageManage(this, rpcEventDalegate);
-//		
-//		super(poll);
-//	}
-//	
-//	~this()
-//	{
-//		
-//	}
-//	
-//	override  bool doRead(byte[] buffer , int len)
-//	{
-//		_packageManage.add(cast(ubyte[])buffer[0 .. len]);
-//		return true;
-//	}
-//	
-//	bool doWrite(byte[] buf)
-//	{
-//		auto ok = super.doWrite(buf, null, null) >= 0;
-//		
-//		if (ok == false)
-//		{
-//			_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to client is failed");
-//		}
-//		
-//		return ok;
-//	}
-//	
-//	override  bool onEstablished()
-//	{
-//		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "client inconming....");
-//		return super.onEstablished();
-//	}
-//	
-//	override  bool onClose()
-//	{
-//		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_DISCONNECTD, "disconnect from client!");
-//		return super.onClose();
-//	}
-//	
-//	
-//	override int getFd()
-//	{
-//		return super.getFd();
-//	}
-//	
-//	string getIp()
-//	{
-//		return _socket.remoteAddress.toAddrString;
-//	}
-//	
-//	string getPort()
-//	{
-//		return _socket.remoteAddress.toPortString;
-//	}
-//	
-//	void disconnect()
-//	{
-//		this.close();	
-//	}
-//	
-//private:
-//	RpcEventInterface _socketEventDelegate;
-//	RpcRecvPackageManage _packageManage;
-//}
-
 
