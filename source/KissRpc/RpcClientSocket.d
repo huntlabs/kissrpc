@@ -36,20 +36,21 @@ public:
 		return true;
 	}
 	override void onConnectCompleted(void* attachment) {
-		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "connect to server is ok!");
 		doRead();
+		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "connect to server is ok!");
 	}
     override void onConnectFailed(void* attachment) {
 		writeln("onConnectFailed");
 	}
     override void onWriteCompleted(void* attachment, size_t count , ByteBuffer buffer) {
-		// writeln("write success index ",index++);
+		// writeln("write success index ",index);
 	}
 	override void onWriteFailed(void* attachment) {
-		// writeln("onWriteFailed");
+		writeln("onWriteFailed");
 		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to server is failed");
 	}
     override void onReadCompleted(void* attachment, size_t count , ByteBuffer buffer) {
+
 		_packageManage.add(cast(ubyte[])(buffer.getCurBuffer()));
 		_readBuffer.clear();
 	}

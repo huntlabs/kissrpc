@@ -4,7 +4,7 @@ import KissRpc.Endian;
 import KissRpc.Unit;
 import KissRpc.Logs;
 
-import util.snappy;
+import snappy.snappy;
 import std.stdio;
 
 enum RPC_PACKAGE_STATUS_CODE

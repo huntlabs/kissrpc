@@ -7,12 +7,10 @@
 	    ],
 
 	    "dependencies": {
-			"kiss":{
-				"path" :"../kiss/"
-			}
+			"dlang-snappy": "~>0.0.1",
+			"flatbuffers": "~>0.1.1",
+			"kiss" : "~>0.0.7",
 		},
 
-	    "license": "Apache-2.0",
-	    "lflags":["-L/usr/local/lib"],
-	    "libs":["snappy"]
+	    "license": "Apache-2.0"
 }
