@@ -1,0 +1,8 @@
+namespace kissrpc.generated.message;
+
+table UserInfoFB{
+	i:int;
+	name:string;
+}
+
+

@@ -3,12 +3,12 @@
 import std.stdio;
 import std.conv;
 
-import KissRpc.Unit;
-import KissRpc.Logs;
-import KissRpc.RpcServer;
-import KissRpc.RpcSocketBaseInterface;
+import kissrpc.Unit;
+import kissrpc.Logs;
+import kissrpc.RpcServer;
+import kissrpc.RpcSocketBaseInterface;
 
-import KissRpc.RpcRequest;
+import kissrpc.RpcRequest;
 
 import kiss.aio.AsynchronousChannelSelector;
 import kiss.aio.AsynchronousChannelThreadGroup;
@@ -50,7 +50,7 @@ class ServerSocket : ServerSocketEventInterface
 void main(string[] args)
 {
 
-	import KissRpc.IDL.TestRpcService;
+	import kissrpc.IDL.TestRpcService;
 
 	int threadNum = totalCPUs;
 	// int threadNum = 1;

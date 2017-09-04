@@ -1,4 +1,4 @@
-﻿module KissRpc.Endian;
+﻿module kissrpc.Endian;
 
 import core.bitop : bswap;
 import std.traits : isIntegral;

@@ -1,8 +1,8 @@
-﻿module KissRpc.RpcBinaryPackage;
+﻿module kissrpc.RpcBinaryPackage;
 
-import KissRpc.Endian;
-import KissRpc.Unit;
-import KissRpc.Logs;
+import kissrpc.Endian;
+import kissrpc.Unit;
+import kissrpc.Logs;
 
 import snappy.snappy;
 import std.stdio;

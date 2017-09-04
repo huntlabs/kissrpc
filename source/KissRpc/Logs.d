@@ -1,6 +1,6 @@
-﻿module KissRpc.Logs;
+﻿module kissrpc.Logs;
 
-import KissRpc.Unit;
+import kissrpc.Unit;
 
 import std.string;
 import std.format;
@@ -350,7 +350,7 @@ version(UltraHigh)
 
 unittest
 {
-	import KissRpc.Logs;
+	import kissrpc.Logs;
 //
 //	setOutputLogPath("./info.log");
 //

@@ -1,10 +1,10 @@
-module KissRpc.IDL.kissidlService;
+module kissrpc.IDL.kissidlService;
 
-import KissRpc.IDL.kissidlInterface;
-import KissRpc.IDL.kissidlMessage;
+import kissrpc.IDL.kissidlInterface;
+import kissrpc.IDL.kissidlMessage;
 
-import KissRpc.RpcServer;
-import KissRpc.Unit;
+import kissrpc.RpcServer;
+import kissrpc.Unit;
 import std.conv;
 
 class RpcAddressBookService: RpcAddressBookInterface{

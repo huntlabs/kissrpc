@@ -1,10 +1,10 @@
-﻿module KissRpc.RpcClientImpl;
+﻿module kissrpc.RpcClientImpl;
 
-import KissRpc.RpcClient;
-import KissRpc.RpcRequest;
-import KissRpc.RpcResponse;
-import KissRpc.Unit;
-import KissRpc.Logs;
+import kissrpc.RpcClient;
+import kissrpc.RpcRequest;
+import kissrpc.RpcResponse;
+import kissrpc.Unit;
+import kissrpc.Logs;
 
 import std.stdio;
 

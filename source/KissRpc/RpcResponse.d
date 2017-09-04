@@ -1,6 +1,6 @@
-﻿module KissRpc.RpcResponse;
+﻿module kissrpc.RpcResponse;
 
-import KissRpc.RpcRequest;
+import kissrpc.RpcRequest;
 
 enum RESPONSE_STATUS
 {

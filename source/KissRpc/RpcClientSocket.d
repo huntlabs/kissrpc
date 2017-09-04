@@ -1,10 +1,10 @@
-﻿module KissRpc.RpcClientSocket;
+﻿module kissrpc.RpcClientSocket;
 
-import KissRpc.RpcRecvPackageManage;
-import KissRpc.RpcEventInterface;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.Unit;
-import KissRpc.Logs;
+import kissrpc.RpcRecvPackageManage;
+import kissrpc.RpcEventInterface;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.Unit;
+import kissrpc.Logs;
 
 // import kiss.aio.AsyncTcpBase;
 // import kiss.event.Poll;

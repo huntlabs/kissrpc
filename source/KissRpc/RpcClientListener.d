@@ -1,11 +1,11 @@
 
 
-module KissRpc.RpcClientListener;
+module kissrpc.RpcClientListener;
 
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.Logs;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.Logs;
 import kiss.aio.AsynchronousChannelSelector;
-import KissRpc.RpcClient;
+import kissrpc.RpcClient;
 
 import std.stdio;
 

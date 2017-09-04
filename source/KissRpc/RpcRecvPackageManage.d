@@ -1,11 +1,11 @@
-﻿module KissRpc.RpcRecvPackageManage;
+﻿module kissrpc.RpcRecvPackageManage;
 
-import KissRpc.RpcBinaryPackage;
-import KissRpc.RpcServerSocket;
-import KissRpc.RpcEventInterface;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.Unit;
-import KissRpc.Logs;
+import kissrpc.RpcBinaryPackage;
+import kissrpc.RpcServerSocket;
+import kissrpc.RpcEventInterface;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.Unit;
+import kissrpc.Logs;
 
 import std.parallelism;
 import std.stdio;

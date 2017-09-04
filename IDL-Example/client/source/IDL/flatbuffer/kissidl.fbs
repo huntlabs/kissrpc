@@ -1,4 +1,4 @@
-namespace KissRpc.IDL.flatbuffer;
+namespace kissrpc.IDL.flatbuffer;
 
 table UserInfoFB{
 	name:string;

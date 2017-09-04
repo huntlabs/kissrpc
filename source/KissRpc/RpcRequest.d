@@ -1,10 +1,10 @@
-﻿module KissRpc.RpcRequest;
+﻿module kissrpc.RpcRequest;
 
-import KissRpc.Logs;
-import KissRpc.Unit;
-import KissRpc.Endian;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.RpcResponse;
+import kissrpc.Logs;
+import kissrpc.Unit;
+import kissrpc.Endian;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.RpcResponse;
 
 
 import std.stdio;

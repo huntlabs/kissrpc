@@ -1,13 +1,13 @@
-﻿module KissRpc.RpcSendPackageManage;
+﻿module kissrpc.RpcSendPackageManage;
 
-import KissRpc.RpcBinaryPackage;
-import KissRpc.RpcPackageBase;
-import KissRpc.RpcResponse;
-import KissRpc.RpcRequest;
-import KissRpc.RpcEventInterface;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.Unit;
-import KissRpc.Logs;
+import kissrpc.RpcBinaryPackage;
+import kissrpc.RpcPackageBase;
+import kissrpc.RpcResponse;
+import kissrpc.RpcRequest;
+import kissrpc.RpcEventInterface;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.Unit;
+import kissrpc.Logs;
 
 import std.datetime;
 import core.thread;

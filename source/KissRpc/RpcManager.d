@@ -1,12 +1,12 @@
 
 
 
-module KissRpc.RpcManager;
+module kissrpc.RpcManager;
 
-import KissRpc.RpcServer;
+import kissrpc.RpcServer;
 import kiss.aio.AsynchronousChannelThreadGroup;
-import KissRpc.Logs;
-import KissRpc.RpcServerListener;
+import kissrpc.Logs;
+import kissrpc.RpcServerListener;
 
 import std.experimental.logger.core;
 

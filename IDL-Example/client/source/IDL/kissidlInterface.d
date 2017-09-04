@@ -1,15 +1,15 @@
-module KissRpc.IDL.kissidlInterface;
+module kissrpc.IDL.kissidlInterface;
 
-import KissRpc.IDL.kissidlMessage;
-import KissRpc.IDL.kissidlService;
+import kissrpc.IDL.kissidlMessage;
+import kissrpc.IDL.kissidlService;
 
-import KissRpc.RpcRequest;
-import KissRpc.RpcClientImpl;
-import KissRpc.RpcClient;
-import KissRpc.RpcResponse;
-import KissRpc.Unit;
+import kissrpc.RpcRequest;
+import kissrpc.RpcClientImpl;
+import kissrpc.RpcClient;
+import kissrpc.RpcResponse;
+import kissrpc.Unit;
 import flatbuffers;
-import KissRpc.IDL.flatbuffer.kissidl;
+import kissrpc.IDL.flatbuffer.kissidl;
 
 abstract class RpcAddressBookInterface{ 
 

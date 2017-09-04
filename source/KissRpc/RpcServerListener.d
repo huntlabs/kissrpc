@@ -1,9 +1,9 @@
 
 
-module KissRpc.RpcServerListener;
+module kissrpc.RpcServerListener;
 
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.Logs;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.Logs;
 
 class RpcServerListener : ServerSocketEventInterface
 {

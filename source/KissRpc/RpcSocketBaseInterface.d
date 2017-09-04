@@ -1,4 +1,4 @@
-﻿module KissRpc.RpcSocketBaseInterface;
+﻿module kissrpc.RpcSocketBaseInterface;
 
 import std.socket;
 

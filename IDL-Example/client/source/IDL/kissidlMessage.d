@@ -1,4 +1,4 @@
-module KissRpc.IDL.kissidlMessage;
+module kissrpc.IDL.kissidlMessage;
 import std.typetuple;
 
 

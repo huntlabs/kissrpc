@@ -1,0 +1,13 @@
+	
+	//kiss rpc idl demo
+
+	@message:UserInfo
+	{
+		int i:1;
+		string name:2;
+	}
+
+	@service:Test
+	{
+		UserInfo getName(UserInfo userInfo);
+	}

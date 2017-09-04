@@ -1,4 +1,4 @@
-﻿module KissRpc.Unit;
+﻿module kissrpc.Unit;
 
 import std.traits;
 

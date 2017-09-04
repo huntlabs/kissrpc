@@ -1,16 +1,16 @@
-﻿module KissRpc.RpcClient;
+﻿module kissrpc.RpcClient;
 
-import KissRpc.RpcRequest;
-import KissRpc.Unit;
-import KissRpc.RpcResponse;
-import KissRpc.RpcBinaryPackage;
-import KissRpc.RpcClientSocket;
-import KissRpc.RpcEventInterface;
-import KissRpc.RpcPackageBase;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.RpcEventInterface;
-import KissRpc.RpcSendPackageManage;
-import KissRpc.Logs;
+import kissrpc.RpcRequest;
+import kissrpc.Unit;
+import kissrpc.RpcResponse;
+import kissrpc.RpcBinaryPackage;
+import kissrpc.RpcClientSocket;
+import kissrpc.RpcEventInterface;
+import kissrpc.RpcPackageBase;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.RpcEventInterface;
+import kissrpc.RpcSendPackageManage;
+import kissrpc.Logs;
 
 import kiss.aio.AsynchronousChannelSelector;
 import kiss.aio.ByteBuffer;

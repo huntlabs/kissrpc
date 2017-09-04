@@ -2,15 +2,15 @@
 import core.time;
 import std.datetime;
 
-import KissRpc.RpcClient;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.Logs;
+import kissrpc.RpcClient;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.Logs;
 
-import KissRpc.IDL.kissidlService;
-import KissRpc.IDL.kissidlMessage;
+import kissrpc.IDL.kissidlService;
+import kissrpc.IDL.kissidlMessage;
 
 import kiss.event.GroupPoll;
-import KissRpc.Unit;
+import kissrpc.Unit;
 
 import std.conv;
 
@@ -139,7 +139,7 @@ private:
 
 void main()
 {
-	import KissRpc.Logs;
+	import kissrpc.Logs;
 	auto poll = new GroupPoll!();
 	auto client = new ClientSocket;
 	client.connectToServer(poll);

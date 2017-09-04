@@ -1,7 +1,7 @@
-﻿module KissRpc.RpcPackageBase;
+﻿module kissrpc.RpcPackageBase;
 
-import KissRpc.RpcRequest;
-import KissRpc.RpcResponse;
+import kissrpc.RpcRequest;
+import kissrpc.RpcResponse;
 
 interface RpcPackageBase{
 	RpcRequest getRequestData();

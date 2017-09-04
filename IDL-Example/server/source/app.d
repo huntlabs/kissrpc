@@ -3,10 +3,10 @@
 import std.stdio;
 import std.conv;
 
-import KissRpc.Unit;
-import KissRpc.Logs;
-import KissRpc.RpcServer;
-import KissRpc.RpcSocketBaseInterface;
+import kissrpc.Unit;
+import kissrpc.Logs;
+import kissrpc.RpcServer;
+import kissrpc.RpcSocketBaseInterface;
 
 import kiss.event.GroupPoll;
 import std.traits;
@@ -46,7 +46,7 @@ class ServerSocket : ServerSocketEventInterface
 void main(string[] args)
 {
 
-	import KissRpc.IDL.kissidlService;
+	import kissrpc.IDL.kissidlService;
 
 	auto rpServer = new RpcServer(new ServerSocket);
 	auto address_book_service = new RpcAddressBookService(rpServer);

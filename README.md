@@ -163,9 +163,9 @@ string              |           string
 * import hander files
 
 ```
-import KissRpc.IDL.kissidlService;
-import KissRpc.IDL.kissidlMessage;
-import KissRpc.Unit;
+import kissrpc.IDL.kissidlService;
+import kissrpc.IDL.kissidlMessage;
+import kissrpc.Unit;
 ```
 
 

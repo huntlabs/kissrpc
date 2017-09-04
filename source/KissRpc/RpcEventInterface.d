@@ -1,8 +1,8 @@
-﻿module KissRpc.RpcEventInterface;
+﻿module kissrpc.RpcEventInterface;
 
-import KissRpc.RpcBinaryPackage;
-import KissRpc.RpcSocketBaseInterface;
-import KissRpc.RpcResponse;
+import kissrpc.RpcBinaryPackage;
+import kissrpc.RpcSocketBaseInterface;
+import kissrpc.RpcResponse;
 
 enum SOCKET_STATUS{
 	SE_CONNECTD,

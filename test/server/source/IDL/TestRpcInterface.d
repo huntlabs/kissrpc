@@ -1,14 +1,14 @@
-module KissRpc.IDL.TestRpcInterface;
+module kissrpc.IDL.TestRpcInterface;
 
-import KissRpc.IDL.TestRpcMessage;
-import KissRpc.IDL.TestRpcService;
+import kissrpc.IDL.TestRpcMessage;
+import kissrpc.IDL.TestRpcService;
 
-import KissRpc.RpcServer;
-import KissRpc.RpcServerImpl;
-import KissRpc.RpcResponse;
-import KissRpc.RpcRequest;
+import kissrpc.RpcServer;
+import kissrpc.RpcServerImpl;
+import kissrpc.RpcResponse;
+import kissrpc.RpcRequest;
 import flatbuffers;
-import KissRpc.IDL.flatbuffer.TestRpc;
+import kissrpc.IDL.flatbuffer.TestRpc;
 
 import std.stdio;
 

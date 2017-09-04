@@ -142,49 +142,49 @@ class idl_parse
 		string flatbufferIdlCode;
 
 		auto serverInterfaceStrings = appender!string();
-		formattedWrite(serverInterfaceStrings, "module KissRpc.IDL.%sInterface;\n\n", fileName);
-		formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.%sMessage;\n", fileName);
-		formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.%sService;\n\n", fileName);
+		formattedWrite(serverInterfaceStrings, "module kissrpc.generated.%sInterface;\n\n", fileName);
+		formattedWrite(serverInterfaceStrings, "import kissrpc.generated.%sMessage;\n", fileName);
+		formattedWrite(serverInterfaceStrings, "import kissrpc.generated.%sService;\n\n", fileName);
 
 
 
-		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcServer;\n");
-		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcServerImpl;\n");
-		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcResponse;\n");
-		formattedWrite(serverInterfaceStrings, "import KissRpc.RpcRequest;\n");
+		formattedWrite(serverInterfaceStrings, "import kissrpc.RpcServer;\n");
+		formattedWrite(serverInterfaceStrings, "import kissrpc.RpcServerImpl;\n");
+		formattedWrite(serverInterfaceStrings, "import kissrpc.RpcResponse;\n");
+		formattedWrite(serverInterfaceStrings, "import kissrpc.RpcRequest;\n");
 		formattedWrite(serverInterfaceStrings, "import flatbuffers;\n");
 
 		auto server_service_strings = appender!string();
-		formattedWrite(server_service_strings, "module KissRpc.IDL.%sService;\n\n", fileName);
-		formattedWrite(server_service_strings, "import KissRpc.IDL.%sInterface;\n", fileName);
-		formattedWrite(server_service_strings, "import KissRpc.IDL.%sMessage;\n\n", fileName);
-		formattedWrite(server_service_strings, "import KissRpc.RpcServer;\n");
-		formattedWrite(server_service_strings, "import KissRpc.Unit;\n\n");
+		formattedWrite(server_service_strings, "module kissrpc.generated.%sService;\n\n", fileName);
+		formattedWrite(server_service_strings, "import kissrpc.generated.%sInterface;\n", fileName);
+		formattedWrite(server_service_strings, "import kissrpc.generated.%sMessage;\n\n", fileName);
+		formattedWrite(server_service_strings, "import kissrpc.RpcServer;\n");
+		formattedWrite(server_service_strings, "import kissrpc.Unit;\n\n");
 
 		auto client_interface_strings = appender!string();
-		formattedWrite(client_interface_strings, "module KissRpc.IDL.%sInterface;\n\n", fileName);
-		formattedWrite(client_interface_strings, "import KissRpc.IDL.%sMessage;\n", fileName);
-		formattedWrite(client_interface_strings, "import KissRpc.IDL.%sService;\n\n", fileName);
+		formattedWrite(client_interface_strings, "module kissrpc.generated.%sInterface;\n\n", fileName);
+		formattedWrite(client_interface_strings, "import kissrpc.generated.%sMessage;\n", fileName);
+		formattedWrite(client_interface_strings, "import kissrpc.generated.%sService;\n\n", fileName);
 
-		formattedWrite(client_interface_strings, "import KissRpc.RpcRequest;\n");
-		formattedWrite(client_interface_strings, "import KissRpc.RpcClientImpl;\n");
-		formattedWrite(client_interface_strings, "import KissRpc.RpcClient;\n");
-		formattedWrite(client_interface_strings, "import KissRpc.RpcResponse;\n");
-		formattedWrite(client_interface_strings, "import KissRpc.Unit;\n");
+		formattedWrite(client_interface_strings, "import kissrpc.RpcRequest;\n");
+		formattedWrite(client_interface_strings, "import kissrpc.RpcClientImpl;\n");
+		formattedWrite(client_interface_strings, "import kissrpc.RpcClient;\n");
+		formattedWrite(client_interface_strings, "import kissrpc.RpcResponse;\n");
+		formattedWrite(client_interface_strings, "import kissrpc.Unit;\n");
 		formattedWrite(client_interface_strings, "import flatbuffers;\n");
 
 
 		auto client_service_strings = appender!string();
-		formattedWrite(client_service_strings, "module KissRpc.IDL.%sService;\n\n\n", fileName);
-		formattedWrite(client_service_strings, "import KissRpc.IDL.%sInterface;\n", fileName);
-		formattedWrite(client_service_strings, "import KissRpc.IDL.%sMessage;\n\n", fileName);
-		formattedWrite(client_service_strings, "import KissRpc.RpcClient;\n");
-		formattedWrite(client_service_strings, "import KissRpc.Unit;\n\n");
+		formattedWrite(client_service_strings, "module kissrpc.generated.%sService;\n\n\n", fileName);
+		formattedWrite(client_service_strings, "import kissrpc.generated.%sInterface;\n", fileName);
+		formattedWrite(client_service_strings, "import kissrpc.generated.%sMessage;\n\n", fileName);
+		formattedWrite(client_service_strings, "import kissrpc.RpcClient;\n");
+		formattedWrite(client_service_strings, "import kissrpc.Unit;\n\n");
 
 
 
 		auto struct_strings = appender!string();
-		formattedWrite(struct_strings, "module KissRpc.IDL.%sMessage;\n", fileName);
+		formattedWrite(struct_strings, "module kissrpc.generated.%sMessage;\n", fileName);
 		formattedWrite(struct_strings, "import std.typetuple;\n\n\n");
 	
 
@@ -213,74 +213,100 @@ class idl_parse
 
 
 		auto modulePath = split(fileName, ".");
-		
-		if(modulePath.length > 1)
-		{
-			for(int i = 0; i < modulePath.length-1; ++i)
-			{
-				outFilePath ~= ("/" ~ modulePath[i]);
-				if(!exists(outFilePath))
-					mkdir(outFilePath);
 
-				moduleFilePath ~= (modulePath[i] ~ ".");
-			}
+		// if(modulePath.length > 1)
+		// {
+		// 	for(int i = 0; i < modulePath.length-1; ++i)
+		// 	{
+		// 		outFilePath ~= ("/" ~ modulePath[i]);
+		// 		if(!exists(outFilePath)) {
+		// 			rmdir(outFilePath);
+		// 		}
+		// 		mkdir(outFilePath);
+		// 		moduleFilePath ~= (modulePath[i] ~ ".");
+		// 	}
 			
-			fileName = modulePath[modulePath.length-1];
+		// 	fileName = modulePath[modulePath.length-1];
 		
-			formattedWrite(flatbuffer_strings, "namespace KissRpc.IDL.%sflatbuffer;\n\n", moduleFilePath);
-			formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.%sflatbuffer.%s;\n\n", moduleFilePath, fileName);
-			formattedWrite(client_interface_strings, "import KissRpc.IDL.%sflatbuffer.%s;\n\n", moduleFilePath, fileName);
-		}else
-		{
-			formattedWrite(flatbuffer_strings, "namespace KissRpc.IDL.flatbuffer;\n\n");
-			formattedWrite(serverInterfaceStrings, "import KissRpc.IDL.flatbuffer.%s;\n\n",fileName);
-			formattedWrite(client_interface_strings, "import KissRpc.IDL.flatbuffer.%s;\n\n", fileName);
+		// 	formattedWrite(flatbuffer_strings, "namespace kissrpc.generated.%smessage;\n\n", moduleFilePath);
+		// 	formattedWrite(serverInterfaceStrings, "import kissrpc.generated.%smessage.%s;\n\n", moduleFilePath, fileName);
+		// 	formattedWrite(client_interface_strings, "import kissrpc.generated.%smessage.%s;\n\n", moduleFilePath, fileName);
+		// }else
+		// {
+		// 	formattedWrite(flatbuffer_strings, "namespace kissrpc.generated.message.hakar;\n\n");
+		// 	formattedWrite(serverInterfaceStrings, "import kissrpc.generated.message.%s;\n\n",fileName);
+		// 	formattedWrite(client_interface_strings, "import kissrpc.generated.message.%s;\n\n", fileName);
+		// }
+
+
+
+		if (!exists(outFilePath ~ "/kissrpc/")) {
+			mkdir(outFilePath ~ "/kissrpc/");
 		}
+		outFilePath ~= "/kissrpc";
+
+		if (!exists(outFilePath ~ "/generated")) {
+			mkdir(outFilePath ~ "/generated");
+		}
+		outFilePath ~= "/generated";
 
 
+		formattedWrite(flatbuffer_strings, "namespace kissrpc.generated.message;\n\n");
+		formattedWrite(serverInterfaceStrings, "import kissrpc.generated.message.%s;\n\n",fileName);
+		formattedWrite(client_interface_strings, "import kissrpc.generated.message.%s;\n\n", fileName);
+
+
+		
+		//generated server
 		if(!exists(outFilePath ~ "/server/"))
 		{
 			mkdir(outFilePath ~ "/server/");
-			mkdir(outFilePath ~ "/server/flatbuffer/");
 		}
-
-
 		auto file = File(outFilePath ~ "/server/" ~ fileName ~ "Interface.d", "w+");
 		file.write(serverInterfaceStrings.data ~ serverCodeInterface);
+		file.close();
+
 
 		file = File(outFilePath ~ "/server/" ~ fileName ~ "Service.d", "w+");
 		file.write(server_service_strings.data ~ serverCodeService);
-
-		file = File(outFilePath ~ "/server/" ~ fileName ~ "Message.d", "w+");
-		file.write(struct_strings.data ~ structCode);
-
-		file = File(outFilePath ~ "/server/flatbuffer/" ~ fileName ~ ".fbs", "w+");
-		file.write(flatbuffer_strings.data ~ flatbufferIdlCode);
-
-		spawnProcess(["flatc", "-d", "-b", outFilePath ~ "/server/flatbuffer/" ~ fileName ~ ".fbs", "--gen-onefile"],
-			std.stdio.stdin, std.stdio.stdout, std.stdio.stderr, null, Config.none, outFilePath ~ "/server/flatbuffer/");
+		file.close();
 
 
+		//generated client
 		if(!exists(outFilePath ~ "/client/"))
 		{
 			mkdir(outFilePath ~ "/client/");
-			mkdir(outFilePath ~ "/client/flatbuffer/");
 		}
 
 		file = File(outFilePath ~ "/client/" ~ fileName ~ "Interface.d", "w+");
 		file.write(client_interface_strings.data ~ clientCodeInterface);
+		file.close();
 
 		file = File(outFilePath ~ "/client/" ~ fileName ~ "Service.d", "w+");
 		file.write(client_service_strings.data ~ clientCodeService);
+		file.close();
+		
 
-		file = File(outFilePath ~ "/client/" ~ fileName ~ "Message.d", "w+");
+
+		//generated message
+		if(!exists(outFilePath ~ "/message/"))
+		{
+			mkdir(outFilePath ~ "/message/");
+		}
+
+		file = File(outFilePath ~ "/message/" ~ fileName ~ "Message.d", "w+");
 		file.write(struct_strings.data ~ structCode);
+		file.close();
 
-		file = File(outFilePath ~ "/client/flatbuffer/" ~ fileName ~ ".fbs", "w+");
+
+		file = File(outFilePath ~ "/message/" ~ fileName ~ ".fbs", "w+");
 		file.write(flatbuffer_strings.data ~ flatbufferIdlCode);
 
-		spawnProcess(["flatc", "-d", "-b", outFilePath ~ "/client/flatbuffer/" ~ fileName ~ ".fbs", "--gen-onefile"],
-			std.stdio.stdin, std.stdio.stdout, std.stdio.stderr, null, Config.none, outFilePath ~ "/client/flatbuffer/");
+		spawnProcess(["flatc", "-d", "-b", outFilePath ~ "/message/" ~ fileName ~ ".fbs", "--gen-onefile"],
+			std.stdio.stdin, std.stdio.stdout, std.stdio.stderr, null, Config.none, outFilePath ~ "/message/");
+		
+
+
 	}
 
 private:
