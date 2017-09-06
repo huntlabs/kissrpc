@@ -40,13 +40,13 @@ public:
 		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "connect to server is ok!");
 	}
     override void onConnectFailed(void* attachment) {
-		writeln("onConnectFailed");
+		//writeln("onConnectFailed");
 	}
     override void onWriteCompleted(void* attachment, size_t count , ByteBuffer buffer) {
 		// writeln("write success index ",index);
 	}
 	override void onWriteFailed(void* attachment) {
-		writeln("onWriteFailed");
+		//writeln("onWriteFailed");
 		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_WRITE_FAILED, "write data to server is failed");
 	}
     override void onReadCompleted(void* attachment, size_t count , ByteBuffer buffer) {
@@ -55,11 +55,16 @@ public:
 		_readBuffer.clear();
 	}
 	override void onReadFailed(void* attachment) {
-		writeln("onReadFailed");
+		//writeln("onReadFailed");
 	}
 	override void onClose() {
 		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_DISCONNECTD, "disconnect from server!");
 	}
+	override void reConnect() {
+		//writeln("RpcClientSocket reConnect");
+		super.reConnect();
+	}
+
 	void disconnect()
 	{
 		close();	

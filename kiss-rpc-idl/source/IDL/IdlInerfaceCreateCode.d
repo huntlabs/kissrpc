@@ -77,7 +77,7 @@ class IdlFunctionAttrCode
 		formattedWrite(strings, "\t\t%s\n\n", IdlParseStruct.createDeserializeCodeForFlatbuffer(idlStructList[FunctionAttrInterface.funcArgMap.getTypeName], FunctionAttrInterface.funcArgMap.getVarName, FunctionAttrInterface.funcArgMap.getVarName~"FB"));
 
 
-		formattedWrite(strings, "\t\tauto %s = (cast(Rpc%sService)this).%s(%s);\n\n", FunctionAttrInterface.retValue.getVarName, inerfaceName, FunctionAttrInterface.getFuncName, FunctionAttrInterface.funcArgMap.getVarName);
+		formattedWrite(strings, "\t\tauto %s = (cast(%sService)this).%s(%s);\n\n", FunctionAttrInterface.retValue.getVarName, inerfaceName, FunctionAttrInterface.getFuncName, FunctionAttrInterface.funcArgMap.getVarName);
 
 		formattedWrite(strings, "\t\tauto builder = new FlatBufferBuilder(512);\n");
 
@@ -226,9 +226,9 @@ class idl_inerface_dlang_code
 	{
 		auto strings = appender!string();
 
-		formattedWrite(strings, "abstract class Rpc%sInterface{ \n\n", idlInterface.interfaceName);
+		formattedWrite(strings, "abstract class %sInterface{ \n\n", idlInterface.interfaceName);
 		formattedWrite(strings, "\tthis(RpcServer rpServer){ \n");
-		formattedWrite(strings, "\t\trpImpl = new RpcServerImpl!(Rpc%sService)(rpServer); \n", idlInterface.interfaceName);
+		formattedWrite(strings, "\t\trpImpl = new RpcServerImpl!(%sService)(rpServer); \n", idlInterface.interfaceName);
 		
 		foreach(k,v; idlInterface.functionList)
 		{
@@ -242,7 +242,7 @@ class idl_inerface_dlang_code
 			formattedWrite(strings, IdlFunctionAttrCode.createServerInterfaceCode(v, idlInterface.interfaceName));
 		}
 		
-		formattedWrite(strings, "\tRpcServerImpl!(Rpc%sService) rpImpl;\n}\n\n\n", idlInterface.interfaceName);
+		formattedWrite(strings, "\tRpcServerImpl!(%sService) rpImpl;\n}\n\n\n", idlInterface.interfaceName);
 		
 		return strings.data;
 	}
@@ -253,12 +253,12 @@ class idl_inerface_dlang_code
 		auto strings = appender!string();
 
 
-		formattedWrite(strings, "\nclass Rpc%sService: Rpc%sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
+		formattedWrite(strings, "\nclass %sService: %sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
 		formattedWrite(strings, "\tthis(RpcServer rpServer){\n");
 
 		foreach(k,v; idlInterface.functionList)
 		{
-			formattedWrite(strings, "\t\tRpcBindFunctionMap[%s] = typeid(&Rpc%sService.%s).toString();\n", v.funcHash, idlInterface.interfaceName, v.funcName);
+			formattedWrite(strings, "\t\tRpcBindFunctionMap[%s] = typeid(&%sService.%s).toString();\n", v.funcHash, idlInterface.interfaceName, v.funcName);
 		}
 
 		formattedWrite(strings, "\t\tsuper(rpServer);\n");
@@ -279,9 +279,9 @@ class idl_inerface_dlang_code
 	{
 		auto strings = appender!string();
 
-		formattedWrite(strings, "abstract class Rpc%sInterface{ \n\n", idlInterface.interfaceName);
+		formattedWrite(strings, "abstract class %sInterface{ \n\n", idlInterface.interfaceName);
 		formattedWrite(strings, "\tthis(RpcClient rpClient){ \n");
-		formattedWrite(strings, "\t\trpImpl = new RpcClientImpl!(Rpc%sService)(rpClient); \n", idlInterface.interfaceName);
+		formattedWrite(strings, "\t\trpImpl = new RpcClientImpl!(%sService)(rpClient); \n", idlInterface.interfaceName);
 		formattedWrite(strings, "\t}\n\n");
 		
 		
@@ -290,7 +290,7 @@ class idl_inerface_dlang_code
 			formattedWrite(strings, IdlFunctionAttrCode.createClientInterfaceCode(v, idlInterface.interfaceName));
 		}
 		
-		formattedWrite(strings, "\tRpcClientImpl!(Rpc%sService) rpImpl;\n}\n\n\n", idlInterface.interfaceName);
+		formattedWrite(strings, "\tRpcClientImpl!(%sService) rpImpl;\n}\n\n\n", idlInterface.interfaceName);
 		
 		return strings.data;
 	}
@@ -300,12 +300,12 @@ class idl_inerface_dlang_code
 	{
 		auto strings = appender!string();
 
-		formattedWrite(strings, "\nclass Rpc%sService: Rpc%sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
+		formattedWrite(strings, "\nclass %sService: %sInterface{\n\n", idlInterface.interfaceName, idlInterface.interfaceName);
 		formattedWrite(strings, "\tthis(RpcClient rpClient){\n");
 
 		foreach(k,v; idlInterface.functionList)
 		{
-			formattedWrite(strings, "\t\tRpcBindFunctionMap[%s] = typeid(&Rpc%sService.%s).toString();\n", v.funcHash, idlInterface.interfaceName, v.funcName);
+			formattedWrite(strings, "\t\tRpcBindFunctionMap[%s] = typeid(&%sService.%s).toString();\n", v.funcHash, idlInterface.interfaceName, v.funcName);
 		}
 
 

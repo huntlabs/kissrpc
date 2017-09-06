@@ -23,6 +23,11 @@ class RpcClientListener : ClientSocketEventInterface
 	{
 
 	}
+
+	void reConnect() 
+	{
+		_rpClient.reConnect();
+	}
 	
 	void disconnectd(RpcSocketBaseInterface socket)
 	{

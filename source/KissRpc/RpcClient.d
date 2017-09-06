@@ -177,7 +177,6 @@ class RpcClient:RpcEventInterface{
 				 break;
 
 			case SOCKET_STATUS.SE_WRITE_FAILED: 
-				// writeln("heressss");
 				auto t = task(&clientSocketEvent.writeFailed, socket); 
 				taskPool.put(t);
 				break;
@@ -192,6 +191,11 @@ class RpcClient:RpcEventInterface{
 	void connect(string ip, ushort port, AsynchronousChannelSelector sel)
 	{
 		clientSocket = new RpcClientSocket(ip, port, sel, this);
+	}
+
+	void reConnect()
+	{
+		clientSocket.reConnect();
 	}
 
 	ulong getWaitResponseNum()

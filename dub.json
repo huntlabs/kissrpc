@@ -9,8 +9,9 @@
 	    "dependencies": {
 			"dlang-snappy": "~>0.0.1",
 			"flatbuffers": "~>0.1.1",
-			"kiss" : "~>0.0.7",
+			"kiss" : "~>0.0.8",
 		},
 
-	    "license": "Apache-2.0"
+		"license": "Apache-2.0"
+
 }
