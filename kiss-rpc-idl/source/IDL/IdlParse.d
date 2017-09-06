@@ -17,6 +17,7 @@ import IDL.IdlBaseInterface;
 import IDL.IdlFlatbufferCreateCode;
 import IDL.IdlUnit;
 
+import core.thread;
 
 class idl_parse
 {
@@ -305,6 +306,22 @@ class idl_parse
 		spawnProcess(["flatc", "-d", "-b", outFilePath ~ "/message/" ~ fileName ~ ".fbs", "--gen-onefile"],
 			std.stdio.stdin, std.stdio.stdout, std.stdio.stderr, null, Config.none, outFilePath ~ "/message/");
 		
+		
+		
+		new Thread({
+			Thread.sleep(2000.msecs); 
+			auto b = std.file.read(outFilePath ~ "/message/" ~ fileName ~ ".d");
+			
+			string bb = cast(string)b;
+			file = File(outFilePath ~ "/message/" ~ fileName ~ ".d", "w+");
+			
+			auto apstring = appender!string();
+			formattedWrite(apstring, "module kissrpc.generated.message.%s;\n\n%s", fileName,bb);
+			file.write(apstring.data);
+			file.close();
+
+		}).start();
+
 
 
 	}
