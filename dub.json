@@ -7,7 +7,7 @@
 	    ],
 
 	    "dependencies": {
-			"dlang-snappy": "~>0.0.1",
+			"dlang-snappy": "~>0.0.2",
 			"flatbuffers": "~>0.1.1",
 			"kiss" : "~>0.0.8"
 		},
