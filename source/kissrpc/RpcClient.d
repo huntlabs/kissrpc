@@ -32,6 +32,9 @@ class RpcClient:RpcEventInterface{
 		defaultPoolThreads = RPC_CLIENT_DEFAULT_THREAD_POOL;
 		compressType = RPC_PACKAGE_COMPRESS_TYPE.RPCT_NO;
 	}
+	int getFd() {
+		return clientSocket.getFd();
+	}
 	
 	void bind(string className, string funcName)
 	{
