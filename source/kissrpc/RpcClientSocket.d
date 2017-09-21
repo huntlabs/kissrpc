@@ -52,7 +52,6 @@ public:
     override void onReadCompleted(void* attachment, size_t count , ByteBuffer buffer) {
 
 		_packageManage.add(cast(ubyte[])(buffer.getCurBuffer()));
-		_readBuffer.clear();
 	}
 	override void onReadFailed(void* attachment) {
 		//writeln("onReadFailed");

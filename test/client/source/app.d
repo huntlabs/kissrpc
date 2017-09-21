@@ -116,7 +116,7 @@ class ClientSocket : ClientSocketEventInterface
 	
 	void writeFailed(RpcSocketBaseInterface socket)
 	{
-		deWritefln("client write failed , %s:%s", socket.getIp, socket.getPort);
+		// deWritefln("client write failed , %s:%s", socket.getIp, socket.getPort);
 	}
 	
 	void readFailed(RpcSocketBaseInterface socket)

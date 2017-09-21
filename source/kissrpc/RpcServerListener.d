@@ -10,12 +10,12 @@ class RpcServerListener : ServerSocketEventInterface
     this() {}
 	void listenFailed(const string str)
 	{
-		deWriteln("server listen failed", str);
+		logInfo("server listen failed", str);
 	}
 
 	void disconnectd(RpcSocketBaseInterface socket)
 	{
-		deWriteln("client is disconnect");
+		logInfo("client is disconnect");
 	}
 
 	shared static int connect_num;
@@ -26,11 +26,11 @@ class RpcServerListener : ServerSocketEventInterface
 
 	void writeFailed(RpcSocketBaseInterface socket)
 	{
-		deWritefln("write buffer to client is failed, %s:%s", socket.getIp, socket.getPort);
+		logInfo("write buffer to client is failed, %s:%s", socket.getIp, socket.getPort);
 	}
 
 	void readFailed(RpcSocketBaseInterface socket)
 	{
-		deWritefln("read buffer from client is failed, %s:%s", socket.getIp, socket.getPort);
+		logInfo("read buffer from client is failed, %s:%s", socket.getIp, socket.getPort);
 	}
 }
