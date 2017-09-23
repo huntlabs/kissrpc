@@ -15,7 +15,7 @@ immutable string PRINT_COLOR_RED   =  "\033[0;32;31m";
 immutable string PRINT_COLOR_GREEN  = "\033[0;32;32m";
 immutable string PRINT_COLOR_YELLOW = "\033[0;33m";
 
-FileLogger logFile = null;
+__gshared FileLogger logFile = null;
 
 enum LOG_LEVEL
 {
