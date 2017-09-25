@@ -6,6 +6,8 @@ import kissrpc.Logs;
 
 import snappy.snappy;
 import std.stdio;
+import std.experimental.logger;
+import std.format;
 
 enum RPC_PACKAGE_STATUS_CODE
 {
@@ -232,6 +234,23 @@ class RpcBinaryPackage
 			pos = readBinaryPos(data, sequenceId, pos);
 			pos = readBinaryPos(data, bodySize, pos);
 
+	
+
+			headData.length = getHanderSize();
+			pos = 0;
+			pos = writeBytesPos(headData, magic,  pos);
+			pos = writeBytePos(headData, handerSize, pos);
+			pos = writeBytePos(headData, ver, pos);
+			pos = writeBinaryPos(headData, st, pos);
+			pos = writeBytePos(headData, statusInfo, pos);
+			pos = writeBytesPos(headData, reserved, pos);
+			pos = writeBinaryPos(headData, funcId, pos);
+			pos = writeBinaryPos(headData, sequenceId, pos);
+			pos = writeBinaryPos(headData, bodySize, pos);
+
+			
+
+			log(format("magic = %s, handerSize = %s, ver = %s, st = %s, statusInfo = %s, reserved = %s, funcId = %s, sequenceId = %s, bodySize = %s",magic,handerSize,ver,st,statusInfo,reserved,funcId,sequenceId,bodySize));
 			
 		}catch(Exception e)
 		{
@@ -240,6 +259,10 @@ class RpcBinaryPackage
 		}
 
 		return this.checkHanderValid();
+	}
+
+	ubyte[] getHead() {
+		return headData;
 	}
 
 	bool fromStreamForPayload(ubyte[] data)
@@ -338,6 +361,7 @@ private:
 	ushort bodySize;
 
 	ubyte[] bodyPayload;
+	ubyte[] headData;
 }
 
 

@@ -18,7 +18,7 @@ import kiss.aio.ByteBuffer;
 import std.parallelism;
 import std.stdio;
 import std.experimental.logger.core;
-
+import std.format;
 
 alias  ReponsCallback =  void delegate(RpcResponse);
 
@@ -68,8 +68,9 @@ class RpcClient:RpcEventInterface{
 
 		if(sendPackManage.remove(pack.getSequenceId))
 		{
-			deWritefln("client recv package event, hander len:%s, package size:%s, ver:%s, func id:%s, sequence id:%s, body size:%s, compress:%s", 
-				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getFuncId, pack.getSequenceId, pack.getBodySize, pack.getCompressType);
+			log(format("client recv package event, hander len:%s, package size:%s, ver:%s, func id:%s, sequence id:%s, body size:%s, compress:%s", 
+				pack.getHanderSize, pack.getPackgeSize, pack.getVersion, pack.getFuncId, pack.getSequenceId, pack.getBodySize, pack.getCompressType));
+
 
 			RpcPackageBase packageBase;
 			
@@ -103,15 +104,15 @@ class RpcClient:RpcEventInterface{
 			}else
 			{
 				rpcResp.setStatus(RESPONSE_STATUS.RS_OK);	
-				deWritefln("rpc server response call, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
+				log(format("rpc server response call, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum()));			
 			}
 			
 			if(pack.getNonblock)
 			{
-				deWritefln("async call from rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
+				log(format("async call from rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum()));			
 			}else
 			{
-				deWritefln("sync call from rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum());			
+				log(format("sync call from rpc server response, func:%s, arg num:%s", rpcResp.getCallFuncName(), rpcResp.getArgsNum()));			
 			}
 
 			auto callback = rpcCallbackMap.get(rpcResp.getCallFuncId, null);
@@ -194,6 +195,10 @@ class RpcClient:RpcEventInterface{
 	void connect(string ip, ushort port, AsynchronousChannelSelector sel)
 	{
 		clientSocket = new RpcClientSocket(ip, port, sel, this);
+	}
+
+	bool write(byte[] data) {
+		return clientSocket.write(data);
 	}
 
 	void reConnect()
