@@ -14,6 +14,7 @@ import core.thread;
 import kiss.net.TcpServer;
 import kiss.aio.AsynchronousSocketChannel;
 import kiss.aio.ByteBuffer;
+import kiss.aio.AsynchronousChannelSelector;
 
 class RpcServerSocket:TcpServer, RpcSocketBaseInterface{
 
@@ -23,6 +24,7 @@ public:
 		_socketEventDelegate = rpcEventDalegate;
 		_packageManage = new RpcRecvPackageManage(this, rpcEventDalegate);
 		super(client, RPC_PACKAGE_MAX);
+		_selector = client.getSelector();
 		_socketEventDelegate.socketEvent(this, SOCKET_STATUS.SE_CONNECTD, "client inconming....");
 	}
 	override void onWriteCompleted(void* attachment, size_t count , ByteBuffer buffer) {
@@ -54,6 +56,9 @@ public:
 	int getFd() { return cast(int)(fd()); }
 	string getIp() { return ip(); }
 	string getPort() { return port(); }
+
+public: 
+	 AsynchronousChannelSelector _selector;
 
 private:
 	RpcEventInterface _socketEventDelegate;
