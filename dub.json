@@ -1,17 +1,13 @@
 {
-	    "name": "kiss-rpc",
-	    "description": "A refined core library for D programming language.",
-	    "copyright": "Copyright (C) 2015-2017 Shanghai Putao Technology Co., Ltd",
-	    "authors": [
-		"HuntLabs.cn"
-	    ],
-
-	    "dependencies": {
-			"dlang-snappy": "~>0.0.2",
-			"flatbuffers": "~>0.1.1",
-			"kiss" : "~>0.0.8"
-		},
-
-		"license": "Apache-2.0"
-
+	"name": "kiss-rpc",
+    "targetType":"executable",
+	"description": "A minimal D application.",
+	"copyright": "Copyright@2016, root",
+	"license": "proprietary",	
+	"libs": [],
+	"mainSourceFile": "source/examples/main.d",
+	"dependencies":{
+		 "kiss" : {"path" : "../kiss"},
+		 "flatbuffers": {"path" : "../../flatbuffers"}
+	}
 }
