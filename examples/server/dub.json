@@ -1,11 +1,12 @@
 {
-	"name": "kiss-rpc",
+	"name": "server",
+    "targetType":"executable",
 	"description": "A minimal D application.",
 	"copyright": "Copyright@2016, root",
 	"license": "proprietary",	
 	"libs": [],
+	"mainSourceFile": "source/main.d",
 	"dependencies":{
-		 "kiss" : {"path" : "../kiss"},
-		 "flatbuffers": {"path" : "../../flatbuffers"}
+		 "kiss-rpc" : {"path" : "../../"}
 	}
 }
