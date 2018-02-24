@@ -6,7 +6,7 @@ module kissrpc.RpcConstant;
 
 
 enum RpcEvent {
-    Close = 0, //对方已关闭
+    Close = 0, //连接已经关闭
     WriteFailed = 1, //写失败
     HeadParseError = 2, //RPC 头解析失败
     BodyParseError = 3, //RPC Body解析失败
@@ -41,11 +41,7 @@ enum RpcProcCode {
     FunctionError,     //方法执行异常
     SendFailed,        //发送失败
     SendTimeout,       //发送超时
-    ConnectClosed,     //连接断开
 };
-
-
-
 
 
 //Rpc消息头定义

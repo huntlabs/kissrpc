@@ -1,32 +1,15 @@
 
 
-import std.stdio;
-import kissrpc.RpcBuild;
-import kissrpc.RpcManager;
-import kissrpc.RpcClient;
-import kissrpc.RpcConstant;
 
-import kissrpc.RpcServer;
-import kissrpc.RpcClient;
-import kissrpc.RpcStream;
-
-
-
-import kiss.exception;
-import kiss.net.struct_;
-import kiss.event.loop;
-import kiss.net.TcpStreamClient;
+import kissrpc;
 
 import rpcgenerate.GreeterRequest;
 import rpcgenerate.GreeterResponse;
-import rpcgenerate.GreeterInterface;
 import rpcgenerate.GreeterStub;
 
 
-import core.thread;
-import std.traits;
-import std.experimental.logger.core;
 import std.string;
+import core.thread;
 
 
 void doClientTest(RpcClient client) {
@@ -39,29 +22,33 @@ void doClientTest(RpcClient client) {
     //sync call
     RpcResponseBody status = stub.SayHello(request, exData, ret);
     if (status.code == RpcProcCode.Success) {
-        writeln("sync call success :", ret.msg);
+        log("sync call success :", ret.msg);
     }
     else {
-        writeln("sync call failed : ", ret.msg); 
+        log("sync call failed : ", status.msg); 
     }
 
     //async call
     stub.SayHello(request, exData, (RpcResponseBody response, GreeterResponse r){
         if (response.code == RpcProcCode.Success) {
-            writeln("async call success :", r.msg);
+            log("async call success :", r.msg);
         }
         else {
-            writeln("async call failed : ", r.msg); 
+            log("async call failed : ", response.msg); 
         }
     });
 }
 
 
 void main() {
-
-    RpcClient client = RpcManager.getInstance().createRpcClient("0.0.0.0", 9000, (RpcStream stream, RpcEvent code, string msg){
-        log("<-----------client event code = %s, msg = %s".format(code,msg));
+    RpcClient client;
+    client = RpcManager.getInstance().createRpcClient("0.0.0.0", 9009, (RpcStream stream, RpcEvent code, string msg){
+        log("~~~~~~~~~client event code = %s, msg = %s".format(code,msg));
+        if (code == RpcEvent.ConnectSuccess) {
+            new Thread({
+                doClientTest(client);
+            }).start();
+        }
     });
-    doClientTest(client);
 }
 

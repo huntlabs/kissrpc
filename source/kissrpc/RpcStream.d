@@ -62,20 +62,16 @@ public:
     }
 
     //isRequest true rpc调用返回数据, false rpc调用请求数据
-    void writeRpcData(RpcHeadData head, RpcContentData content, void delegate() callback = null) {
+    void writeRpcData(RpcHeadData head, RpcContentData content) {
+
         ubyte[] data;
         encodeHead(head, data);
         encodeBody(content, data);
-        log("send head = ",head);
-        log("send content = ",content);
-        log("send data = ",data);
-
+        
         void tmpWrite() {
             write(new WarpStreamBuffer(data.dup,(in ubyte[] wdata, size_t size) @trusted nothrow {
 									catchAndLogException((){
-                                        log("send success len = %s".format(size));
-                                        if (callback)
-									        callback();
+                                        // log("send success len = %s".format(size));
 									}());
 								}));
         }
@@ -112,14 +108,24 @@ public:
         return watch_;
     }
 
+    bool isConnected() {
+        return !_isServer && _isConnected;
+    }
+
+    void handlerEvent(RpcEvent event, string msg) {
+        if (_handler) {
+            _handler(this, event, msg);
+        }
+    }
+
 private:
 
     
     void init(RpcEventHandler handler) {
         _handler = handler; 
-        _parseStatus = RpcParseStatus.RecvHead;
         _recvCachePos = 0;
         _headStructLen = 0;
+        _parseStatus = RpcParseStatus.RecvHead;
         _headStructLen += _head.rpcVersion.sizeof;
         _headStructLen += _head.key.sizeof;
         _headStructLen += _head.secret.sizeof;
@@ -137,21 +143,15 @@ private:
                 onRead(data);
             }());
         });
-
-
-
     }
 
     void onRead(in ubyte[] data) {
         long dataPos = 0;
-        log("recv data",data);
         while(true) {
             if (data.length == 0) {
                 log("RpcStream recv empty data!!!!");
                 break;
             }
-            // log("data len = %s, dataPos=%s, _recvCache.len=%s, _recvCachePos=%s".format(data.length,dataPos, _recvCache.length, _recvCachePos));
-
             bool dataFinish;
             bool cacheFinish;
             copyBuffer(data, dataPos, _recvCache, _recvCachePos, dataFinish, cacheFinish);
@@ -163,7 +163,7 @@ private:
                         break;
                     }
                 }
-                else if (_parseStatus == RpcParseStatus.RecvBody) { //解析body
+                else if (_parseStatus == RpcParseStatus.RecvBody) { //解析消息体
                     decodeBody();
                     dealWithBody();
                 }
@@ -176,12 +176,10 @@ private:
     //处理消息头
     bool dealWithHead() {
         _head = decodeHead(_recvCache);
-        log("recv head = ",_head);
         //头信息错误直接断开连接
         if (!checkHeadData(_head)) {
             log("check head infomation error!!!");
-            if (_handler)
-                _handler(this, RpcEvent.HeadParseError, "head parse error or check key secrect error!");
+            handlerEvent(RpcEvent.HeadParseError, "head parse error or check key secrect error!");
             return false;
         }
         _recvCache.length = _head.exDataLen + _head.msgLen + _head.dataLen;
@@ -210,9 +208,6 @@ private:
         _recvCache.length = _headStructLen;
         _parseStatus = RpcParseStatus.RecvHead;
         _recvCachePos = 0;
-
-        log("recv body ", _content);
-
     }
 
     //拷贝数据到缓存 
@@ -306,27 +301,26 @@ private:
         }
     }
 
-    void onConnect(bool success)@trusted nothrow{
+    void doHandlerEvent(RpcEvent event, string msg) @trusted nothrow {
         catchAndLogException((){
-			if (_handler) {
-                if (success)
-                    _handler(this, RpcEvent.ConnectSuccess, "server connected");
-                else 
-                    _handler(this, RpcEvent.ConnectFailed, "server disconnected");
-            }
-		}());
+            handlerEvent(event, msg);
+        }());
     }
 
-    
-
 protected:
-    
+
     override void onClose(Watcher watcher) nothrow {
-        if (!_isServer) {
-            if(!_isConnected){
+        if (_isServer) {
+            doHandlerEvent(RpcEvent.Close, "disconnected from client");
+        }
+        else {
+            if (!_isConnected) {
+                doHandlerEvent(RpcEvent.ConnectFailed, "connect server failed");
                 collectExceptionMsg(eventLoop.deregister(watcher));
-                onConnect(false);
                 return;
+            }
+            else {
+                doHandlerEvent(RpcEvent.Close, "disconnected from server");
             }
             _isConnected = false;
         }
@@ -334,12 +328,10 @@ protected:
     }
 
     override void onWrite(Watcher watcher) nothrow{
-        if (!_isServer) {
-            if(!_isConnected){
-                _isConnected = true;
-                onConnect(true);
-                return;
-            }
+        if (!_isServer && !_isConnected) {
+            _isConnected = true;
+            doHandlerEvent(RpcEvent.ConnectSuccess, "connect success");
+            return; 
         }
         super.onWrite(watcher);
     }

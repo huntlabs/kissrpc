@@ -43,97 +43,130 @@ public:
     }
     RpcResponseBody call(T)(string functionName, T param, ubyte[] exData) {
         RpcResponseBody ret;
-        RpcHeadData head;
-        RpcContentData content;
-        ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
-        ret.code = code;
-        if (code != RpcProcCode.Success) {
-            ret.msg = "function call encode failed";
+        if (_rpcStream.isConnected() == false) {
+            ret.code = RpcProcCode.SendFailed;
+            ret.msg = "connection is not valid";
+            return ret;
         }
         else {
-            void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
-                ret.code = response.code;
-                ret.msg = response.msg;
-                ret.exData = response.exData;
-                _semaphore.notify();
+            RpcHeadData head;
+            RpcContentData content;
+            ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
+            ret.code = code;
+            if (code != RpcProcCode.Success) {
+                ret.msg = "function call encode failed";
             }
-            _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
-            _rpcStream.writeRpcData(head, content);
-            _semaphore.wait(); 
+            else {
+                void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
+                    ret.code = response.code;
+                    ret.msg = response.msg;
+                    ret.exData = response.exData;
+                    _semaphore.notify();
+                }
+                _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
+                _rpcStream.writeRpcData(head, content);
+                _semaphore.wait(); 
+            }
+            _rpcStream.removeRequestCallback(head.clientSeqId);
+            return ret;
         }
-        _rpcStream.removeRequestCallback(head.clientSeqId);
-        return ret;
     }
     RpcResponseBody call(T,R)(string functionName, T param, ubyte[] exData, ref R r) {
         RpcResponseBody ret;
-        RpcHeadData head;
-        RpcContentData content;
-        ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
-        ret.code = code;
-        if (code != RpcProcCode.Success) {
-            ret.msg = "function call encode failed";
+        if (_rpcStream.isConnected() == false) {
+            ret.code = RpcProcCode.SendFailed;
+            ret.msg = "connection is not valid";
+            return ret;
         }
         else {
-            void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
-                ret.code = response.code;
-                ret.msg = response.msg;
-                ret.exData = response.exData;
-                if (ret.code == RpcProcCode.Success) {
-                    ret.code = RpcCodec.decodeBuffer!(R)(data, protocol, r);
-                }
-                _semaphore.notify();
+            RpcHeadData head;
+            RpcContentData content;
+            ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
+            ret.code = code;
+            if (code != RpcProcCode.Success) {
+                ret.msg = "function call encode failed";
             }
-            _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
-            _rpcStream.writeRpcData(head, content);
-            _semaphore.wait(); 
+            else {
+                void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
+                    ret.code = response.code;
+                    ret.msg = response.msg;
+                    ret.exData = response.exData;
+                    if (ret.code == RpcProcCode.Success) {
+                        ret.code = RpcCodec.decodeBuffer!(R)(data, protocol, r);
+                    }
+                    _semaphore.notify();
+                }
+                _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
+                _rpcStream.writeRpcData(head, content);
+                _semaphore.wait(); 
+            }
+            _rpcStream.removeRequestCallback(head.clientSeqId);
+            return ret;
         }
-        _rpcStream.removeRequestCallback(head.clientSeqId);
-        return ret;
     }
     void call(T,R)(string functionName, T param, ubyte[] exData, void delegate(RpcResponseBody response, R r) func) {
-        RpcHeadData head;
-        RpcContentData content;
-        ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
-        if (code != RpcProcCode.Success) {
+
+        if (_rpcStream.isConnected() == false) {
             RpcResponseBody response;
-            response.code = code;
-            response.msg = "function call encode failed";
+            response.code = RpcProcCode.SendFailed;
+            response.msg = "connection is not valid";
             R r;
             func(response, r);
-            _rpcStream.removeRequestCallback(head.clientSeqId);
         }
         else {
-            void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
-                if (response.code == RpcProcCode.Success) {
-                    R r;
-                    response.code = RpcCodec.decodeBuffer!(R)(data, protocol, r);
-                    func(response, r);
-                    _rpcStream.removeRequestCallback(head.clientSeqId);
-                }
+            RpcHeadData head;
+            RpcContentData content;
+            ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
+            if (code != RpcProcCode.Success) {
+                RpcResponseBody response;
+                response.code = code;
+                response.msg = "function call encode failed";
+                R r;
+                func(response, r);
+                _rpcStream.removeRequestCallback(head.clientSeqId);
             }
-            _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
-            _rpcStream.writeRpcData(head, content);
+            else {
+                void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
+                    if (response.code == RpcProcCode.Success) {
+                        R r;
+                        response.code = RpcCodec.decodeBuffer!(R)(data, protocol, r);
+                        func(response, r);
+                        _rpcStream.removeRequestCallback(head.clientSeqId);
+                    }
+                }
+                _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
+                _rpcStream.writeRpcData(head, content);
+            }
         }
     }
     void call(T)(string functionName, T param, ubyte[] exData, void delegate(RpcResponseBody response) func) {
-        RpcHeadData head;
-        RpcContentData content;
-        ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
-        if (code != RpcProcCode.Success) {
+        if (_rpcStream.isConnected() == false) {
             RpcResponseBody response;
-            response.code = code;
-            response.msg = "function call encode failed";
+            response.code = RpcProcCode.SendFailed;
+            response.msg = "connection is not valid";
             func(response);
-            _rpcStream.removeRequestCallback(head.clientSeqId);
         }
         else {
-            void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
-                if (response.code == RpcProcCode.Success) {
-                    func(response);
-                    _rpcStream.removeRequestCallback(head.clientSeqId);
-                }
+            RpcHeadData head;
+            RpcContentData content;
+            ubyte code = initHeadBody!(T)(functionName, param, exData, head, content);
+            if (code != RpcProcCode.Success) {
+                RpcResponseBody response;
+                response.code = code;
+                response.msg = "function call encode failed";
+                func(response);
+                _rpcStream.removeRequestCallback(head.clientSeqId);
             }
-            _rpcStream.writeRpcData(head, content, &callBack);
+            else {
+                void callBack(RpcResponseBody response, ubyte[] data, ubyte protocol) {
+                    if (response.code == RpcProcCode.Success) {
+                        func(response);
+                        _rpcStream.removeRequestCallback(head.clientSeqId);
+                    }
+                }
+                _rpcStream.addRequestCallback(head.clientSeqId, &callBack);
+                _rpcStream.writeRpcData(head, content);
+            }
         }
     }
 private:
