@@ -2,9 +2,6 @@
 
 module kissrpc.RpcConstant;
 
-
-
-
 enum RpcEvent {
     Close = 0, //连接已经关闭
     WriteFailed = 1, //写失败
@@ -12,8 +9,9 @@ enum RpcEvent {
     BodyParseError = 3, //RPC Body解析失败
     ConnectFailed = 4, //连接失败
     ConnectSuccess = 5, //连接成功
-    NotFoundCallBack = 6,  //未找到回调reqId
-    NewClientCome = 7, //有客户端新连接
+    ConnectTimeout = 6, //连接超时
+    NotFoundCallBack = 7,  //未找到回调reqId
+    NewClientCome = 8, //有客户端新连接
 }
 
 //传输协议
@@ -41,6 +39,19 @@ enum RpcProcCode {
     FunctionError,     //方法执行异常
     SendFailed,        //发送失败
     SendTimeout,       //发送超时
+};
+
+
+//Rpc设置类型 
+enum RpcSetting {
+    ConnectTimeout = 0, //连接超时时间 (单位ms)
+    ConnectCount,       //重连次数  (-1:一直重连)
+    ConnectInterval,    //重连间隔  (单位ms)
+    ReSendTimeout,      //发送超时时间 (单位ms)
+    ReSendCount,        //发送失败重发次数  (-1:一直重发)
+    ReSendInterval,     //发送失败重发间隔 (单位ms)
+    HeartbeatInterval,  //心跳包间隔时间  (单位ms)
+    Max,
 };
 
 

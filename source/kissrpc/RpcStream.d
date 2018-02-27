@@ -5,14 +5,16 @@
 
 module kissrpc.RpcStream;
 
-import kissrpc.RpcConstant; 
+import kissrpc.RpcBase;
 import kissrpc.RpcProxy;
 import kissrpc.RpcUtils;
+import kissrpc.RpcConstant; 
 import kissrpc.RpcThreadManager;
 
 import kiss.net.TcpStream;
 import kiss.event.loop;
 import kiss.event.task;
+import kiss.net.Timer;
 
 import std.experimental.logger.core;
 import std.socket;
@@ -36,29 +38,25 @@ enum RpcParseStatus {
 class RpcStream : TcpStream {
 public:
 
-    static RpcStream createServer(EventLoop loop, Socket sock, RpcEventHandler handler, long streamId) {
-        return new RpcStream(loop, sock, handler, streamId);
+    static RpcStream createServer(Socket sock, long streamId, RpcBase rpcBase, RpcEventHandler handler) {
+        return new RpcStream(sock, streamId, rpcBase, handler);
     }
 
-    static RpcStream createClient(EventLoop loop, RpcEventHandler handler, long streamId) {
-        return new RpcStream(loop, handler, streamId);
+    static RpcStream createClient(long streamId, RpcBase rpcBase, RpcEventHandler handler) {
+        return new RpcStream(streamId, rpcBase, handler);
     }
 
-    this(EventLoop loop, Socket sock, RpcEventHandler handler, long streamId) {
-        super(loop, sock);
-        _loop = loop;
+    this(Socket sock, long streamId, RpcBase rpcBase, RpcEventHandler handler) {
+        super(rpcBase.getLoop(), sock);
         _isServer = true;
-        _streamId = streamId;
-        init(handler);
+        init(rpcBase, streamId, handler);
     }
 
 
-    this(EventLoop loop, RpcEventHandler handler, long streamId) {
-        super(loop, AddressFamily.INET);
-        _loop = loop;
+    this(long streamId, RpcBase rpcBase, RpcEventHandler handler) {
+        super(rpcBase.getLoop(), AddressFamily.INET);
         _isServer = false;
-        _streamId = streamId;
-        init(handler);
+        init(rpcBase, streamId, handler);
     }
 
     //isRequest true rpc调用返回数据, false rpc调用请求数据
@@ -75,7 +73,7 @@ public:
 									}());
 								}));
         }
-        _loop.postTask(newTask(&tmpWrite));
+        _rpcBase.getLoop().postTask(newTask(&tmpWrite));
     }
 
     void addRequestCallback(ulong reqId, RpcCallBack cb) {
@@ -100,29 +98,22 @@ public:
         }
     }
 
-    bool connect(string host, ushort port) {
-        bool watch_ = watch();
-        if(watch_){
-            watch_ = watch_ && eventLoop().connect(_watcher,parseAddress(host, port));
-        }
-        return watch_;
+    bool connect() {
+        return dealWithConnect();
     }
 
     bool isConnected() {
         return !_isServer && _isConnected;
     }
 
-    void handlerEvent(RpcEvent event, string msg) {
-        if (_handler) {
-            _handler(this, event, msg);
-        }
-    }
+    
 
 private:
 
-    
-    void init(RpcEventHandler handler) {
-        _handler = handler; 
+    void init(RpcBase rpcBase, long streamId, RpcEventHandler handler) {
+        _rpcBase = rpcBase;
+        _streamId = streamId;
+        _handler = handler;
         _recvCachePos = 0;
         _headStructLen = 0;
         _parseStatus = RpcParseStatus.RecvHead;
@@ -142,7 +133,13 @@ private:
             catchAndLogException((){
                 onRead(data);
             }());
-        });
+        }); 
+        setCloseHandle(()@trusted nothrow {
+            catchAndLogException((){
+
+            }());
+        }); 
+        _reconnectTimes = _rpcBase.getSetting(RpcSetting.ConnectCount);
     }
 
     void onRead(in ubyte[] data) {
@@ -179,7 +176,7 @@ private:
         //头信息错误直接断开连接
         if (!checkHeadData(_head)) {
             log("check head infomation error!!!");
-            handlerEvent(RpcEvent.HeadParseError, "head parse error or check key secrect error!");
+            doHandlerEvent(RpcEvent.HeadParseError, "head parse error or check key secrect error!");
             return false;
         }
         _recvCache.length = _head.exDataLen + _head.msgLen + _head.dataLen;
@@ -301,11 +298,81 @@ private:
         }
     }
 
+    void stopTimer(Timer timer) {
+        if (timer)
+            timer.stop();
+    }
+    void createTimer(ref Timer timer, int interval, void delegate() func) {
+        if (timer is null)
+            timer = new Timer(_rpcBase.getLoop());
+        else 
+            timer.stop();
+        timer.setTimerHandle(()@trusted nothrow {
+                catchAndLogException((){
+                    func();
+                }());
+            }).start(interval);
+    }
+
+    //处理rpc事件
     void doHandlerEvent(RpcEvent event, string msg) @trusted nothrow {
         catchAndLogException((){
-            handlerEvent(event, msg);
+            if (_handler)
+                _handler(this, event, msg);
+            if (event == RpcEvent.ConnectSuccess) {
+                _reconnectTimes = _rpcBase.getSetting(RpcSetting.ConnectCount);
+                stopTimer(_connectTimeoutTimer);
+                stopTimer(_reconnectIntervalTimer);
+            }
+            else if (event == RpcEvent.ConnectFailed || event == RpcEvent.ConnectTimeout) {
+                collectExceptionMsg(eventLoop.deregister(_watcher));
+                stopTimer(_connectTimeoutTimer);
+                dealWithReconnect();
+            }
+            else if (event == RpcEvent.WriteFailed) {
+
+            }
         }());
     }
+
+    //处理客户端重连
+    void dealWithReconnect() {
+        if (_isServer)
+            return;
+        if (_reconnectTimes == 0)
+            return;
+        createTimer(_reconnectIntervalTimer, _rpcBase.getSetting(RpcSetting.ConnectInterval), (){
+                log("dealWithReconnect");
+                if (_reconnectTimes > 0)
+                    _reconnectTimes--;
+                resetWatcher();
+                dealWithConnect();
+                _reconnectIntervalTimer.stop();
+            });
+    }
+
+    //处理客户端连接
+    bool dealWithConnect() {
+        if (_isServer)
+            return false;
+        bool enable = watch();
+        if (enable) {
+            enable = eventLoop().connect(_watcher,parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
+            //连接超时
+            if (enable) {
+                createTimer(_connectTimeoutTimer, _rpcBase.getSetting(RpcSetting.ConnectTimeout), (){
+                    if (!isConnected()){
+                        doHandlerEvent(RpcEvent.ConnectTimeout, "connect timeout");
+                    }
+                    else {
+                        _connectTimeoutTimer.stop();
+                    }
+                });
+            }
+        }
+        return enable;
+    }
+
 
 protected:
 
@@ -316,7 +383,6 @@ protected:
         else {
             if (!_isConnected) {
                 doHandlerEvent(RpcEvent.ConnectFailed, "connect server failed");
-                collectExceptionMsg(eventLoop.deregister(watcher));
                 return;
             }
             else {
@@ -338,19 +404,20 @@ protected:
 
 private:
     ubyte _headStructLen;
-
     bool _isServer;
     long _streamId;
-    RpcEventHandler _handler;
-    
-    RpcHeadData _head;
-    RpcContentData _content; 
-
-    RpcParseStatus _parseStatus;
     long _recvCachePos;
     ubyte[] _recvCache;
     bool _isConnected;
-    
+    int _reconnectTimes;  //重连剩余次数
+    int _reSendTimes;     //重发剩余次数
+
+    RpcBase _rpcBase;
+    RpcHeadData _head;
+    RpcEventHandler _handler;
+    RpcContentData _content; 
+    RpcParseStatus _parseStatus;
     RpcCallBack[ulong] _callbackMap;
-    EventLoop _loop;
-}
+    Timer _connectTimeoutTimer;    //连接超时 timer
+    Timer _reconnectIntervalTimer;  //连接重试 timer
+}  

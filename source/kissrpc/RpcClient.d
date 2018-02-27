@@ -1,42 +1,36 @@
 
 
-
-
-
 module kissrpc.RpcClient;
 
-import kiss.net.TcpStreamClient;
+
+import kissrpc.RpcBase;
 import kissrpc.RpcCodec;
-import kissrpc.RpcConstant;
 import kissrpc.RpcStream;
+import kissrpc.RpcConstant;
+
 import kiss.event.loop;
+import kiss.net.TcpStreamClient;
 
-
-
-import core.sync.semaphore;
+import std.stdio;
 import std.traits;
 import core.thread;
-import std.stdio;
+import core.sync.semaphore;
 import std.experimental.logger.core;
 
 
-
-
-class RpcClient {
+class RpcClient : RpcBase{
 public:
     this(EventLoop loop, string host, ushort port, RpcEventHandler handler = null, ubyte protocol = RpcProtocol.FlatBuffer, ubyte compress = RpcCompress.None) {
-        _loop = loop;
-        _host = host;
-        _port = port;
+        super(loop, host, port);
         _protocol = protocol;
         _compress = compress;
         _clientSeqId = 0;
         _semaphore = new Semaphore();
-        _rpcStream = RpcStream.createClient(_loop, handler, 0);
+        _rpcStream = RpcStream.createClient(0, this, handler);
     }
-    void start() {
-        _rpcStream.connect(_host, _port);
-        _loop.join();
+    override void start() {
+        _rpcStream.connect();
+        super.start();
     }
     void stop() {
         _rpcStream.close();
@@ -195,10 +189,7 @@ private:
     }
 private:
     RpcStream _rpcStream;
-    string _host;
-    ushort _port;
     ulong _clientSeqId;
-    EventLoop _loop;
     ubyte _protocol;
     ubyte _compress;
     Semaphore _semaphore;
