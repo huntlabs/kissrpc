@@ -3,9 +3,10 @@
 
 module kissrpc.RpcServer;
 
-import kissrpc.RpcConstant;
-import kissrpc.RpcStream;
 import kissrpc.RpcBase;
+import kissrpc.RpcStream;
+import kissrpc.RpcConstant;
+import kissrpc.RpcStreamServer;
 
 
 import kiss.net.TcpListener;
@@ -27,7 +28,7 @@ public:
         _listener.bind(host, port).listen(1024).setReadHandle((EventLoop loop, Socket socket) @trusted nothrow {
                     catchAndLogException((){
                         synchronized (this) {
-                            RpcStream stream = RpcStream.createServer(socket, _streamId++, this, handler);
+                            RpcStreamServer stream = new RpcStreamServer(socket, _streamId++, this, handler);
                             stream.watch();
                             _rpcStreams ~= stream;
                             handler(stream, RpcEvent.NewClientCome, "new client connect");
@@ -46,5 +47,5 @@ public:
 private:
     long _streamId;
     TcpListener _listener;
-    RpcStream[] _rpcStreams;
+    RpcStreamServer[] _rpcStreams;
 }   

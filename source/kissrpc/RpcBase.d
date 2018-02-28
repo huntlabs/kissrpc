@@ -2,8 +2,9 @@
 
 module kissrpc.RpcBase;
 
-import kissrpc.RpcStream;
+// import kissrpc.RpcStreamBase;
 import kissrpc.RpcConstant;
+import kissrpc.RpcHeartbeatTimer;
 
 import kiss.event.loop;
 import kiss.net.Timer;
@@ -46,8 +47,8 @@ public:
         return true;
     }
     //增加心跳包事件
-    void addHeartbeatEvent(WheelTimer tm) {
-        _wheel.addNewTimer(tm);
+    void addHeartbeatEvent(RpcHeartbeatTimer tm) {
+        _wheel.addNewTimer(cast(WheelTimer)tm);
     }
     EventLoop getLoop() {
         return _loop;
@@ -67,7 +68,8 @@ private:
         _defaultSetting[RpcSetting.ReSendTimeout] = 30000;  //发送超时时间 (单位ms)
         _defaultSetting[RpcSetting.ReSendCount] = 0;        //发送失败重发次数  (-1:一直重发)
         _defaultSetting[RpcSetting.ReSendInterval] = 1000;  //发送失败重发间隔 (单位ms)
-        _defaultSetting[RpcSetting.HeartbeatInterval] = 30000; //心跳包间隔时间  (单位ms)
+        _defaultSetting[RpcSetting.HeartbeatInterval] = 10000; //心跳包间隔时间  (单位ms)
+        _defaultSetting[RpcSetting.HeartbeatTimeoutCount] = 3; //连续几次未收到心跳包断开连接
     }
     //初始化心跳timer
     void initHeartbeatTimer() {

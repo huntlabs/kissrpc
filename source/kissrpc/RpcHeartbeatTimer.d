@@ -4,17 +4,20 @@ module kissrpc.RpcHeartbeatTimer;
 
 import kissrpc.RpcStream;
 
+import kiss.exception;
 import kiss.timingwheel;
 
 @trusted class RpcHeartbeatTimer : WheelTimer{
-public:
-    this(RpcStream stream) {
-        _stream = stream;
+    void setCallback(void delegate() @trusted func) {
+        _func = func;
     }
     override void onTimeOut() nothrow
     {
-
+        catchAndLogException((){
+            if (_func) 
+                _func();
+        }());
     }
 private:
-    RpcStream _stream;
+    void delegate() @trusted _func;
 }

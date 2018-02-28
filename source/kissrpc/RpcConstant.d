@@ -12,6 +12,8 @@ enum RpcEvent {
     ConnectTimeout = 6, //连接超时
     NotFoundCallBack = 7,  //未找到回调reqId
     NewClientCome = 8, //有客户端新连接
+    RecvHeartbeat = 9, //收到心跳包
+    HeartbeatClose = 10,     //连接超时断开
 }
 
 //传输协议
@@ -51,6 +53,7 @@ enum RpcSetting {
     ReSendCount,        //发送失败重发次数  (-1:一直重发)
     ReSendInterval,     //发送失败重发间隔 (单位ms)
     HeartbeatInterval,  //心跳包间隔时间  (单位ms)
+    HeartbeatTimeoutCount, //连续几次未收到心跳包断开连接
     Max,
 };
 

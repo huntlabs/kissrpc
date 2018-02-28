@@ -5,8 +5,9 @@ module kissrpc.RpcClient;
 
 import kissrpc.RpcBase;
 import kissrpc.RpcCodec;
-import kissrpc.RpcStream;
 import kissrpc.RpcConstant;
+import kissrpc.RpcStream;
+import kissrpc.RpcStreamClient;
 
 import kiss.event.loop;
 import kiss.net.TcpStreamClient;
@@ -26,7 +27,7 @@ public:
         _compress = compress;
         _clientSeqId = 0;
         _semaphore = new Semaphore();
-        _rpcStream = RpcStream.createClient(0, this, handler);
+        _rpcStream = new RpcStreamClient(0, this, handler);
     }
     override void start() {
         _rpcStream.connect();
@@ -188,7 +189,7 @@ private:
         return RpcProcCode.Success;
     }
 private:
-    RpcStream _rpcStream;
+    RpcStreamClient _rpcStream;
     ulong _clientSeqId;
     ubyte _protocol;
     ubyte _compress;
