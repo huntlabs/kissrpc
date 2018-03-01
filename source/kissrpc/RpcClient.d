@@ -164,21 +164,31 @@ public:
             }
         }
     }
+  
+
+    RpcHeadData getDefaultHead() {
+        RpcHeadData head;
+        head.rpcVersion = RPC_VERSION;
+        head.key = RPC_KEY;
+        head.secret = RPC_SECRET;
+        head.compress = _compress;
+        head.protocol = _protocol;
+        synchronized(this) {
+            head.clientSeqId = _clientSeqId++;
+        } 
+        return head;
+    }
+
+
 private:
     ubyte initHeadBody(T)(string functionName, T param, ubyte[] exData, ref RpcHeadData head, ref RpcContentData content) {
         ubyte code = RpcCodec.encodeBuffer!(T)(param, _protocol, content.data);
         if (code != RpcProcCode.Success)
             return code;
 
-        head.rpcVersion = RPC_VERSION;
-        head.key = RPC_KEY;
-        head.secret = RPC_SECRET;
-        head.compress = _compress;
-        head.protocol = _protocol;
+        head = getDefaultHead();
         head.msgLen = cast(ubyte)functionName.length;
-        synchronized(this) {
-            head.clientSeqId = _clientSeqId++;
-        }
+        
         if (exData !is null) {
             head.exDataLen = cast(ushort)exData.length;
             content.exData = exData.dup;

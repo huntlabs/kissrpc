@@ -4,6 +4,7 @@
 module kissrpc.RpcStreamClient;
 
 import kissrpc.RpcBase;
+import kissrpc.RpcClient;
 import kissrpc.RpcStream;
 import kissrpc.RpcConstant;
 
@@ -19,6 +20,7 @@ class RpcStreamClient : RpcStream {
 public:
     this(long streamId, RpcBase rpcBase, RpcEventHandler handler) {
         _reconnectTimes = rpcBase.getSetting(RpcSetting.ConnectCount);
+        _timeoutCount = rpcBase.getSetting(RpcSetting.HeartbeatTimeoutCount);
         super(streamId, rpcBase, handler);
     }
 
@@ -59,8 +61,39 @@ public:
     }
 
     override void doBeartbeatTimer() {
-        
+        if (_timeoutCount > 0)
+            _timeoutCount--;
+
+        if (_timeoutCount == 0) {
+            doHandlerEvent(RpcEvent.HeartbeatClose, "does not receive server hearbeat response, connection close!!!");
+            _timeoutCount = _rpcBase.getSetting(RpcSetting.HeartbeatTimeoutCount);
+        }
+        else {
+            RpcHeadData head = (cast(RpcClient)_rpcBase).getDefaultHead();
+            RpcContentData content;
+            writeRpcData(head, content);
+        }
     }
+    //处理rpc事件
+    override void doHandlerEvent(RpcEvent event, string msg) @trusted nothrow {
+        catchAndLogException((){
+            if (event == RpcEvent.ConnectSuccess) {
+                _reconnectTimes = _rpcBase.getSetting(RpcSetting.ConnectCount);
+                stopTimer(_connectTimeoutTimer);
+                stopTimer(_reconnectIntervalTimer);
+            }
+            else if (event == RpcEvent.ConnectFailed || event == RpcEvent.ConnectTimeout) {
+                collectExceptionMsg(eventLoop().deregister(_watcher));
+                stopTimer(_connectTimeoutTimer);
+                reconnect();
+            }
+            else if (event == RpcEvent.RecvHeartbeat) {
+                _timeoutCount = _rpcBase.getSetting(RpcSetting.HeartbeatTimeoutCount);
+            }
+            super.doHandlerEvent(event, msg);
+        }());
+    }
+
 protected:
     override void onClose(Watcher watcher) nothrow { 
         if (!_isConnected) {
@@ -81,25 +114,6 @@ protected:
     }
 
 private: 
-    //处理rpc事件
-    void doHandlerEvent(RpcEvent event, string msg) @trusted nothrow {
-        catchAndLogException((){
-            if (event == RpcEvent.ConnectSuccess) {
-                _reconnectTimes = _rpcBase.getSetting(RpcSetting.ConnectCount);
-                stopTimer(_connectTimeoutTimer);
-                stopTimer(_reconnectIntervalTimer);
-            }
-            else if (event == RpcEvent.ConnectFailed || event == RpcEvent.ConnectTimeout) {
-                collectExceptionMsg(eventLoop().deregister(_watcher));
-                stopTimer(_connectTimeoutTimer);
-                reconnect();
-            }
-            else if (event == RpcEvent.RecvHeartbeat) {
-                
-            }
-            super.doHandlerEvent(event, msg);
-        }());
-    }
 
     void stopTimer(Timer timer) {
         if (timer)
@@ -117,6 +131,7 @@ private:
             }).start(interval);
     }
 private:
+    int _timeoutCount;
     bool _isConnected;
     int _reconnectTimes;  //重连剩余次数
     Timer _connectTimeoutTimer;    //连接超时 timer

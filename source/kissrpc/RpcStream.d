@@ -61,7 +61,7 @@ public:
         _rpcBase.getLoop().postTask(newTask(&tmpWrite));
     }
 
-     void addRequestCallback(ulong reqId, RpcCallBack cb) {
+    void addRequestCallback(ulong reqId, RpcCallBack cb) {
         synchronized(this) {
             _callbackMap[reqId] = cb;
         }
@@ -102,6 +102,9 @@ protected:
     override void onClose(Watcher watcher) nothrow { 
         _beartbeatTimer.stop();
         super.onClose(watcher);
+    }
+    RpcHeadData getHead() {
+        return _head;
     }
 
 private:   
@@ -175,11 +178,13 @@ private:
             doHandlerEvent(RpcEvent.HeadParseError, "head parse error or check key secrect error!");
             return false;
         }
-        _recvCache.length = _head.exDataLen + _head.msgLen + _head.dataLen;
-        if (_recvCache.length == 0) { //空body默认为RPC心跳 TODO
-            doHandlerEvent(RpcEvent.RecvHeartbeat, "recv heartbeat");
+        int nextLen = _head.exDataLen + _head.msgLen + _head.dataLen;
+        if (nextLen == 0) { //空body默认为RPC心跳 TODO
+            _recvCache.length = _headStructLen; 
+            doHandlerEvent(RpcEvent.RecvHeartbeat, _isServer ? "recv client heartbeat request" : "recv server heartbeat response");
         }
         else {
+            _recvCache.length = nextLen;
             _parseStatus = RpcParseStatus.RecvBody;
         }
         _recvCachePos = 0;
