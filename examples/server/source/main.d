@@ -18,6 +18,9 @@ public:
     override GreeterResponse SayHello(GreeterRequest message) {
         GreeterResponse msg;
         msg.msg = message.msg;
+        log("rpc exData = ",getRpcExData());
+
+        setRpcExData([2,1]);
         return msg;
     }
 }

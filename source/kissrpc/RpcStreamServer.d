@@ -3,6 +3,7 @@
 module kissrpc.RpcStreamServer;
 
 import kissrpc.RpcBase;
+import kissrpc.RpcProxy;
 import kissrpc.RpcStream;
 import kissrpc.RpcConstant;
 
@@ -40,6 +41,10 @@ public:
             }
             super.doHandlerEvent(event, msg);
         }());
+    }
+    override void dealWithFullData(RpcHeadData head, RpcContentData content) {
+        log("dealWithFullData = ",content);
+        RpcProxy.invokerRequest(content.msg, content.data, content.exData, head.protocol, head.clientSeqId, this);
     }
 protected:
     override void onClose(Watcher watcher) nothrow {

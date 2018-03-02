@@ -4,6 +4,7 @@
 module kissrpc.RpcStreamClient;
 
 import kissrpc.RpcBase;
+import kissrpc.RpcProxy;
 import kissrpc.RpcClient;
 import kissrpc.RpcStream;
 import kissrpc.RpcConstant;
@@ -16,29 +17,34 @@ import std.socket;
 import std.exception;
 import std.experimental.logger.core;
 
+
+alias RpcCallBack = void delegate(RpcResponseBody response, ubyte[] data, ubyte protocol); 
+
 class RpcStreamClient : RpcStream {
 public:
     this(long streamId, RpcBase rpcBase, RpcEventHandler handler) {
         _reconnectTimes = rpcBase.getSetting(RpcSetting.ConnectCount);
         _timeoutCount = rpcBase.getSetting(RpcSetting.HeartbeatTimeoutCount);
         super(streamId, rpcBase, handler);
+        setConnectHandle((bool connected) @trusted nothrow {
+            if (connected)
+                doHandlerEvent(RpcEvent.ConnectSuccess, "connect success");
+            else 
+                doHandlerEvent(RpcEvent.ConnectFailed, "connect server failed");
+        });
     }
 
     bool connect() {
-        bool enable = watch();
+        bool enable = super.connect(parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
         if (enable) {
-            enable = eventLoop().connect(_watcher,parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
-            //连接超时
-            if (enable) {
-                createTimer(_connectTimeoutTimer, _rpcBase.getSetting(RpcSetting.ConnectTimeout), (){
-                    if (!isConnected()){
-                        doHandlerEvent(RpcEvent.ConnectTimeout, "connect timeout");
-                    }
-                    else {
-                        _connectTimeoutTimer.stop();
-                    }
-                });
-            }
+            createTimer(_connectTimeoutTimer, _rpcBase.getSetting(RpcSetting.ConnectTimeout), (){
+                if (!isConnected()){
+                    doHandlerEvent(RpcEvent.ConnectTimeout, "connect timeout");
+                }
+                else {
+                    _connectTimeoutTimer.stop();
+                }
+            });           
         }
         return enable;
     }
@@ -56,10 +62,7 @@ public:
             });
     }
 
-    bool isConnected() {
-        return _isConnected;
-    }
-
+  
     override void doBeartbeatTimer() {
         if (_timeoutCount > 0)
             _timeoutCount--;
@@ -90,29 +93,49 @@ public:
             else if (event == RpcEvent.RecvHeartbeat) {
                 _timeoutCount = _rpcBase.getSetting(RpcSetting.HeartbeatTimeoutCount);
             }
+            else if (event == RpcEvent.Close) {
+                foreach(k,v; _callbackMap) {
+                    ubyte[] data;
+                    ubyte[] exData;
+                    RpcProxy.invokerResponse("conection close", data, exData, getHead().protocol, getHead().clientSeqId, this, RpcProcCode.SendFailed);
+                    _callbackMap.remove(k);
+                }
+            }
             super.doHandlerEvent(event, msg);
         }());
     }
 
-protected:
-    override void onClose(Watcher watcher) nothrow { 
-        if (!_isConnected) {
-            doHandlerEvent(RpcEvent.ConnectFailed, "connect server failed");
-            return;
-        }
-        doHandlerEvent(RpcEvent.Close, "disconnected from server");
-        _isConnected = false;
-        super.onClose(watcher);
-    }
-    override void onWrite(Watcher watcher) nothrow{
-        if (!_isConnected) {
-            _isConnected = true;
-            doHandlerEvent(RpcEvent.ConnectSuccess, "connect success");
-            return; 
-        }
-        super.onWrite(watcher);
+    override void dealWithFullData(RpcHeadData head, RpcContentData content) {
+        RpcProxy.invokerResponse(content.msg, content.data, content.exData, head.protocol, head.clientSeqId, this, head.code);
     }
 
+
+    void addRequestCallback(ulong reqId, RpcCallBack cb) {
+        synchronized(this) {
+            _callbackMap[reqId] = cb;
+        }
+    }
+    RpcCallBack getRequestCallback(ulong reqId) {
+        synchronized(this) {
+            if (reqId in _callbackMap) {
+                return _callbackMap[reqId];
+            }
+            return null;
+        }
+    }  
+    void removeRequestCallback(ulong reqId) {
+        synchronized(this) {
+            if (reqId in _callbackMap) {
+                _callbackMap.remove(reqId);
+            }
+        }
+    }
+
+protected:
+    override void onClose(Watcher watcher) nothrow { 
+        doHandlerEvent(RpcEvent.Close, "disconnected from server");
+        super.onClose(watcher);
+    }
 private: 
 
     void stopTimer(Timer timer) {
@@ -132,9 +155,10 @@ private:
     }
 private:
     int _timeoutCount;
-    bool _isConnected;
     int _reconnectTimes;  //重连剩余次数
     Timer _connectTimeoutTimer;    //连接超时 timer
     Timer _reconnectIntervalTimer;  //连接重试 timer
+
+    RpcCallBack[ulong] _callbackMap;
 }
 

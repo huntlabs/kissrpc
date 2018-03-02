@@ -5,15 +5,16 @@ module kissrpc.RpcConstant;
 enum RpcEvent {
     Close = 0, //连接已经关闭
     WriteFailed = 1, //写失败
-    HeadParseError = 2, //RPC 头解析失败
-    BodyParseError = 3, //RPC Body解析失败
-    ConnectFailed = 4, //连接失败
-    ConnectSuccess = 5, //连接成功
-    ConnectTimeout = 6, //连接超时
-    NotFoundCallBack = 7,  //未找到回调reqId
-    NewClientCome = 8, //有客户端新连接
-    RecvHeartbeat = 9, //收到心跳包
-    HeartbeatClose = 10,     //连接超时断开
+    WriteSuccess = 2, //写成功
+    HeadParseError = 3, //RPC 头解析失败
+    BodyParseError = 4, //RPC Body解析失败
+    ConnectFailed = 5, //连接失败
+    ConnectSuccess = 6, //连接成功
+    ConnectTimeout = 7, //连接超时
+    NotFoundCallBack = 8,  //未找到回调reqId
+    NewClientCome = 9, //有客户端新连接
+    RecvHeartbeat = 10, //收到心跳包
+    HeartbeatClose = 11,     //连接超时断开
 }
 
 //传输协议

@@ -25,10 +25,22 @@ public:
 	mixin("static import " ~ moduleName ~ ";");
 	pragma(msg,createRpcCallFun!(T,moduleName));
 	mixin(createRpcCallFun!(T,moduleName));
+	mixin(createRpcExDataFunc());
 	shared static this(){
 		assert(BaseTypeTuple!T.length >= 2,"rpc class must inherit rpc interface !!!");
 		mixin(__creteRpcMap!(T,moduleName, BaseTypeTuple!T[1].stringof));
 	}
+}
+
+string createRpcExDataFunc() {
+	string str = "ubyte[] _rpcExData;";
+	str ~= "\nubyte[] getRpcExData() {";
+	str ~= "\n\t return _rpcExData;";
+	str ~= "\n}";
+	str ~= "\nvoid setRpcExData(ubyte[] data) {";
+	str ~= "\n\t _rpcExData = data;";
+	str ~= "\n}\n";
+	return str;
 }
 
 string createRpcCallFun(T, string moduleName)()
@@ -127,12 +139,14 @@ string  __creteRpcMap(T, string moduleName, string interfaceName)()
 
 
 
-ubyte callHandler(T,string fun)(ubyte[] paramData, ubyte protocol, ref ubyte[] returnData, ref string msg)
+ubyte callHandler(T,string fun)(ubyte[] paramData, ubyte protocol, ref ubyte[] returnData, ref string msg, ref ubyte[] exData)
 {
 	T handler = new T();
 	ubyte code = RpcProcCode.Success;
+	handler.setRpcExData(exData);
 	try {
 		code = handler.__RPCCALL__(fun, paramData, protocol, returnData);
+		exData = handler.getRpcExData();
 		if (code == RpcProcCode.NoFunctionName)
 			msg = "can not find function name : " ~ fun;
 		else if(code == RpcProcCode.DecodeFailed) 
@@ -168,7 +182,7 @@ void addRpcFunction(string str, HandleRpcFunction fun)
 	}
 }
 
-alias HandleRpcFunction = ubyte function(ubyte[] paramData, ubyte protocol, ref ubyte[] returnData, ref string msg);
+alias HandleRpcFunction = ubyte function(ubyte[] paramData, ubyte protocol, ref ubyte[] returnData, ref string msg, ref ubyte[] exData);
 private:
 __gshared bool _init = false;
 __gshared HandleRpcFunction[string]  __RpcFunctionList;

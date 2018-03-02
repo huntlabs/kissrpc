@@ -10,7 +10,6 @@ import kissrpc.RpcStream;
 import kissrpc.RpcStreamClient;
 
 import kiss.event.loop;
-import kiss.net.TcpStreamClient;
 
 import std.stdio;
 import std.traits;

@@ -2,31 +2,22 @@
 
 module kissrpc.RpcProxy;
 
-import kissrpc.RpcConstant;
 import kissrpc.RpcBuild;
-import kissrpc.RpcStream;
+import kissrpc.RpcConstant;
+import kissrpc.RpcStreamClient;
+import kissrpc.RpcStreamServer;
+import kissrpc.RpcThreadManager;
+
+import kiss.event.task;
 
 import std.string;
 import std.experimental.logger.core;
 
 class RpcProxy {
 public:
-    this() {
-
-    }
-    void invokerRpcData(string msg, ubyte[] data, ubyte[] exData, ubyte code, ubyte protocol, ulong clientSeqId, bool isRequest , RpcEventHandler handler, RpcStream stream) {
-        if (isRequest) {
-            invokerRequest(msg, data, exData, protocol, clientSeqId, handler, stream);
-        }
-        else {
-            invokerResponse(code, msg, data, exData, protocol, clientSeqId, handler, stream);
-        }
-    }
-
-private:
 
     //处理rpc客户端请求
-    void invokerRequest(string functionName, ubyte[] data, ubyte[] exData, ubyte protocol, ulong clientSeqId, RpcEventHandler handler, RpcStream stream) {
+    static void invokerRequest(string functionName, ubyte[] data, ubyte[] exData, ubyte protocol, ulong clientSeqId, RpcStreamServer stream) {
         RpcHeadData head;
         head.rpcVersion = RPC_VERSION;
         head.key = RPC_KEY;
@@ -36,41 +27,47 @@ private:
         head.clientSeqId = clientSeqId;
         
         RpcContentData content;
+        foreach(value; exData) { content.exData ~= value; }
         
         auto func = getRpcFunction(functionName);
         if (func is null) {
             head.code = RpcProcCode.NoFunctionName;
-            head.exDataLen = 0;
+            head.exDataLen = cast(ushort)content.exData.length;
             content.msg = "can not find function name : " ~ functionName;
             head.msgLen = cast(ubyte)content.msg.length;
             head.dataLen = cast(ubyte)content.msg.length;
+            stream.writeRpcData(head, content);
         }
         else {
-            head.code = func(data, protocol, content.data, content.msg);
-            head.exDataLen = 0;
-            head.dataLen = cast(ushort)content.data.length;
-            head.msgLen = cast(ubyte)content.msg.length;
+            void tmpCallback() {
+                head.code = func(data, protocol, content.data, content.msg, content.exData);
+                head.exDataLen = cast(ushort)content.exData.length;
+                head.dataLen = cast(ushort)content.data.length;
+                head.msgLen = cast(ubyte)content.msg.length;
+                stream.writeRpcData(head, content);
+            }
+            RpcThreadManager.instance.addCallBack(stream.getStreamId(), newTask(&tmpCallback));
         }
         
         //TODO 服务方返回回调.
 
-        stream.writeRpcData(head, content);
     }
 
     //处理rpc服务端响应
-    void invokerResponse(ubyte code, string msg, ubyte[] data, ubyte[] exData, ubyte protocol, ulong clientSeqId, RpcEventHandler handler, RpcStream tcpStream) {
-        auto callback = tcpStream.getRequestCallback(clientSeqId); 
+    static void invokerResponse(string msg, ubyte[] data, ubyte[] exData, ubyte protocol, ulong clientSeqId, RpcStreamClient stream, ubyte code) {
+        auto callback = stream.getRequestCallback(clientSeqId); 
         if (callback is null) {
-            if (handler) {
-                handler(tcpStream, RpcEvent.NotFoundCallBack, "not fond req callback id %s".format(clientSeqId));
-            }
+            stream.doHandlerEvent(RpcEvent.NotFoundCallBack, "not fond req callback id %s".format(clientSeqId));
         }
         else {
-            RpcResponseBody response;
-            response.code = code;
-            response.msg = msg;
-            response.exData = exData;
-            callback(response, data, protocol);
+            void tmpCallback() {
+                RpcResponseBody response;
+                response.code = code;
+                response.msg = msg;
+                response.exData = exData.dup;
+                callback(response, data.dup, protocol);
+            }
+            RpcThreadManager.instance.addCallBack(stream.getStreamId(), newTask(&tmpCallback));
         }
     }
 

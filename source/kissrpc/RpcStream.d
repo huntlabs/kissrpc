@@ -34,12 +34,10 @@ alias RpcEventHandler = void delegate(RpcStream stream, RpcEvent code, string ms
 class RpcStream : TcpStream{
 public:
     this(long streamId, RpcBase rpcBase, RpcEventHandler handler) {
-        _isServer = false;
         init(streamId, rpcBase, handler);
         super(rpcBase.getLoop(), AddressFamily.INET);
     }
     this(Socket sock, long streamId, RpcBase rpcBase, RpcEventHandler handler) {
-        _isServer = true;
         init(streamId, rpcBase, handler);
         super(rpcBase.getLoop(), sock);
     }
@@ -54,41 +52,19 @@ public:
         void tmpWrite() {
             write(new WarpStreamBuffer(data.dup,(in ubyte[] wdata, size_t size) @trusted nothrow {
 									catchAndLogException((){
-                                        // log("send success len = %s".format(size));
+                                        if (wdata.length == size)
+                                            doHandlerEvent(RpcEvent.WriteSuccess, "write success");
+                                        else 
+                                            doHandlerEvent(RpcEvent.WriteFailed, "write failed");
 									}());
 								}));
         }
         _rpcBase.getLoop().postTask(newTask(&tmpWrite));
     }
 
-    void addRequestCallback(ulong reqId, RpcCallBack cb) {
-        synchronized(this) {
-            _callbackMap[reqId] = cb;
-        }
-    }
-
-    RpcCallBack getRequestCallback(ulong reqId) {
-        synchronized(this) {
-            if (reqId in _callbackMap) {
-                return _callbackMap[reqId];
-            }
-            return null;
-        }
-    }
-    void removeRequestCallback(ulong reqId) {
-        synchronized(this) {
-            if (reqId in _callbackMap) {
-                _callbackMap.remove(reqId);
-            }
-        }
-    }
-
     void doHandlerEvent(RpcEvent event, string msg) @trusted nothrow {
         catchAndLogException((){
-            if (event == RpcEvent.WriteFailed) {
-
-            }
-            else if (event == RpcEvent.HeartbeatClose) {
+            if (event == RpcEvent.HeartbeatClose) {
                 close();
             }
             if (_handler)
@@ -96,7 +72,12 @@ public:
         }());
     }
 
+    long getStreamId() {
+        return _streamId;
+    }
+
     abstract void doBeartbeatTimer() {}
+    abstract void dealWithFullData(RpcHeadData head, RpcContentData content) {}
 
 protected:
     override void onClose(Watcher watcher) nothrow { 
@@ -105,6 +86,9 @@ protected:
     }
     RpcHeadData getHead() {
         return _head;
+    }
+    RpcContentData getContent() {
+        return _content;
     }
 
 private:   
@@ -161,7 +145,7 @@ private:
                 }
                 else if (_parseStatus == RpcParseStatus.RecvBody) { //解析消息体
                     decodeBody();
-                    dealWithBody();
+                    dealWithFullData(_head, _content);
                 }
             }
             if (dataFinish)
@@ -181,7 +165,7 @@ private:
         int nextLen = _head.exDataLen + _head.msgLen + _head.dataLen;
         if (nextLen == 0) { //空body默认为RPC心跳 TODO
             _recvCache.length = _headStructLen; 
-            doHandlerEvent(RpcEvent.RecvHeartbeat, _isServer ? "recv client heartbeat request" : "recv server heartbeat response");
+            doHandlerEvent(RpcEvent.RecvHeartbeat, "recv heartbeat");
         }
         else {
             _recvCache.length = nextLen;
@@ -194,11 +178,11 @@ private:
     //处理消息体
     void decodeBody() {
         uint pos = 0;
+        _content = _content.init;
         for(int i = 0; i < _head.exDataLen; i++)
             _content.exData ~= _recvCache[pos++];
         for(int i = 0; i < _head.dataLen; i++)
             _content.data ~= _recvCache[pos++];
-
 
         RpcUtils.readString(_recvCache, pos, _head.msgLen, _content.msg);
         _recvCache.length = _headStructLen;
@@ -250,25 +234,7 @@ private:
         return true;
     }
 
-    
-    //处理rpc整包数据
-    void dealWithBody() {
-        RpcProxy proxy = new RpcProxy();
-        ubyte[] data;
-        ubyte[] exData;
-        data = _content.data.dup;
-        exData = _content.exData.dup;
-        RpcThreadManager.instance.addCallBack(_streamId, newTask(&proxy.invokerRpcData,
-                                                                _content.msg, 
-                                                                data, 
-                                                                exData,
-                                                                _head.code,
-                                                                _head.protocol, 
-                                                                _head.clientSeqId,
-                                                                _isServer,
-                                                                _handler,
-                                                                this));
-    }
+   
 
     //encode head
     void encodeHead(RpcHeadData head, ref ubyte[] data) {
@@ -305,12 +271,10 @@ private:
     long _recvCachePos;
     ubyte[] _recvCache;
     int _reSendTimes;     //重发剩余次数
-    bool _isServer;
     long _streamId;
 
     RpcHeadData _head;
     RpcContentData _content; 
     RpcEventHandler _handler;
     RpcParseStatus _parseStatus;
-    RpcCallBack[ulong] _callbackMap;
 }

@@ -17,12 +17,13 @@ void doClientTest(RpcClient client) {
     GreeterResponse ret;
     GreeterRequest request;
     request.msg = "hello";
-    ubyte[] exData;
+    ubyte[] exData = [1,2];
 
     //sync call
     RpcResponseBody status = stub.SayHello(request, exData, ret);
     if (status.code == RpcProcCode.Success) {
         log("sync call success :", ret.msg);
+        log("sync call exData :", status.exData);
     }
     else {
         log("sync call failed : ", status.msg); 
@@ -32,6 +33,7 @@ void doClientTest(RpcClient client) {
     stub.SayHello(request, exData, (RpcResponseBody response, GreeterResponse r){
         if (response.code == RpcProcCode.Success) {
             log("async call success :", r.msg);
+            log("sync call exData :", response.exData);
         }
         else {
             log("async call failed : ", response.msg); 
