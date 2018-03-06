@@ -22,23 +22,44 @@ void doClientTest(RpcClient client) {
     //sync call
     RpcResponseBody status = stub.SayHello(request, exData, ret);
     if (status.code == RpcProcCode.Success) {
-        log("sync call success :", ret.msg);
-        log("sync call exData :", status.exData);
+        log("sync call SayHello success :", ret.msg);
+        log("sync call SayHello exData :", status.exData);
     }
     else {
         log("sync call failed : ", status.msg); 
     }
 
+    status = stub.getSayHello(exData, ret);
+    if (status.code == RpcProcCode.Success) {
+        log("sync call getSayHello success :", ret.msg);
+        log("sync call getSayHello exData :", status.exData);
+    }
+    else {
+        log("sync call getSayHello failed : ", status.msg); 
+    }
+
+    
+
     //async call
     stub.SayHello(request, exData, (RpcResponseBody response, GreeterResponse r){
         if (response.code == RpcProcCode.Success) {
-            log("async call success :", r.msg);
-            log("sync call exData :", response.exData);
+            log("async call SayHello success :", r.msg);
+            log("async call SayHello exData :", response.exData);
         }
         else {
-            log("async call failed : ", response.msg); 
+            log("async call SayHello failed : ", response.msg); 
         }
     });
+    stub.getSayHello(exData, (RpcResponseBody response, GreeterResponse r){
+        if (response.code == RpcProcCode.Success) {
+            log("async call getSayHello success :", r.msg);
+            log("async call getSayHello exData :", response.exData);
+        }
+        else {
+            log("async call getSayHello failed : ", response.msg); 
+        }
+    });
+
 }
 
 

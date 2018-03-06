@@ -76,12 +76,12 @@ public:
         return _streamId;
     }
 
-    abstract void doBeartbeatTimer() {}
+    abstract void doHeartbeatTimer() {}
     abstract void dealWithFullData(RpcHeadData head, RpcContentData content) {}
 
 protected:
     override void onClose(Watcher watcher) nothrow { 
-        _beartbeatTimer.stop();
+        _heartbeatTimer.stop(); 
         super.onClose(watcher);
     }
     RpcHeadData getHead() {
@@ -89,6 +89,21 @@ protected:
     }
     RpcContentData getContent() {
         return _content;
+    }
+    void startHeartbeat() {
+        if (!_heartbeatTimer) {
+            _heartbeatTimer = new RpcHeartbeatTimer();
+            _heartbeatTimer.setCallback(() @trusted{
+                doHeartbeatTimer();
+            });
+        }
+        _heartbeatTimer.stop();  
+        _rpcBase.addHeartbeatEvent(_heartbeatTimer);
+    }
+    void stopHeartbeat() {
+        if (_heartbeatTimer) {
+            _heartbeatTimer.stop(); 
+        }
     }
 
 private:   
@@ -118,11 +133,10 @@ private:
                 onRead(data);
             }());
         });
-        _beartbeatTimer = new RpcHeartbeatTimer();
-        _beartbeatTimer.setCallback(() @trusted{
-            doBeartbeatTimer();
+        _heartbeatTimer = new RpcHeartbeatTimer();
+        _heartbeatTimer.setCallback(() @trusted{
+            doHeartbeatTimer();
         });
-        rpcBase.addHeartbeatEvent(_beartbeatTimer);
     }
 
     void onRead(in ubyte[] data) {
@@ -265,7 +279,7 @@ private:
 
 protected:
     RpcBase _rpcBase;
-    RpcHeartbeatTimer _beartbeatTimer;
+    RpcHeartbeatTimer _heartbeatTimer;
 private: 
     ubyte _headStructLen;
     long _recvCachePos;

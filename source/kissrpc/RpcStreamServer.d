@@ -20,8 +20,9 @@ public:
     this(Socket sock, long streamId, RpcBase rpcBase, RpcEventHandler handler) {
         super(sock, streamId, rpcBase, handler);
         _timeoutCount = rpcBase.getSetting(RpcSetting.HeartbeatTimeoutCount);
+        startHeartbeat();
     }
-    override void doBeartbeatTimer() {
+    override void doHeartbeatTimer() {
         if (_timeoutCount > 0) {
             _timeoutCount--;
         }

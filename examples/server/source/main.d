@@ -23,6 +23,15 @@ public:
         setRpcExData([2,1]);
         return msg;
     }
+    @RpcAction
+    override GreeterResponse getSayHello() {
+        GreeterResponse msg;
+        msg.msg = "getSayHello";
+        log("rpc exData = ",getRpcExData());
+        setRpcExData([2,1]);
+        return msg;
+    }
+
 }
 
 void main() {

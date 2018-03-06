@@ -7,4 +7,5 @@ import rpcgenerate.GreeterResponse;
 
 interface Greeter {
     GreeterResponse SayHello(GreeterRequest message);
+    GreeterResponse getSayHello();
 }

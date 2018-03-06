@@ -50,6 +50,7 @@ public:
     void addHeartbeatEvent(RpcHeartbeatTimer tm) {
         _wheel.addNewTimer(cast(WheelTimer)tm);
     }
+
     EventLoop getLoop() {
         return _loop;
     }

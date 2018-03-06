@@ -49,8 +49,6 @@ public:
             RpcThreadManager.instance.addCallBack(stream.getStreamId(), newTask(&tmpCallback));
         }
         
-        //TODO 服务方返回回调.
-
     }
 
     //处理rpc服务端响应

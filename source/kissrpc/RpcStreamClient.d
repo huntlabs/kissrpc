@@ -34,7 +34,7 @@ public:
         });
     }
 
-    bool connect() {
+    bool connect(bool isReconnect = false) {
         bool enable = super.connect(parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
         if (enable) {
             createTimer(_connectTimeoutTimer, _rpcBase.getSetting(RpcSetting.ConnectTimeout), (){
@@ -42,7 +42,7 @@ public:
                     doHandlerEvent(RpcEvent.ConnectTimeout, "connect timeout");
                 }
                 else {
-                    _connectTimeoutTimer.stop();
+                    stopTimer(_connectTimeoutTimer);
                 }
             });           
         }
@@ -58,12 +58,12 @@ public:
                     _reconnectTimes--;
                 resetWatcher();
                 connect();
-                _reconnectIntervalTimer.stop();
+                stopTimer(_reconnectIntervalTimer);
             });
     }
 
   
-    override void doBeartbeatTimer() {
+    override void doHeartbeatTimer() {
         if (_timeoutCount > 0)
             _timeoutCount--;
 
@@ -75,6 +75,7 @@ public:
             RpcHeadData head = (cast(RpcClient)_rpcBase).getDefaultHead();
             RpcContentData content;
             writeRpcData(head, content);
+            log("doHeartbeatTimer");
         }
     }
     //处理rpc事件
@@ -84,9 +85,9 @@ public:
                 _reconnectTimes = _rpcBase.getSetting(RpcSetting.ConnectCount);
                 stopTimer(_connectTimeoutTimer);
                 stopTimer(_reconnectIntervalTimer);
+                startHeartbeat();
             }
             else if (event == RpcEvent.ConnectFailed || event == RpcEvent.ConnectTimeout) {
-                collectExceptionMsg(eventLoop().deregister(_watcher));
                 stopTimer(_connectTimeoutTimer);
                 reconnect();
             }
@@ -133,14 +134,16 @@ public:
 
 protected:
     override void onClose(Watcher watcher) nothrow { 
-        doHandlerEvent(RpcEvent.Close, "disconnected from server");
         super.onClose(watcher);
+        doHandlerEvent(RpcEvent.Close, "disconnected from server");
     }
 private: 
 
-    void stopTimer(Timer timer) {
-        if (timer)
+    void stopTimer(ref Timer timer) {
+        if (timer) {
             timer.stop();
+            timer = null;
+        }
     }
     void createTimer(ref Timer timer, int interval, void delegate() func) {
         if (timer is null)
