@@ -35,7 +35,11 @@ public:
     }
 
     bool connect(bool isReconnect = false) {
-        bool enable = super.connect(parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
+        bool enable;
+        if (isReconnect)
+            enable = super.reconnect(parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
+        else 
+            enable = super.connect(parseAddress(_rpcBase.getHost(), _rpcBase.getPort()));
         if (enable) {
             createTimer(_connectTimeoutTimer, _rpcBase.getSetting(RpcSetting.ConnectTimeout), (){
                 if (!isConnected()){
@@ -56,8 +60,7 @@ public:
                 log("dealWithReconnect");
                 if (_reconnectTimes > 0)
                     _reconnectTimes--;
-                resetWatcher();
-                connect();
+                connect(true);
                 stopTimer(_reconnectIntervalTimer);
             });
     }
