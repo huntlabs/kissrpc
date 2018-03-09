@@ -1,9 +1,8 @@
 
 
-module rpcgenerate.GreeterStub;
+module rpcgenerate.greeter.GreeterStub;
 
-import rpcgenerate.GreeterRequest;
-import rpcgenerate.GreeterResponse;
+import rpcgenerate.greeter.Greeter;
 
 import kissrpc.RpcConstant;
 import kissrpc.RpcClient;

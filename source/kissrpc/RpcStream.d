@@ -52,10 +52,12 @@ public:
         void tmpWrite() {
             write(new WarpStreamBuffer(data.dup,(in ubyte[] wdata, size_t size) @trusted nothrow {
 									catchAndLogException((){
-                                        if (wdata.length == size)
-                                            doHandlerEvent(RpcEvent.WriteSuccess, "write success");
-                                        else 
+                                        if (wdata.length == size) {
+                                            // doHandlerEvent(RpcEvent.WriteSuccess, "write success");
+                                        }
+                                        else {
                                             doHandlerEvent(RpcEvent.WriteFailed, "write failed");
+                                        }
 									}());
 								}));
         }

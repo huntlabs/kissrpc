@@ -27,8 +27,8 @@ public:
 	mixin(createRpcCallFun!(T,moduleName));
 	mixin(createRpcExDataFunc());
 	shared static this(){
-		assert(BaseTypeTuple!T.length >= 2,"rpc class must inherit rpc interface !!!");
-		mixin(__creteRpcMap!(T,moduleName, BaseTypeTuple!T[1].stringof));
+		assert(BaseClassesTuple!T.length >= 2,"rpc class must inherit rpc interface !!!");
+		mixin(__creteRpcMap!(T,moduleName, BaseClassesTuple!T[0].stringof));
 	}
 }
 
@@ -55,7 +55,7 @@ string createRpcCallFun(T, string moduleName)()
 		{
 			foreach (t;__traits(getOverloads,T,memberName)) 
 			{
-				static if(hasUDA!(t,RpcAction))
+				static if(__traits(isOverrideFunction,t))
 				{
 					alias ParameterTypeTuple!t ParameterTypes;
 					alias ReturnType!t  RT;
@@ -127,8 +127,9 @@ string  __creteRpcMap(T, string moduleName, string interfaceName)()
 	foreach(memberName; __traits(allMembers, T)) {
 		static if (is(typeof(__traits(getMember,  T, memberName)) == function) ) {
 			foreach (t;__traits(getOverloads,T,memberName)) {
-				static if(hasUDA!(t, RpcAction) ) {
-					str ~= "\n\taddRpcFunction(\"" ~ InterfacesTuple!T[0].stringof ~ "." ~ memberName  ~ "\",&callHandler!(T,\"" ~ memberName ~ "\"));\n";
+				static if(__traits(isOverrideFunction,t))
+				{
+					str ~= "\n\taddRpcFunction(\"" ~ BaseClassesTuple!T[0].stringof ~ "." ~ memberName  ~ "\",&callHandler!(T,\"" ~ memberName ~ "\"));\n";
 				}
 			}
 		}

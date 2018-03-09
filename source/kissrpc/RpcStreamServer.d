@@ -44,7 +44,6 @@ public:
         }());
     }
     override void dealWithFullData(RpcHeadData head, RpcContentData content) {
-        log("dealWithFullData = ",content);
         RpcProxy.invokerRequest(content.msg, content.data, content.exData, head.protocol, head.clientSeqId, this);
     }
 protected:

@@ -3,9 +3,7 @@
 
 import kissrpc;
 
-import rpcgenerate.GreeterRequest;
-import rpcgenerate.GreeterResponse;
-import rpcgenerate.GreeterInterface;
+import rpcgenerate.greeter;
 
 
 import std.string;
@@ -14,7 +12,6 @@ import std.string;
 final class GreeterService : Greeter {
     mixin MakeRpc;
 public:
-    @RpcAction
     override GreeterResponse SayHello(GreeterRequest message) {
         GreeterResponse msg;
         msg.msg = message.msg;
@@ -23,7 +20,6 @@ public:
         setRpcExData([2,1]);
         return msg;
     }
-    @RpcAction
     override GreeterResponse getSayHello() {
         GreeterResponse msg;
         msg.msg = "getSayHello";

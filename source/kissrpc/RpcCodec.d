@@ -18,8 +18,7 @@ public:
         ubyte ret = RpcProcCode.Success;
         if (protocol == RpcProtocol.FlatBuffer) {
             mixin(
-                "import rpcgenerate."~T.stringof~"Fb;\n"~
-                "import rpcgenerate."~T.stringof~";\n"~
+                "import "~packageName!T~";\n"~
                 "auto fb = "~T.stringof~"Fb.getRootAs"~T.stringof~"Fb(new ByteBuffer(data));"~
                 "\n\tfbConvertStruct!(T,typeof(fb))(t,fb);"
             );
@@ -31,9 +30,8 @@ public:
         ubyte ret = RpcProcCode.Success;
         if (protocol == RpcProtocol.FlatBuffer) {
             mixin(
-                "import rpcgenerate."~T.stringof~"Fb;\n"~
-                "import rpcgenerate."~T.stringof~";\n"~
-                "classConvertFbData!("~T.stringof~"Fb,"~T.stringof~")(t,data);"
+                "import "~packageName!T~";\n"~
+                "structConvertFbData!("~T.stringof~"Fb,"~T.stringof~")(t,data);"
             );
         }
         return ret;
@@ -72,13 +70,9 @@ public:
 
 
 
-    static void classConvertFbData(D,S)(S src, ref ubyte[] data) {
+    static void structConvertFbData(D,S)(S src, ref ubyte[] data) {
        
-        mixin(
-            "import rpcgenerate."~D.stringof~";\n"~
-            "import rpcgenerate."~S.stringof~";\n"
-            );
-
+        mixin("import "~packageName!D~";\n");
         mixin("auto builder = new FlatBufferBuilder(512);\n\t");
         mixin(paramsInit!(S)());
         // pragma(msg,"auto builder = new FlatBufferBuilder(512);\n\t");

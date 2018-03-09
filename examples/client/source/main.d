@@ -3,9 +3,7 @@
 
 import kissrpc;
 
-import rpcgenerate.GreeterRequest;
-import rpcgenerate.GreeterResponse;
-import rpcgenerate.GreeterStub;
+import rpcgenerate.greeter;
 
 
 import std.string;

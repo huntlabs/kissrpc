@@ -48,7 +48,6 @@ public:
             }
             RpcThreadManager.instance.addCallBack(stream.getStreamId(), newTask(&tmpCallback));
         }
-        
     }
 
     //处理rpc服务端响应
