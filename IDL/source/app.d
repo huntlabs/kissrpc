@@ -6,6 +6,8 @@ import std.getopt;
 import std.file;
 
 import Parse;
+import CreateFile;
+import Constant;
 
 void main(string[] args)
 {
@@ -21,10 +23,18 @@ void main(string[] args)
 		return;
 	}
 	string generateDir = outPath~"rpcgenerate";
+	if (exists(generateDir))
+		rmdirRecurse(generateDir);
 	mkdirRecurse(generateDir);
 	
 	auto parser = new Parse();
 	if (parser.doParse(idlFile, generateDir) == false) {
 		rmdirRecurse(generateDir);
 	}
+
+	auto creater = new CreateFile(parser.getServices(), parser.getMessages(), parser.getModule(), generateDir);
+	creater.createFlatbufferFile();
+	creater.createClassFile();
+	creater.createClientStub();
+
 }
