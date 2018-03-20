@@ -13,9 +13,9 @@ void main(string[] args)
 {
 	string idlFile = "./test.idl";
 	string outPath = "./";
-	auto oprions = getopt(args,"file|f","idle file fullpath", &idlFile,"path|p","output path", &outPath);
+	auto oprions = getopt(args,"file|f","idle file fullpath", &idlFile,"output|o","output path", &outPath);
 	if (oprions.helpWanted){
-		defaultGetoptPrinter("example : ./kiss-rpc-idl -f ./test.idl -p ./", oprions.options);
+		defaultGetoptPrinter("example : ./kiss-rpc-idl -f ./test.idl -o ./", oprions.options);
 		return ;
 	}
 	if (!exists(idlFile)) {

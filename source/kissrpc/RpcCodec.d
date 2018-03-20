@@ -10,11 +10,14 @@ import std.typecons;
 import flatbuffers;
 import std.stdio;
 
+import std.experimental.logger.core;
 
-class RpcCodec {
+
+class RpcCodec(T) {
 
 public:
-    static ubyte decodeBuffer(T)(ubyte[] data, ubyte protocol, ref T t) {
+    static ubyte decodeBuffer(ubyte[] data, ubyte protocol, ref T t) {
+
         ubyte ret = RpcProcCode.Success;
         if (protocol == RpcProtocol.FlatBuffer) {
             mixin(
@@ -26,7 +29,7 @@ public:
         return ret;
     }
 
-    static ubyte encodeBuffer(T)(T t, ubyte protocol, ref ubyte[] data) {
+    static ubyte encodeBuffer(T t, ubyte protocol, ref ubyte[] data) {
         ubyte ret = RpcProcCode.Success;
         if (protocol == RpcProtocol.FlatBuffer) {
             mixin(
@@ -59,7 +62,7 @@ public:
                         mixin(
                             "des."~memberName~".length = src."~memberName~".length;\n\t"~
                             "foreach(k, v; src."~ memberName ~") { \n\t"~ 
-                            "fbConvertClass!(typeof(des."~memberName~"[k]), typeof(v))(des."~memberName~"[k], v);\n\t"~
+                            "fbConvertStruct!(typeof(des."~memberName~"[k]), typeof(v))(des."~memberName~"[k], v);\n\t"~
                             "}\n\t"
                         );
                     }
@@ -71,8 +74,7 @@ public:
 
 
     static void structConvertFbData(D,S)(S src, ref ubyte[] data) {
-       
-        mixin("import "~packageName!D~";\n");
+        mixin("import "~packageName!T~";\n");
         mixin("auto builder = new FlatBufferBuilder(512);\n\t");
         mixin(paramsInit!(S)());
         // pragma(msg,"auto builder = new FlatBufferBuilder(512);\n\t");
@@ -84,6 +86,8 @@ public:
             alias desType = typeof(__traits(getMember, D, memberName));
 
             static if (is(srcType == struct)) {
+                mixin(memberName~"_value = setFbStruct!("~getRealName(desType.stringof)~","~srcType.stringof~")(src."~ memberName~",builder);\n\t");
+                // pragma(msg, memberName~"_value = setFbStruct!("~getRealName(desType.stringof)~","~srcType.stringof~")(src."~ memberName~",builder);\n\t");
             }
             else static if (isArray!(srcType)) {
                 static if (is(srcType == string)) {
@@ -106,14 +110,8 @@ public:
         foreach(memberName; __traits(allMembers, S)) {
             alias srcType = typeof(__traits(getMember, S, memberName));
             alias desType = typeof(__traits(getMember, D, memberName));
-            static if (is(srcType == struct)) {
-                mixin(D.stringof~".add"~getRealName(memberName)~"(builder,setFbStruct!("~getRealName(desType.stringof)~","~srcType.stringof~")(src."~ memberName~",builder));\n\t");
-                // pragma(msg,D.stringof~".add"~getRealName(memberName)~"(builder,setFbStruct!("~getRealName(desType.stringof)~","~srcType.stringof~")(src."~ memberName~",builder));\n\t");
-            }
-            else {
-                mixin(D.stringof~".add"~getRealName(memberName)~"(builder,"~memberName~"_value);\n\t");
-                // pragma(msg,D.stringof~".add"~getRealName(memberName)~"(builder,"~memberName~"_value);\n\t");
-            }
+            mixin(D.stringof~".add"~getRealName(memberName)~"(builder,"~memberName~"_value);\n\t");
+            // pragma(msg,D.stringof~".add"~getRealName(memberName)~"(builder,"~memberName~"_value);\n\t");      
         }
         mixin("auto mloc ="~D.stringof~".end"~D.stringof~"(builder);\n\t");
         mixin("builder.finish(mloc);\n\t");
@@ -148,11 +146,11 @@ private:
         return str;
     }
 
-    static string makeStructParams(D,T)() {
+    static string makeStructParams(D,S)() {
         string str;	
         str = "ret = "~D.stringof~".create"~D.stringof~"(builder, ";
-        foreach(index, memberName; __traits(allMembers, T)) {
-            alias srcType = typeof(__traits(getMember, T, memberName));
+        foreach(index, memberName; __traits(allMembers, S)) {
+            alias srcType = typeof(__traits(getMember, S, memberName));
             alias desType = typeof(__traits(getMember, D, memberName));
             if (index != 0) {
                 str ~= ", ";
@@ -163,6 +161,9 @@ private:
             else static if(isArray!(srcType)) {
                 static if (is(srcType == string)) {
                     str ~= "setFbString(src."~memberName~", builder)";
+                }
+                else static if (isBuiltinType!srcType) {
+                    str ~= "setFbVector!(\""~D.stringof~"\", "~srcType.stringof~", "~srcType.stringof~", \""~getRealName(memberName)~"\")(src."~memberName~", builder)";
                 }
                 else {
                     str ~= "setFbVector!("~getRealName(desType.stringof)~", "~getRealName(desType.stringof)~", "~getRealName(memberName)~")(src."~memberName~", builder)";
@@ -176,18 +177,21 @@ private:
         return str;
     }
 
-    static uint setFbStruct(D,T)(T src, FlatBufferBuilder builder) {
+    static uint setFbStruct(D,S)(S src, FlatBufferBuilder builder) {
+        mixin("import "~packageName!T~";\n");
         uint ret;
-        mixin(makeStructParams!(D,T)());
+        mixin(makeStructParams!(D,S)());
         return ret;
     }
 
-    static uint setFbVector(string fatherName, D, T, string Name)(T src, FlatBufferBuilder builder) {
+    static uint setFbVector(string fatherName, D, S, string Name)(S src, FlatBufferBuilder builder) {
+        mixin("import "~packageName!T~";\n");
         uint ret;
-        static if (isBasicType!(D)) {
-            T data;
+        static if (isBuiltinType!(D)) {
+            S data;
         }
         else {
+            // mixin("import rpcgenerate.Greeter;\n");
             uint[] data;
         }
         foreach(index ,value; src) {
@@ -197,6 +201,9 @@ private:
             else static if(isArray!(typeof(value))) {
                 static if (is(typeof(value) == string)) {
                     data ~= setFbString(value, builder);
+                }
+                else static if (isBuiltinType!srcType) {
+                    data ~= setFbCommon!(typeof(value))(value);
                 }
                 else {
                     //二位数组不支持
@@ -220,17 +227,26 @@ private:
 
     static string getRealName(string str) {
         if (indexOf(str, "Nullable!(") != -1) {
-            return capitalize(str[indexOf(str, "Nullable!(")+10..$-1]);
+            return upFirstString(str[indexOf(str, "Nullable!(")+10..$-1]);
         }
         if(indexOf(str, "Nullable!") != -1) {
-            return capitalize(str[indexOf(str, "Nullable!")+9..$]);
+            return upFirstString(str[indexOf(str, "Nullable!")+9..$]);
         }
         else if(indexOf(str, "\"") != -1) {
-            return capitalize(str[indexOf(str, "\"")+1..$-4]);
+            return upFirstString(str[indexOf(str, "\"")+1..$-4]);
         }
         else {
-            return capitalize(str);
+            return upFirstString(str);
         }
+    }
+    static string upFirstString(string str) @trusted pure{
+        char[] tmp;
+        tmp ~= capitalize(str)[0];
+        foreach(k,v; str) {
+            if (k != 0)
+                tmp ~= v;
+        }
+        return tmp;
     }
 
     static string getRealType(string str) {

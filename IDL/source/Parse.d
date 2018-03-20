@@ -150,6 +150,27 @@ private:
             }
             doModule(strs[1]);
         }
+        else if (Type == ParamType.ROOTTYPE) {
+            if (strs.length % 3 != 0) {
+                log("error root_type tag count, line = %s, string = %s".format(index, line));
+                return false;
+            }
+            for(int i; i < strs.length/3; i ++) {
+                if (strs[i*3 + 2] != EndTag) {
+                    log("error endTag tag = %s , line = %s, string = %s".format(strs[i*3 + 2],index, line));
+                    return false;
+                }
+                if (strs[i*3] != RootTypeTag) {
+                    log("need root_type tag not %s , line = %s, string = %s".format(strs[i*3],index, line));
+                    return false;
+                }
+                if (strs[i*3+1] == "") {
+                    log("root_type must not be empty, line = %s, string = %s".format(index, line));
+                    return false;
+                }
+                _rootTypes ~= strs[i*3+1];
+            }
+        }
         else {
             if (strs.length < 2) {
                 log("less tag, line = %s, string = %s".format(index, line));
@@ -217,12 +238,24 @@ private:
         if (!initAllMessageType()) {
             return false;
         }
-        foreach(v1; _messages) {
+        foreach(ref v1; _messages) {
             foreach(v2; v1.params) {
                 if (!checkExsit(v2.paramTypeName))
                     return false;
             }
+            foreach(v3; _rootTypes) {
+                if (v1.name == v3)
+                    v1.isRootType = true;
+            }
         }
+        foreach(v1; _rootTypes) {
+            if (!(v1 in _msgTable)) {
+                log("root_type = %s not found!!", v1);
+                return false;
+            }
+        }
+
+
         foreach(v1; _services) {
             foreach(v2; v1.interfaces) {
                 if (!checkExsit(v2.returnMessage, true))
@@ -388,6 +421,7 @@ private:
     MessageData _curMsg;
     ServiceData _curService;
     MessageData[string] _msgTable;
+    string[] _rootTypes;
 }
 
 

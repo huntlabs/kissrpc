@@ -12,6 +12,7 @@ static enum string EndContentTag = "}";
 static enum string BeginMessageTag = "(";
 static enum string EndMessageTag = ")";
 static enum string EqualTag = "=";
+static enum string RootTypeTag = "root_type";
 
 
 enum ParamType {
@@ -31,6 +32,7 @@ enum ParamType {
     MODULE,
     MESSAGE,
     SERVICE,
+    ROOTTYPE
 };
 
 enum ParamType[string] ParamTypeTag = [
@@ -54,6 +56,7 @@ enum ParamType[string] RpcTypeTag = [
     ModuelTag : ParamType.MODULE,
     MessageTag : ParamType.MESSAGE ,
     ServiceTag : ParamType.SERVICE,
+    RootTypeTag : ParamType.ROOTTYPE,
 ];
 
 
@@ -68,6 +71,7 @@ struct ParamData {
 struct MessageData {
     ParamData[] params;
     string name;
+    bool isRootType;
 }
 
 struct InterfaceData {

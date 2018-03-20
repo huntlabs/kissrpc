@@ -1,0 +1,34 @@
+
+
+module Greeter;   
+
+
+
+message Pos {
+    float x;
+    float y;
+    float z;
+}
+
+message Weapon {
+    string name;
+    short[] damage;
+}
+
+message Monster {  
+    ulong id = 1;
+    Pos pos;
+    Weapon[] weapons;
+}   
+
+root_type Monster;
+
+service Greeter {
+    Monster updateAndGetMonster(Monster monster);
+    Monster getFirstMonster();
+    void updateMonster(Monster monster);
+    void removeAllMonster();
+}
+
+
+

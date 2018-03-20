@@ -70,10 +70,10 @@ string createRpcCallFun(T, string moduleName)()
 						}
 						else {
 							str ~= "\n\t\t\t"~getParamsTypes!(ParameterTypes)()~" params;";
-							str ~="\n\t\t\tret = RpcCodec.decodeBuffer!("~getParamsTypes!(ParameterTypes)()~")(paramData,protocol,params);";
+							str ~="\n\t\t\tret = RpcCodec!("~getParamsTypes!(ParameterTypes)()~").decodeBuffer(paramData,protocol,params);";
 							str ~="\n\t\t\tif(ret != RpcProcCode.Success)";
 							str ~="\n\t\t\t\treturn ret;";
-							str ~="\n\t\t\t"~memberName~"("~params~");";
+							str ~="\n\t\t\t"~memberName~"(params);";
 						}
 					}
 					else {
@@ -86,12 +86,12 @@ string createRpcCallFun(T, string moduleName)()
 						}
 						else {
 							str ~= "\n\t\t\t"~getParamsTypes!(ParameterTypes)()~" params;";
-							str ~="\n\t\t\tret = RpcCodec.decodeBuffer!("~getParamsTypes!(ParameterTypes)()~")(paramData,protocol,params);";
+							str ~="\n\t\t\tret = RpcCodec!("~getParamsTypes!(ParameterTypes)()~").decodeBuffer(paramData,protocol,params);";
 							str ~="\n\t\t\tif(ret != RpcProcCode.Success)";
 							str ~="\n\t\t\t\treturn ret;";
 							str ~="\n\t\t\tauto backData = "~memberName~"(params);";
 						}
-						str ~= "\n\t\t\tret = RpcCodec.encodeBuffer!(typeof(backData))(backData, protocol, returnData);";
+						str ~= "\n\t\t\tret = RpcCodec!(typeof(backData)).encodeBuffer(backData, protocol, returnData);";
 						str ~="\n\t\t\tif(ret != RpcProcCode.Success)";
 						str ~="\n\t\t\t\treturn ret;";
 					}

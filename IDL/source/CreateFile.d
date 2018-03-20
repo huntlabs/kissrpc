@@ -20,22 +20,23 @@ public:
         _services = services;
         _messages = messages;
         _moduleName = moduleName;
-        _fullPath = path ~ "/" ~ toLower(_moduleName);
+        _fullPath = path ~ "/" ~ _moduleName;
+        _path = path ~"/../";
     }
     
     bool createFlatbufferFile() {
 	    mkdirRecurse(_fullPath);
 
-        log("_fullPath = ",_fullPath);
-        string fbsFile = _fullPath ~ "/" ~ toLower(_moduleName) ~ ".fbs";
+        string fbsFile = _fullPath ~ "/" ~ _moduleName ~ ".fbs";
         string buffer = "// automatically generated, do not modify\n";
-        buffer ~= "namespace rpcgenerate." ~ toLower(_moduleName) ~ ";\n\n";
+        buffer ~= "namespace rpcgenerate." ~ _moduleName ~ ";\n\n";
 
         foreach(v1; _messages) {
             buffer ~= ("table " ~ v1.name ~ "Fb {\n");
             foreach(v2; v1.params) {
                 string defaultValue = "";
-                string realType = v2.isArray ? "[" ~ v2.paramTypeName ~ "]" : v2.paramTypeName;
+                string paramTypeName = (v2.paramTypeName in ParamTypeTag) ? v2.paramTypeName : v2.paramTypeName~"Fb";
+                string realType = v2.isArray ? "[" ~ paramTypeName ~ "]" : paramTypeName;
                 if (v2.defaultValue != "") {
                     defaultValue = " = " ~ v2.defaultValue;
                 }
@@ -43,8 +44,10 @@ public:
             }
             buffer ~= "}\n\n";
         }
+        log("_messages = ",_messages);
         foreach(v1; _messages) {
-            buffer ~= "root_type " ~ v1.name ~ "Fb;\n";
+            if (v1.isRootType)
+                buffer ~= "root_type " ~ v1.name ~ "Fb;\n";
         }
 
         auto file = File(fbsFile, "w+");
@@ -53,7 +56,7 @@ public:
 
         Pid pid;
         try {
-            pid = spawnProcess(["flatc", "-d", fbsFile]);
+            pid = spawnProcess(["flatc", "-d", "-o", _path,fbsFile]);
         }
         catch(Exception e) {
             log(e);
@@ -62,13 +65,13 @@ public:
         scope(exit) {
             wait(pid);
             string packageBuffer = cast(string)read(_fullPath ~"/package.d");
-            packageBuffer ~= "public import "~ "rpcgenerate."~toLower(_moduleName)~"."~_moduleName~";\n";
-            packageBuffer ~= "public import "~ "rpcgenerate."~toLower(_moduleName)~"."~_moduleName~"Stub;\n";
+            packageBuffer ~= "public import "~ "rpcgenerate."~_moduleName~"."~_moduleName~"Base;\n";
+            packageBuffer ~= "public import "~ "rpcgenerate."~_moduleName~"."~_moduleName~"Stub;\n";
             File f;
             foreach(v1; _messages) {
                 string fileName = _fullPath ~ "/" ~v1.name ~ "Fb.d";
                 string buff = cast(string)read(fileName);
-                string name = "rpcgenerate." ~ toLower(_moduleName) ~"."~v1.name~";\n";
+                string name = "rpcgenerate." ~ _moduleName ~"."~v1.name~"Fb;\n";
                 packageBuffer ~= "public import "~name;
                 buff =  "module "~ name ~ buff;
                 f = File(fileName, "w+");
@@ -83,9 +86,9 @@ public:
     }
 
     bool createClassFile() {
-        string classFile = _fullPath ~ "/" ~ _moduleName ~ ".d";
+        string classFile = _fullPath ~ "/" ~ _moduleName ~ "Base.d";
         string buffer = "// automatically generated, do not modify\n";
-        buffer~="module rpcgenerate." ~ toLower(_moduleName) ~ "." ~_moduleName~";\n\n";
+        buffer~="module rpcgenerate." ~ _moduleName ~ "." ~_moduleName~"Base;\n\n";
 
         foreach(v1; _services) {
             buffer ~= "class " ~ v1.name ~ " {\n";
@@ -128,8 +131,8 @@ public:
         foreach(v1; _services) {
             string file = _fullPath ~ "/" ~ v1.name ~ "Stub.d";
             string buffer = "// automatically generated, do not modify\n";
-            buffer ~= "module rpcgenerate." ~ toLower(_moduleName) ~ "." ~v1.name~"Stub;\n\n";
-            buffer ~= "import rpcgenerate."~toLower(_moduleName)~"."~v1.name~";\n";
+            buffer ~= "module rpcgenerate." ~ _moduleName ~ "." ~v1.name~"Stub;\n\n";
+            buffer ~= "import rpcgenerate."~_moduleName~"."~_moduleName~"Base;\n";
             buffer ~= "import kissrpc.RpcConstant;\nimport kissrpc.RpcClient;\n\n";
 
             buffer ~= "final class "~v1.name~"Stub {\n";
@@ -184,9 +187,11 @@ public:
         string ret;
         if(hasParam)
             ret ~= data.paramMessage~" "~data.paramName~", ";
-        ret ~= "ubyte[] exData, void delegate(RpcResponseBody response, ";
         if (hasReturn)
-            ret ~= data.returnMessage~" ret";
+            ret ~= "ubyte[] exData, void delegate(RpcResponseBody response, " ~data.returnMessage~" ret";
+        else 
+            ret ~= "ubyte[] exData, void delegate(RpcResponseBody response";
+
         ret ~= ") func";
         return ret;
     }
@@ -194,15 +199,13 @@ public:
     string makeSyncCallString(InterfaceData data, bool hasParam, bool hasReturn, string serviceName) {
         string ret;
         string tmp;
-        if (hasReturn && hasParam) {
-            tmp = data.returnMessage ~", "~data.paramMessage;
-        }
-        else {
-            if (hasReturn)
-                tmp = data.returnMessage;
-            if (hasParam)
-                tmp = data.paramMessage;
-        }
+
+        if (hasParam)
+            tmp = hasReturn ? (data.returnMessage ~", "~data.paramMessage) : ("void, "~data.paramMessage);
+        else
+            tmp = hasReturn ? data.returnMessage : "";
+        
+    
         ret ~= "\t\t";
         if (hasReturn)
             ret ~="ret = ";
@@ -232,7 +235,10 @@ public:
             ret ~= "\t\t\tfunc(response, ret);\n";
         else
             ret ~= "\t\t\tfunc(response);\n";
-        ret ~= "\t\t});\n";
+        ret ~= "\t\t}";
+        if (hasParam)
+            ret ~= ", "~data.paramName;
+        ret ~= ");\n";
         return ret;
     }
 
@@ -244,6 +250,7 @@ private:
     MessageData[] _messages;
     string _moduleName;
     string _fullPath;
+    string _path;
 }
 
 

@@ -3,7 +3,7 @@
 
 import kissrpc;
 
-import rpcgenerate.greeter;
+import rpcgenerate.Greeter;
 
 
 import std.string;
@@ -12,52 +12,59 @@ import core.thread;
 
 void doClientTest(RpcClient client) {
     GreeterStub stub = new GreeterStub(client);
-    GreeterResponse ret;
-    GreeterRequest request;
-    request.msg = "hello";
-    ubyte[] exData = [1,2];
+    RpcResponseBody response;
+    Monster monsterResult;
+    ubyte[] exData = cast(ubyte[])("hello kissrpc");
 
-    //sync call
-    RpcResponseBody status = stub.SayHello(request, exData, ret);
-    if (status.code == RpcProcCode.Success) {
-        log("sync call SayHello success :", ret.msg);
-        log("sync call SayHello exData :", status.exData);
-    }
-    else {
-        log("sync call failed : ", status.msg); 
-    }
-
-    status = stub.getSayHello(exData, ret);
-    if (status.code == RpcProcCode.Success) {
-        log("sync call getSayHello success :", ret.msg);
-        log("sync call getSayHello exData :", status.exData);
-    }
-    else {
-        log("sync call getSayHello failed : ", status.msg); 
-    }
+    Monster monster;
+    monster.id = 1;
+    monster.pos.x = 0;
+    monster.pos.y = 0;
+    monster.pos.z = 0;
 
     
+    log("--------------------start sync call--------------------");
+    response = stub.updateAndGetMonster(monster, monsterResult, exData);
+    if (response.code == RpcProcCode.Success) {
+        log("sync monsterResult = ", monsterResult);
+    }
+    
+    response = stub.getFirstMonster(monsterResult, exData);
+    if (response.code == RpcProcCode.Success) {
+        log("sync getFirstMonster = ", monsterResult);
+    }
 
-    //async call
-    stub.SayHello(request, exData, (RpcResponseBody response, GreeterResponse r){
-        if (response.code == RpcProcCode.Success) {
-            log("async call SayHello success :", r.msg);
-            log("async call SayHello exData :", response.exData);
-        }
-        else {
-            log("async call SayHello failed : ", response.msg); 
-        }
-    });
-    stub.getSayHello(exData, (RpcResponseBody response, GreeterResponse r){
-        if (response.code == RpcProcCode.Success) {
-            log("async call getSayHello success :", r.msg);
-            log("async call getSayHello exData :", response.exData);
-        }
-        else {
-            log("async call getSayHello failed : ", response.msg); 
-        }
-    });
+    response = stub.updateMonster(monster, exData);
+    if (response.code == RpcProcCode.Success) {
+        log("sync updateMonster");
+    }
 
+    response = stub.removeAllMonster(exData);
+    if (response.code == RpcProcCode.Success) {
+        log("sync removeAllMonster");
+    }
+
+    log("--------------------start async call--------------------");
+    stub.updateAndGetMonster(monster, exData, (RpcResponseBody res, Monster ret){
+        if (res.code == RpcProcCode.Success) {
+            log("async updateAndGetMonster", ret);
+        }}
+    );
+    stub.getFirstMonster(exData, (RpcResponseBody res, Monster ret){
+        if (res.code == RpcProcCode.Success) {
+            log("async getFirstMonster", ret);
+        }}
+    );
+    stub.updateMonster(monster, exData, (RpcResponseBody res){
+        if (res.code == RpcProcCode.Success) {
+            log("async updateMonster");
+        }}
+    );
+    stub.removeAllMonster(exData, (RpcResponseBody res){
+        if (res.code == RpcProcCode.Success) {
+            log("async removeAllMonster");
+        }}
+    );
 }
 
 

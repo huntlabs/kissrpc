@@ -44,11 +44,9 @@ public:
 
     //isRequest true rpc调用返回数据, false rpc调用请求数据
     void writeRpcData(RpcHeadData head, RpcContentData content) {
-
         ubyte[] data;
         encodeHead(head, data);
         encodeBody(content, data);
-        
         void tmpWrite() {
             write(new WarpStreamBuffer(data.dup,(in ubyte[] wdata, size_t size) @trusted nothrow {
 									catchAndLogException((){
@@ -208,8 +206,10 @@ private:
 
     //拷贝数据到缓存 
     void copyBuffer(in ubyte[] src, ref long srcPos, ubyte[] des, ref long desPos, ref bool srcFinish, ref bool desFinish) {
-        long copyLen = min(src.length - srcPos, des.length - desPos);
-        des[desPos..desPos+copyLen] = src[srcPos..srcPos+copyLen];
+        uint dPos = cast(uint)desPos; 
+        uint sPos = cast(uint)srcPos;
+        ulong copyLen = src.length - sPos > des.length - dPos ? des.length - dPos : src.length - sPos;
+        des[dPos..dPos+copyLen] = src[sPos..sPos+copyLen];
         srcPos += copyLen;
         desPos += copyLen;
         desFinish = des.length == desPos;

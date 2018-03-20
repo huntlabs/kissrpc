@@ -38,75 +38,83 @@ public:
     }
 
     //sync call
-    R call(R = void, T ...)(ref RpcResponseBody ret, string functionName, ubyte[] exData, T param) {
+    R call(R = void, T ...)(string functionName, ref RpcResponseBody ret, ubyte[] exData, T param) {
         RpcHeadData head;
         RpcContentData content;
-        static if (!is (R == void)) {
+        static if (!is(R == void)) {
             R r;
         }
+
         if (!checkConnected(ret)) {
-            static if (!is (R == void))
+            static if (!is(R == void)) {
                 return r;
-            else 
+            }
+            else {
                 return;
+            }
         }
-        if (!chechHeadBodyValid!(T)(functionName,  exData, head, content, ret, param)) {
-            static if (!is (R == void))
+        if (!checkHeadBodyValid!(T)(functionName,  exData, head, content, ret, param)) {
+            static if (!is(R == void)) {
                 return r;
-            else 
+            }
+            else {
                 return;
+            }
         }
         doSyncRequest(ret, head, content, (ubyte[] data, ubyte protocol){
-                static if (!is (R == void)) {
-                    ret.code = RpcCodec.decodeBuffer!(R)(data, protocol, r);
+                static if (!is(R == void)) {
+                    ret.code = RpcCodec!(R).decodeBuffer(data, protocol, r);
                 }
             });
-        static if (!is (R == void))
+        static if (!is(R == void)) {
             return r;
-        else 
+        }
+        else {
             return;
+        }
     }
 
     //async call
-    void call(R = void, T ...)(string functionName, ubyte[] exData, void delegate(RpcResponseBody response, R r) func, T param) {
+    void call(R, T ...)(string functionName, ubyte[] exData, void delegate(RpcResponseBody response, R r) func, T param) {
         RpcHeadData head;
         RpcResponseBody ret;
         RpcContentData content;
-        static if (!is (R == void)) {
-            R r;
-        }
+        R r;
         if (!checkConnected(ret)) {
-            static if (!is (R == void)) {
-                func(ret, r);
-                return;
-            }
-            else {
-                func(ret);
-                return;
-            }
+            func(ret, r);
+            return;
         }
-        if (!chechHeadBodyValid!(T)(functionName, exData, head, content, ret, param)) {
-            static if (!is (R == void)) {
-                func(ret, r);
-                return;
-            }
-            else {
-                func(ret);
-                return;
-            }
+        if (!checkHeadBodyValid!(T)(functionName, exData, head, content, ret, param)) {
+            func(ret, r);
+            return;
         }
         doAsyncRequest(head, content,(ubyte[] data, ubyte protocol, RpcResponseBody response) {
-                static if (!is (R == void)) {
-                    if (response.code == RpcProcCode.Success) {
-                        response.code = RpcCodec.decodeBuffer!(R)(data, protocol, r);
-                    }
-                    func(response, r);
+                if (response.code == RpcProcCode.Success) {
+                    response.code = RpcCodec!(R).decodeBuffer(data, protocol, r);
                 }
-                else {
-                    func(response);
-                }
+                func(response, r);
             });  
     }
+    //async call
+    void call(T ...)(string functionName, ubyte[] exData, void delegate(RpcResponseBody response) func, T param) {
+        RpcHeadData head;
+        RpcResponseBody ret;
+        RpcContentData content;
+        if (!checkConnected(ret)) {
+            func(ret);
+            return;
+        }
+        if (!checkHeadBodyValid!(T)(functionName, exData, head, content, ret, param)) {
+            func(ret);
+            return;
+        }
+        doAsyncRequest(head, content,(ubyte[] data, ubyte protocol, RpcResponseBody response) {
+                func(response);
+            });  
+        return;
+    }
+
+
 
     RpcHeadData getDefaultHead() {
         RpcHeadData head;
@@ -126,11 +134,11 @@ public:
 private:
     ubyte initHeadBody(T ...)(string functionName,  ubyte[] exData, ref RpcHeadData head, ref RpcContentData content, T param) {
         static if (param.length == 1) {
-            ubyte code = RpcCodec.encodeBuffer!(T)(param, _protocol, content.data);
+            ubyte code = RpcCodec!(T).encodeBuffer(param, _protocol, content.data);
             if (code != RpcProcCode.Success)
                 return code;
         }
-        else if (param.length != 0){
+        else static if (param.length != 0){
             error("rpc params length can only less than one");
         }
  
@@ -143,7 +151,6 @@ private:
         }
         content.msg = functionName;
         head.dataLen = cast(ushort)content.data.length;
-
         return RpcProcCode.Success;
     }
     bool checkConnected(ref RpcResponseBody response) {
@@ -155,7 +162,7 @@ private:
         return true;
     }
 
-    bool chechHeadBodyValid(T ...)(string functionName, ubyte[] exData, ref RpcHeadData head, ref RpcContentData content, ref RpcResponseBody response, T param) {
+    bool checkHeadBodyValid(T ...)(string functionName, ubyte[] exData, ref RpcHeadData head, ref RpcContentData content, ref RpcResponseBody response, T param) {
         ubyte code = initHeadBody!(T)(functionName, exData, head, content, param);
         response.code = code;
         if (code != RpcProcCode.Success) {
