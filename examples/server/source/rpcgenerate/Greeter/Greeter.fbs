@@ -1,0 +1,21 @@
+// automatically generated, do not modify
+namespace rpcgenerate.Greeter;
+
+table PosFb {
+	x:float;
+	y:float;
+	z:float;
+}
+
+table WeaponFb {
+	name:string;
+	damage:[short];
+}
+
+table MonsterFb {
+	id:ulong = 1;
+	pos:PosFb;
+	weapons:[WeaponFb];
+}
+
+root_type MonsterFb;
