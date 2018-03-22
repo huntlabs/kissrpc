@@ -21,8 +21,6 @@ message Monster {
     Weapon[] weapons;
 }   
 
-root_type Monster;
-
 service Greeter {
     Monster updateAndGetMonster(Monster monster);
     Monster getFirstMonster();

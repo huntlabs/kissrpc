@@ -12,6 +12,8 @@ import std.typecons : tuple;
 import std.process;
 import std.experimental.logger;
 import std.uni;
+import std.string;
+import std.regex;
 
 
 class CreateFile {
@@ -19,17 +21,25 @@ public:
     this(ServiceData[] services, MessageData[] messages, string moduleName, string path) {
         _services = services;
         _messages = messages;
-        _moduleName = moduleName;
-        _fullPath = path ~ "/" ~ _moduleName;
+        _moduleName = "rpcgenerate."~moduleName;
+        _fullPath = path;
         _path = path ~"/../";
+        auto strs = split(moduleName,".");
+        _moduleLast = strs[$-1];
+        foreach(k,v; strs) {
+            _fullPath ~= "/" ~ v;
+        }
     }
     
     bool createFlatbufferFile() {
+
+        log(_fullPath);
+        log(_moduleLast);
 	    mkdirRecurse(_fullPath);
 
-        string fbsFile = _fullPath ~ "/" ~ _moduleName ~ ".fbs";
+        string fbsFile = _fullPath ~"/"~ _moduleLast ~ ".fbs";
         string buffer = "// automatically generated, do not modify\n";
-        buffer ~= "namespace rpcgenerate." ~ _moduleName ~ ";\n\n";
+        buffer ~= "namespace "~ _moduleName ~ ";\n\n";
 
         foreach(v1; _messages) {
             buffer ~= ("table " ~ v1.name ~ "Fb {\n");
@@ -65,13 +75,13 @@ public:
         scope(exit) {
             wait(pid);
             string packageBuffer = cast(string)read(_fullPath ~"/package.d");
-            packageBuffer ~= "public import "~ "rpcgenerate."~_moduleName~"."~_moduleName~"Base;\n";
-            packageBuffer ~= "public import "~ "rpcgenerate."~_moduleName~"."~_moduleName~"Stub;\n";
+            packageBuffer ~= "public import "~_moduleName~"."~_moduleLast~"Base;\n";
+            packageBuffer ~= "public import "~_moduleName~"."~_moduleLast~"Stub;\n";
             File f;
             foreach(v1; _messages) {
                 string fileName = _fullPath ~ "/" ~v1.name ~ "Fb.d";
                 string buff = cast(string)read(fileName);
-                string name = "rpcgenerate." ~ _moduleName ~"."~v1.name~"Fb;\n";
+                string name = ""~ _moduleName ~"."~v1.name~"Fb;\n";
                 packageBuffer ~= "public import "~name;
                 buff =  "module "~ name ~ buff;
                 f = File(fileName, "w+");
@@ -86,9 +96,9 @@ public:
     }
 
     bool createClassFile() {
-        string classFile = _fullPath ~ "/" ~ _moduleName ~ "Base.d";
+        string classFile = _fullPath ~ "/" ~ _moduleLast ~ "Base.d";
         string buffer = "// automatically generated, do not modify\n";
-        buffer~="module rpcgenerate." ~ _moduleName ~ "." ~_moduleName~"Base;\n\n";
+        buffer~="module "~ _moduleName ~ "." ~_moduleLast~"Base;\n\n";
 
         foreach(v1; _services) {
             buffer ~= "class " ~ v1.name ~ " {\n";
@@ -131,8 +141,8 @@ public:
         foreach(v1; _services) {
             string file = _fullPath ~ "/" ~ v1.name ~ "Stub.d";
             string buffer = "// automatically generated, do not modify\n";
-            buffer ~= "module rpcgenerate." ~ _moduleName ~ "." ~v1.name~"Stub;\n\n";
-            buffer ~= "import rpcgenerate."~_moduleName~"."~_moduleName~"Base;\n";
+            buffer ~= "module "~ _moduleName ~ "." ~v1.name~"Stub;\n\n";
+            buffer ~= "import "~_moduleName~"."~_moduleLast~"Base;\n";
             buffer ~= "import kissrpc.RpcConstant;\nimport kissrpc.RpcClient;\n\n";
 
             buffer ~= "final class "~v1.name~"Stub {\n";
@@ -251,6 +261,7 @@ private:
     string _moduleName;
     string _fullPath;
     string _path;
+    string _moduleLast;
 }
 
 
